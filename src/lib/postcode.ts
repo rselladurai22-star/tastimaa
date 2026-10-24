@@ -133,3 +133,19 @@ export async function bulkLookup(postcodes: string[]): Promise<Map<string, Postc
   }
   return out;
 }
+
+/** Centroid of an outward code (e.g. "ME15") — an area, never an address. */
+export async function lookupOutcode(input: string): Promise<{ ok: true; outcode: string; latitude: number; longitude: number } | { ok: false; message: string }> {
+  const outcode = input.toUpperCase().replace(/\s+/g, "");
+  if (!/^[A-Z]{1,2}\d[A-Z\d]?$/.test(outcode)) return { ok: false, message: "Not a valid postcode district." };
+  if (/^BT/.test(outcode) && !env().NI_POSTCODES_ENABLED) return { ok: false, message: "Northern Ireland postcode lookup is not enabled on this site." };
+  try {
+    const res = await fetch(`${env().POSTCODES_IO_BASE_URL}/outcodes/${outcode}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return { ok: false, message: `We couldn't find the postcode district ${outcode}.` };
+    const json = (await res.json()) as { result: { outcode: string; latitude: number | null; longitude: number | null } | null };
+    if (!json.result || json.result.latitude == null || json.result.longitude == null) return { ok: false, message: `No location is published for ${outcode}.` };
+    return { ok: true, outcode: json.result.outcode, latitude: json.result.latitude, longitude: json.result.longitude };
+  } catch {
+    return { ok: false, message: "The postcode service is temporarily unavailable." };
+  }
+}

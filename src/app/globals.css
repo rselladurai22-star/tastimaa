@@ -1,0 +1,260 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/source-serif-4";
+
+/*
+ * Design tokens. Warm neutral paper, ink-dark text, a single restrained
+ * accent (deep evergreen). Status colours are reserved for data-quality
+ * states and always ship with an icon and a label.
+ */
+:root {
+  color-scheme: light;
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f4f2ec;
+  --surface-3: #ebe8df;
+  --ink: #15171a;
+  --ink-2: #43474d;
+  --ink-3: #62666d;
+  --line: #e4e1d8;
+  --line-strong: #cbc6b8;
+  --accent: #0b5d4b;
+  --accent-hover: #084a3c;
+  --accent-soft: #e5efeb;
+  --accent-ink: #0a5444;
+  --focus: #1f6feb;
+
+  --ok: #11703b;
+  --ok-soft: #e4f2ea;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d9;
+  --bad: #b42318;
+  --bad-soft: #fbe7e5;
+  --info: #2d4f8a;
+  --info-soft: #e7edf7;
+  --neutral-soft: #efede7;
+
+  /* Charts (validated with the dataviz palette validator, all pairs, light surface #ffffff). */
+  --chart-surface: #ffffff;
+  --series-1: #1d6b9e;
+  --series-2: #c4562a;
+  --series-3: #2f8f6a;
+  --grid: #ebe8df;
+  --axis: #cbc6b8;
+
+  --shadow-sm: 0 1px 2px rgb(21 23 26 / 0.05);
+  --shadow-md: 0 1px 2px rgb(21 23 26 / 0.04), 0 4px 16px rgb(21 23 26 / 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1112;
+    --surface: #16191b;
+    --surface-2: #1d2124;
+    --surface-3: #262b2f;
+    --ink: #eceae4;
+    --ink-2: #c4c2bb;
+    --ink-3: #9d9b95;
+    --line: #2a2f33;
+    --line-strong: #3a4045;
+    --accent: #5cc3a4;
+    --accent-hover: #7dd3b9;
+    --accent-soft: #15302a;
+    --accent-ink: #7dd3b9;
+    --focus: #6ea8ff;
+    --ok: #4cc583;
+    --ok-soft: #12291d;
+    --warn: #f0b84a;
+    --warn-soft: #2e2410;
+    --bad: #f07b70;
+    --bad-soft: #321614;
+    --info: #8fb0ec;
+    --info-soft: #18223a;
+    --neutral-soft: #22262a;
+    --chart-surface: #16191b;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --grid: #262b2f;
+    --axis: #3a4045;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.35);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1112;
+  --surface: #16191b;
+  --surface-2: #1d2124;
+  --surface-3: #262b2f;
+  --ink: #eceae4;
+  --ink-2: #c4c2bb;
+  --ink-3: #9d9b95;
+  --line: #2a2f33;
+  --line-strong: #3a4045;
+  --accent: #5cc3a4;
+  --accent-hover: #7dd3b9;
+  --accent-soft: #15302a;
+  --accent-ink: #7dd3b9;
+  --focus: #6ea8ff;
+  --ok: #4cc583;
+  --ok-soft: #12291d;
+  --warn: #f0b84a;
+  --warn-soft: #2e2410;
+  --bad: #f07b70;
+  --bad-soft: #321614;
+  --info: #8fb0ec;
+  --info-soft: #18223a;
+  --neutral-soft: #22262a;
+  --chart-surface: #16191b;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --grid: #262b2f;
+  --axis: #3a4045;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-neutral-soft: var(--neutral-soft);
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+  --shadow-card: var(--shadow-md);
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  font-feature-settings: "cv11", "ss01";
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Long-form editorial text. */
+.prose-gsi {
+  max-width: 70ch;
+  color: var(--ink-2);
+}
+.prose-gsi h2 {
+  font-size: 1.5rem;
+  margin: 2.25rem 0 0.75rem;
+  color: var(--ink);
+}
+.prose-gsi h3 {
+  font-size: 1.15rem;
+  margin: 1.75rem 0 0.5rem;
+  color: var(--ink);
+}
+.prose-gsi p,
+.prose-gsi ul,
+.prose-gsi ol {
+  margin: 0 0 1rem;
+}
+.prose-gsi ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.prose-gsi ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.prose-gsi li {
+  margin: 0.25rem 0;
+}
+.prose-gsi a {
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-gsi strong {
+  color: var(--ink);
+}
+
+.link {
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  header[data-site-header],
+  footer[data-site-footer],
+  [data-no-print] {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
