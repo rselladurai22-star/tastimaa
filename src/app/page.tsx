@@ -1,384 +1,469 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpenCheck, CalendarDays, GitCompareArrows, ListChecks, MapPinned, MessagesSquare, Route, ScrollText, ShieldCheck } from "lucide-react";
-import { EVENT_TYPE_LABEL, GENDER_LABEL } from "@/domain/labels";
-import { formatDate, formatNumber, relativeAge } from "@/lib/format";
+import { ADMISSIONS_GUIDES, READING_PATHS } from "@/content/guides";
+import { KNOWLEDGE_EDGES, KNOWLEDGE_NODES } from "@/content/knowledge";
+import { CATCHMENT_LABEL, GENDER_LABEL, SELECTIVITY_SHORT } from "@/domain/labels";
+import { formatMeasure, MEASURES } from "@/domain/measures";
+import { defaultEntryYear } from "@/lib/academic-year";
+import { formatDate, formatNumber, formatWeekdayDate, relativeAge } from "@/lib/format";
 import { SITE } from "@/lib/site";
-import { dataFreshness, featuredSchools, nationalDemandTrend, regionsWithCounts, upcomingEvents } from "@/server/insights";
+import { cycleEvents, dataFreshness, featuredSchools, nationalDemandTrend, regionProfiles, schoolPoints, upcomingEvents } from "@/server/insights";
+import { getAllocations, getComparators, getEntranceTests, getPolicies, getResults, getSchoolCore, loadSources, policyForYear } from "@/server/profile";
+import { measureRows } from "@/server/profile-view";
 import { siteStats } from "@/server/schools";
-import { TrendChart } from "@/components/charts/trend-chart";
-import { ThreeSteps } from "@/components/school/admissions";
-import { SearchBox } from "@/components/search/search-box";
-import { ButtonLink, Card, Container, Eyebrow, SectionHeading } from "@/components/ui/primitives";
-import { VerificationBadge } from "@/components/ui/verification";
+import { IconArrow, IconPin } from "@/ui/icons";
+import { ArrowLink, ButtonLink, Kicker, Page, SectionHead, Source, Tag } from "@/ui/kit";
+import { SearchField } from "@/ui/search";
+import { Status } from "@/ui/status";
+import { AdmissionJourney } from "@/ui/viz/admission-journey";
+import { DateLine } from "@/ui/viz/admissions-viz";
+import { AtlasMap } from "@/ui/viz/atlas-map";
+import { GroupedBars, Sparkline } from "@/ui/viz/charts";
+import { GlyphAfterPassing, GlyphCatchment, GlyphCriteria, GlyphExam, GlyphNearMe, GlyphWhen } from "@/ui/viz/glyphs";
+import { KnowledgeMap } from "@/ui/viz/knowledge-map";
+import { RegionExplorer } from "@/ui/viz/region-explorer";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { absolute: `${SITE.name} — find the right grammar school and understand every admission rule` },
-  description: "Verified information on every UK grammar school: entrance tests, catchment rules, admissions criteria, official results and Ofsted inspections — with a source for every fact.",
+  title: { absolute: `${SITE.name} — find a grammar school and understand how it admits` },
+  description: "Official information on every grammar school in England and Northern Ireland: entrance tests, admission rules, catchment, results, inspections and past demand — each rule explained, each fact sourced.",
   alternates: { canonical: "/" },
 };
 
-const TOOLS = [
-  { href: "/grammar-schools?view=map", title: "Schools near you", text: "Search by postcode and see every selective school on a map, with straight-line distances clearly labelled.", Icon: MapPinned },
-  { href: "/tools/eligibility-checker", title: "Eligibility checker", text: "Answer only the questions that matter and see which admission criteria your child could meet.", Icon: ListChecks },
-  { href: "/compare", title: "Compare schools", text: "Put up to five schools side by side: tests, rules, results, inspections and demand.", Icon: GitCompareArrows },
-  { href: "/tools/catchment-checker", title: "Catchment checker", text: "Check a postcode against verified catchment boundaries, and learn when distance applies instead.", Icon: Route },
-  { href: "/tools/planner", title: "Admissions planner", text: "A personal timeline of registration, test, application and offer dates for your shortlist.", Icon: CalendarDays },
-  { href: "/assistant", title: "Research assistant", text: "Ask questions in plain English. Answers cite the official sources they come from.", Icon: MessagesSquare },
-];
+async function specimen() {
+  const [f] = await featuredSchools(1);
+  if (!f) return null;
+  const core = await getSchoolCore(f.slug);
+  if (!core) return null;
+  const entryYear = defaultEntryYear();
+  const [policies, tests, results, comparators, allocations] = await Promise.all([getPolicies(core.school.id), getEntranceTests(core.school.id, entryYear), getResults(core.school.id), getComparators(core.la?.code), getAllocations(core.school.id)]);
+  const policy = policyForYear(policies, entryYear);
+  const sources = await loadSources([policy?.sourceDocumentId]);
+  const a8 = measureRows(results, comparators, "ks4_attainment8", core.la?.code);
+  const lastA8 = [...a8].reverse().find((r) => r.value !== null) ?? null;
+  const years = [...new Set(allocations.map((a) => a.entryYear))].sort();
+  const get = (y: number, m: string) => allocations.find((a) => a.entryYear === y && a.metric === m)?.value ?? null;
+  const latest = years.at(-1);
+  return { core, policy, test: tests[0] ?? null, entryYear, sources, a8, lastA8, years, get, latest };
+}
 
-const FAQS: [string, string, string][] = [
-  ["Does passing the 11+ guarantee a grammar school place?", "No. Passing (meeting the qualifying standard) makes a child eligible to be considered. If more qualified children apply than there are places, each school's oversubscription criteria decide who is offered a place.", "/admissions/qualifying-is-not-an-offer"],
-  ["Can we apply to a grammar school outside our county?", "Usually yes — you apply through your home council, listing schools in any area. Whether a place is likely depends on that school's criteria, which may prioritise local children.", "/admissions/out-of-catchment"],
-  ["Is a qualifying score from one test valid for another school?", "No. Tests differ in content and scoring, so a score from one area's test cannot be used for a school that uses a different test.", "/11-plus"],
-  ["When do I apply for a September 2027 place in England?", "Applications to your home council close on 31 October 2026, and offers are sent on 1 March 2027. Test registration deadlines are usually earlier — check each test.", "/calendar"],
-  ["How is Northern Ireland different?", "Children transfer to Year 8 after the SEAG Entrance Assessment in P7, and each school applies its own published criteria. The English Year 7 process does not apply.", "/admissions/northern-ireland"],
-  ["What can I do if we don't get a place?", "You can join waiting lists and you have a right to appeal each refusal to an independent panel. You must be given at least 20 school days to lodge an appeal.", "/admissions/appeals"],
-];
+const QUESTIONS = [
+  { n: "01", q: "Which grammar schools are near me?", Glyph: GlyphNearMe },
+  { n: "02", q: "Does my child meet the admission criteria?", Glyph: GlyphCriteria },
+  { n: "03", q: "Can we apply outside our catchment?", Glyph: GlyphCatchment },
+  { n: "04", q: "How does the 11+ examination work?", Glyph: GlyphExam },
+  { n: "05", q: "What happens after passing the test?", Glyph: GlyphAfterPassing },
+  { n: "06", q: "When must we apply?", Glyph: GlyphWhen },
+] as const;
 
 export default async function HomePage() {
-  const [stats, regions, featured, demand, events, freshness] = await Promise.all([siteStats(), regionsWithCounts(), featuredSchools(3), nationalDemandTrend(), upcomingEvents(5), dataFreshness()]);
-  const latestDemand = demand.at(-1);
+  const entryYear = defaultEntryYear();
+  const [stats, points, regions, events, demand, freshness, england, spec] = await Promise.all([
+    siteStats(),
+    schoolPoints(),
+    regionProfiles(),
+    upcomingEvents(5),
+    nationalDemandTrend(),
+    dataFreshness(),
+    cycleEvents("england", entryYear),
+    specimen(),
+  ]);
+  const closing = england.find((e) => e.event_type === "application_deadline" && e.scope === "nation");
+  const offerDay = england.find((e) => e.event_type === "national_offer_day" && e.scope === "nation");
+  const groups = regions.map((r) => ({ slug: r.slug, name: r.name, n: r.n }));
+  const today = new Date().toISOString().slice(0, 10);
+  const lastDemand = demand.at(-1);
+
+  const answers: React.ReactNode[] = [
+    <>
+      Search by postcode to see every school by straight-line distance — labelled as an approximation, because schools measure from your exact address using their own method.
+      <form action="/grammar-schools" method="get" className="mt-4 flex max-w-sm gap-2">
+        <input type="hidden" name="sort" value="distance" />
+        <label htmlFor="q1-pc" className="sr-only">
+          Postcode
+        </label>
+        <input id="q1-pc" name="postcode" required placeholder="e.g. HP21 7RP" autoComplete="postal-code" className="min-h-11 w-full min-w-0 rounded-[5px] border border-control bg-card px-3 uppercase placeholder:normal-case focus:border-green focus:outline-none" />
+        <button type="submit" className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-[5px] bg-green px-3.5 font-semibold text-paper hover:bg-green-deep">
+          <IconPin size={16} /> Find
+        </button>
+      </form>
+    </>,
+    <>
+      The <Link href="/tools/eligibility-checker">eligibility checker</Link> asks only the questions each school&apos;s rules depend on, then shows which criteria could apply — and what is still unknown. It never gives a probability.
+    </>,
+    <>
+      Usually yes. In England you apply through your home council and can name schools anywhere. Whether a place is realistic depends on the school&apos;s criteria — <Link href="/admissions/out-of-catchment">how catchment and distance work</Link>.
+    </>,
+    <>
+      There is no single 11+. Each area sets its own test, timetable and scoring, and a score only counts for its own test. <Link href="/11-plus">The 11+ explained</Link>.
+    </>,
+    <>
+      Passing makes your child eligible to be <em>considered</em>. If more qualified children apply than there are places, the school&apos;s published criteria decide the order. <Link href="#how-admission-works">See it step by step</Link>.
+    </>,
+    closing && offerDay ? (
+      <>
+        For September {entryYear} entry in England, applications to your home council close on <strong className="text-ink">{formatWeekdayDate(closing.starts_on)}</strong> and offers are sent on{" "}
+        <strong className="text-ink">{formatWeekdayDate(offerDay.starts_on)}</strong>. Test registration closes earlier. <Link href="/calendar">All verified dates</Link>.
+        <span className="mt-2 block">
+          <Status status={closing.verification_status} />
+        </span>
+      </>
+    ) : (
+      <>
+        Each test and council publishes its own dates. <Link href="/calendar">See the verified dates we hold</Link>.
+      </>
+    ),
+  ];
 
   return (
     <>
-      {/* 1. Primary search */}
-      <section className="border-b border-line bg-surface">
-        <Container className="grid gap-10 py-14 lg:grid-cols-[minmax(0,1fr)_24rem] lg:py-20">
-          <div className="max-w-3xl">
-            <Eyebrow>UK grammar schools · {stats.england + stats.ni} schools · every fact sourced</Eyebrow>
-            <h1 className="mt-4 text-4xl leading-[1.08] font-semibold tracking-tight sm:text-5xl lg:text-[3.4rem]">Find the right grammar school. Understand every admission rule.</h1>
-            <p className="mt-5 max-w-2xl text-lg text-ink-2">
-              Explore verified school information, entrance tests, catchment rules, academic performance and admissions guidance — all in one place.
+      {/* A — Editorial introduction */}
+      <section aria-labelledby="hero-title" className="border-b border-rule">
+        <Page className="grid gap-x-14 gap-y-10 pt-10 pb-14 sm:pt-16 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:pb-20">
+          <div className="anim-rise">
+            <Kicker>An atlas of UK grammar schools</Kicker>
+            <h1 id="hero-title" className="mt-5 text-display leading-[1.02] [font-variation-settings:'opsz'_72]">
+              Find a grammar school, and understand <em className="text-green italic">exactly</em> how it chooses.
+            </h1>
+            <p className="mt-6 max-w-[38rem] text-lede leading-[1.5] text-ink-2">
+              Official records for every grammar school in England and Northern Ireland — entrance tests, admission rules, results, inspections and past demand — with each rule explained in plain English and every fact tied to its source.
             </p>
-            <div className="mt-8 max-w-2xl">
-              <SearchBox size="lg" />
+            <div className="mt-8 max-w-[40rem]">
+              <SearchField size="lg" placeholder="School, town or postcode" />
             </div>
-            <ul className="mt-5 flex flex-wrap gap-2 text-sm">
+            <p className="mt-5">
+              <ArrowLink href="#how-admission-works">New to this? See how admission works in three steps</ArrowLink>
+            </p>
+            <dl className="mt-10 grid max-w-[40rem] grid-cols-2 gap-x-6 gap-y-4 border-t border-rule pt-5 sm:grid-cols-4">
               {[
-                ["/grammar-schools?view=map", "Find grammar schools near me"],
-                ["/tools/eligibility-checker", "Check admissions eligibility"],
-                ["/compare", "Compare schools"],
-                ["/11-plus", "Explore 11+ exams"],
-              ].map(([href, label]) => (
-                <li key={href}>
-                  <Link href={href!} className="inline-flex items-center gap-1 rounded-full border border-line-strong bg-surface px-3.5 py-1.5 font-medium text-ink-2 hover:border-accent hover:text-ink">
-                    {label} <ArrowRight aria-hidden className="size-3.5" />
-                  </Link>
-                </li>
+                [stats.listed, "schools listed"],
+                [stats.england, "grammar schools, England"],
+                [stats.partial, "partially selective"],
+                [stats.ni, "Northern Ireland"],
+              ].map(([v, l]) => (
+                <div key={l as string}>
+                  <dt className="sr-only">{l}</dt>
+                  <dd>
+                    <span className="block font-display text-[2rem] leading-none text-ink num [font-variation-settings:'opsz'_48]">{v}</span>
+                    <span className="mt-1.5 block text-small text-ink-2">{l}</span>
+                  </dd>
+                </div>
               ))}
-            </ul>
-          </div>
-          <Card className="self-end p-6">
-            <p className="text-sm font-semibold text-ink">What we cover</p>
-            <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-5">
-              <div>
-                <dt className="text-xs text-ink-3">Grammar schools, England</dt>
-                <dd className="text-2xl font-semibold">{stats.england}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-ink-3">Grammar schools, NI</dt>
-                <dd className="text-2xl font-semibold">{stats.ni}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-ink-3">Official results figures</dt>
-                <dd className="text-2xl font-semibold">{formatNumber(stats.results)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-ink-3">Inspection records</dt>
-                <dd className="text-2xl font-semibold">{formatNumber(stats.inspections)}</dd>
-              </div>
-              <div className="col-span-2">
-                <dt className="text-xs text-ink-3">Applications &amp; offers data points (2014–{latestDemand?.entry_year ?? "—"})</dt>
-                <dd className="text-2xl font-semibold">{formatNumber(stats.allocations)}</dd>
-              </div>
             </dl>
-            <p className="mt-4 text-xs text-ink-3">
-              From DfE, Ofsted and DE NI. Detailed admissions rules are held for {stats.policies} {stats.policies === 1 ? "school" : "schools"} so far and are added as each is checked.{" "}
-              <Link href="/methodology#coverage" className="link">
-                Coverage
-              </Link>
-            </p>
-          </Card>
-        </Container>
+          </div>
+          <figure className="min-w-0">
+            <AtlasMap points={points} groups={groups} legend={false} />
+            <figcaption className="mt-3 text-small leading-relaxed text-ink-2">
+              <span className="label mr-2 text-copper-ink">Fig. 1</span>
+              Each dot is a school, placed by its official coordinates. No coastline is drawn — the shape is the schools themselves.
+            </figcaption>
+          </figure>
+        </Page>
       </section>
 
-      {/* 2. Research tools */}
-      <Container className="py-16">
-        <SectionHeading title="Research tools" description="Built for the questions parents actually ask, using official data." />
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {TOOLS.map(({ href, title, text, Icon }) => (
-            <li key={href}>
-              <Link href={href} className="group flex h-full flex-col rounded-xl border border-line bg-surface p-5 transition-colors hover:border-accent/50">
-                <Icon aria-hidden className="size-5 text-accent-ink" />
-                <span className="mt-3 font-semibold text-ink group-hover:underline">{title}</span>
-                <span className="mt-1 text-sm text-ink-2">{text}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Container>
-
-      {/* 3. Explore by region */}
-      <section className="border-y border-line bg-surface-2/50">
-        <Container className="py-16">
-          <SectionHeading
-            title="Explore by region"
-            description="Grammar schools are concentrated in a few areas. Each area runs its own test and timetable."
-            action={<ButtonLink href="/grammar-schools" variant="secondary">All schools</ButtonLink>}
-          />
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {regions.map((r) => (
-              <li key={r.slug}>
-                <Link href={`/grammar-schools/${r.slug}`} className="flex h-full flex-col rounded-xl border border-line bg-surface p-4 hover:border-line-strong">
-                  <span className="font-semibold text-ink">{r.name}</span>
-                  <span className="mt-1 text-sm text-ink-3">
-                    {r.n} schools · {r.boys} boys, {r.girls} girls, {r.mixed} co-ed
-                  </span>
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link href="/grammar-schools/northern-ireland" className="flex h-full flex-col rounded-xl border border-accent/30 bg-accent-soft p-4 hover:border-accent">
-                <span className="font-semibold text-ink">Northern Ireland</span>
-                <span className="mt-1 text-sm text-ink-2">{stats.ni} grammar schools · Year 8 transfer · SEAG</span>
-              </Link>
-            </li>
-          </ul>
-          <p className="mt-4 text-sm text-ink-3">
-            Wales and Scotland have no state grammar schools. <Link href="/admissions/wales-and-scotland" className="link">How school choice works there</Link>.
-          </p>
-        </Container>
-      </section>
-
-      {/* 4. Featured school intelligence + 6. comparison demo */}
-      <Container className="py-16">
-        <SectionHeading
-          title="What a school profile tells you"
-          description="Three real profiles, side by side. Every figure links to its official source on the profile."
-          action={featured.length >= 2 ? <ButtonLink href={`/compare?schools=${featured.map((f) => f.slug).join(",")}`}>Compare these schools</ButtonLink> : null}
-        />
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-          <table className="w-full min-w-[640px] text-sm">
-            <caption className="sr-only">Comparison of three school profiles</caption>
-            <thead>
-              <tr className="border-b border-line">
-                <th scope="col" className="w-48 px-5 py-4 text-left text-xs font-medium text-ink-3">
-                  Profile
-                </th>
-                {featured.map((f) => (
-                  <th key={f.slug} scope="col" className="px-5 py-4 text-left align-top">
-                    <Link href={`/schools/${f.slug}`} className="font-serif text-base font-semibold text-ink hover:underline">
-                      {f.name}
-                    </Link>
-                    <span className="block text-xs font-normal text-ink-3">
-                      {[f.town, f.la].filter(Boolean).join(", ")} · {GENDER_LABEL[f.gender]}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {[
-                ["Entrance test", (f: (typeof featured)[number]) => f.test ?? "Not yet recorded"],
-                ["Admissions rules held", (f: (typeof featured)[number]) => (f.has_policy ? "Yes, structured and cited" : "Not yet")],
-                ["Attainment 8", (f: (typeof featured)[number]) => (f.a8 !== null ? `${Number(f.a8).toFixed(1)} (${f.a8_year})` : "Not published")],
-                ["A level average grade", (f: (typeof featured)[number]) => f.aps_grade ?? "Not published"],
-                ["First preferences / offers", (f: (typeof featured)[number]) => (f.first_prefs !== null ? `${formatNumber(f.first_prefs)} / ${formatNumber(f.offers)} (${f.entry_year})` : "—")],
-              ].map(([label, fn]) => (
-                <tr key={label as string}>
-                  <th scope="row" className="px-5 py-3 text-left text-xs font-medium text-ink-3">
-                    {label as string}
-                  </th>
-                  {featured.map((f) => (
-                    <td key={f.slug} className="px-5 py-3 font-medium text-ink tabular">
-                      {(fn as (f: (typeof featured)[number]) => string)(f)}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Container>
-
-      {/* 5. Understanding admissions */}
-      <section className="border-y border-line bg-surface">
-        <Container className="grid gap-10 py-16 lg:grid-cols-[22rem_minmax(0,1fr)]">
-          <div>
-            <h2 className="text-2xl font-semibold sm:text-[1.7rem]">Qualifying is not the same as getting a place</h2>
-            <p className="mt-3 text-ink-2">The most common misunderstanding in grammar school admissions. Every page on this site keeps the three steps apart.</p>
-            <ButtonLink href="/admissions" variant="ghost" className="mt-4 !px-0">
-              Read the admissions guide <ArrowRight aria-hidden className="size-4" />
-            </ButtonLink>
-          </div>
-          <div className="grid gap-6">
-            <ThreeSteps />
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {[
-                ["Catchment areas", "Some schools give priority to children living in a defined area. Others rank by distance with no fixed area. Some use neither.", "/admissions/out-of-catchment"],
-                ["Oversubscription criteria", "The published order of priority — looked after children always first — used when qualified applicants exceed places.", "/admissions/oversubscription"],
-                ["Pupil Premium priority", "Many grammar schools now prioritise disadvantaged children, sometimes with a lower qualifying score.", "/admissions/oversubscription#pupil-premium"],
-                ["Appeals", "Every refusal can be appealed to an independent panel. Some areas also have a separate review of test results.", "/admissions/appeals"],
-              ].map(([t, d, href]) => (
-                <li key={t}>
-                  <Link href={href!} className="block h-full rounded-xl border border-line p-4 hover:border-line-strong">
-                    <span className="font-semibold text-ink">{t}</span>
-                    <span className="mt-1 block text-sm text-ink-2">{d}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Container>
-      </section>
-
-      {/* 7. Historical admissions and trends */}
-      {demand.length > 1 ? (
-        <Container className="py-16">
-          <SectionHeading
-            title="Demand for grammar school places in England"
-            description={`Total first preferences and offers made on national offer day across England's fully selective schools, ${demand[0]!.entry_year}–${latestDemand!.entry_year}. Source: DfE applications and offers, school level.`}
-          />
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <TrendChart
-              title="First preferences and offers, England grammar schools"
-              caption="Year of September entry. DfE's published figures for 2021 entry are unusually high for first preferences; they are shown as published. The number of schools reporting varies slightly by year."
-              xs={demand.map((d) => String(d.entry_year))}
-              unit="count"
-              decimals={0}
-              series={[
-                { key: "first", label: "Named as first preference", color: "--series-1", points: demand.map((d) => ({ x: String(d.entry_year), y: d.first })) },
-                { key: "offers", label: "Offers made", color: "--series-2", points: demand.map((d) => ({ x: String(d.entry_year), y: d.offers })) },
-              ]}
-            />
-            <Card className="p-5 text-sm text-ink-2">
-              <p className="font-semibold text-ink">Reading this chart</p>
-              <p className="mt-2">
-                In {latestDemand!.entry_year}, families named these {latestDemand!.schools} schools as a first preference {formatNumber(latestDemand!.first)} times; {formatNumber(latestDemand!.offers)} offers were made on national offer day.
-              </p>
-              <p className="mt-2">
-                First preferences exceeding offers does not mean those children were refused: many had not qualified, and some received other offers. Use each school&apos;s profile for its own history.
-              </p>
-            </Card>
-          </div>
-        </Container>
-      ) : null}
-
-      {/* 8. 11+ knowledge centre + 9. Calendar */}
-      <section className="border-y border-line bg-surface-2/50">
-        <Container className="grid gap-10 py-16 lg:grid-cols-2">
-          <div>
-            <h2 className="text-2xl font-semibold sm:text-[1.7rem]">11+ knowledge centre</h2>
-            <p className="mt-2 text-ink-2">Each area sets its own test. Start with how tests differ, then go to the one your child will sit.</p>
-            <ul className="mt-5 grid gap-2">
-              {[
-                ["/11-plus", "How 11+ entrance tests work", BookOpenCheck],
-                ["/11-plus/exam-providers", "Test providers and the areas they cover", ScrollText],
-                ["/11-plus/buckinghamshire-secondary-transfer-test", "Buckinghamshire Secondary Transfer Test", ScrollText],
-                ["/11-plus/csse-11-plus", "CSSE 11+ (Essex and Southend)", ScrollText],
-                ["/11-plus/seag-entrance-assessment", "SEAG Entrance Assessment (Northern Ireland)", ScrollText],
-                ["/11-plus/preparation", "Preparation: original practice questions and planning", BookOpenCheck],
-              ].map(([href, label, Icon]) => {
-                const I = Icon as typeof ScrollText;
-                return (
-                  <li key={href as string}>
-                    <Link href={href as string} className="flex items-center gap-3 rounded-lg border border-line bg-surface px-4 py-3 hover:border-line-strong">
-                      <I aria-hidden className="size-4 text-accent-ink" />
-                      <span className="font-medium text-ink">{label as string}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div>
-            <div className="flex items-end justify-between gap-3">
-              <h2 className="text-2xl font-semibold sm:text-[1.7rem]">Coming up</h2>
-              <Link href="/calendar" className="text-sm font-semibold link">
-                Full calendar
-              </Link>
+      {/* B — Start with a question */}
+      <section aria-labelledby="questions" className="pt-20 sm:pt-24">
+        <Page>
+          <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+            <div className="lg:sticky lg:top-[calc(var(--header-h)+2.5rem)] lg:self-start">
+              <Kicker>Start with a question</Kicker>
+              <h2 id="questions" className="mt-4 text-h2">The six questions parents ask first.</h2>
+              <p className="mt-4 text-[1.06rem] leading-relaxed text-ink-2">Short, sourced answers — and a route to the full one.</p>
             </div>
-            <p className="mt-2 text-ink-2">Verified dates for the current admission round. School-specific dates are on each profile.</p>
-            <ol className="mt-5 grid gap-2">
-              {events.map((e) => (
-                <li key={e.id} className="rounded-lg border border-line bg-surface px-4 py-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-accent-ink tabular">{formatDate(e.starts_on)}</span>
-                    <span className="text-xs text-ink-3">{EVENT_TYPE_LABEL[e.event_type]}</span>
-                    <VerificationBadge status={e.verification_status} />
+            <ol className="grid gap-x-12 md:grid-cols-2">
+              {QUESTIONS.map(({ n, q, Glyph }, i) => (
+                <li key={n} className="group/q grid grid-cols-[3rem_minmax(0,1fr)] gap-x-4 border-t border-rule py-7">
+                  <div className="pt-1 transition-transform duration-[var(--d-3)] ease-[var(--ease-out)] group-hover/q:-translate-y-0.5">
+                    <Glyph />
                   </div>
-                  <p className="mt-0.5 font-medium text-ink">{e.title}</p>
-                  <p className="text-xs text-ink-3">
-                    {e.nation === "northern_ireland" ? "Northern Ireland" : "England"} · September {e.entry_year} entry{e.test_name ? ` · ${e.test_name}` : ""}
-                  </p>
+                  <div>
+                    <p className="font-mono text-[0.8rem] text-copper-ink">{n}</p>
+                    <h3 className="mt-1 text-[1.32rem] leading-snug [font-variation-settings:'opsz'_30]">{q}</h3>
+                    <div className="mt-2 text-[1.02rem] leading-relaxed text-ink-2 [&_a]:font-semibold [&_a]:text-green [&_a]:underline [&_a]:decoration-green/40 [&_a]:underline-offset-4 hover:[&_a]:decoration-current">{answers[i]}</div>
+                  </div>
                 </li>
               ))}
             </ol>
           </div>
-        </Container>
+        </Page>
       </section>
 
-      {/* 10. Trust and methodology */}
-      <Container className="py-16">
-        <SectionHeading title="Where our information comes from" description="Official sources first. Anything we can't verify is labelled — never guessed." action={<ButtonLink href="/methodology" variant="secondary">Read our methodology</ButtonLink>} />
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-            <table className="w-full min-w-[560px] text-sm">
-              <caption className="sr-only">Data sources and when they were last refreshed</caption>
-              <thead className="border-b border-line bg-surface-2 text-left text-xs text-ink-3">
-                <tr>
-                  <th scope="col" className="px-4 py-2.5 font-medium">Source</th>
-                  <th scope="col" className="px-4 py-2.5 font-medium">Last refreshed</th>
-                  <th scope="col" className="px-4 py-2.5 font-medium">Status</th>
+      {/* C — How admission works */}
+      <section id="how-admission-works" aria-labelledby="journey-title" className="mt-20 border-y border-rule bg-card/70 py-16 sm:mt-24 sm:py-20">
+        <Page>
+          <div className="max-w-[46rem]">
+            <Kicker>Fig. 2 · How grammar school admission works</Kicker>
+            <h2 id="journey-title" className="mt-4 text-h1 [font-variation-settings:'opsz'_60]">Qualifying is the first step, not the last.</h2>
+            <p className="mt-4 text-lede leading-[1.5] text-ink-2">Most confusion comes from treating a pass as a place. Follow seventy-two imaginary applicants through the three steps every grammar school uses.</p>
+          </div>
+          <div className="mt-10">
+            <AdmissionJourney />
+          </div>
+        </Page>
+      </section>
+
+      {/* D — Discover schools */}
+      <section aria-labelledby="discover" className="pt-20 sm:pt-24">
+        <Page>
+          <SectionHead
+            id="discover"
+            kicker="Discover schools"
+            title="Grammar schools cluster in a few places."
+            lede="Each area runs its own test and timetable, so start with the region — then narrow by test, sixth form and admissions rules."
+            action={
+              <ButtonLink href="/grammar-schools" variant="secondary" arrow>
+                All {stats.listed} schools
+              </ButtonLink>
+            }
+          />
+          <div className="mt-8">
+            <RegionExplorer regions={regions} />
+          </div>
+          <p className="mt-4 text-[1rem] text-ink-2">
+            Wales and Scotland have no state grammar schools — <Link href="/admissions/wales-and-scotland" className="a">how school choice works there</Link>.
+          </p>
+        </Page>
+      </section>
+
+      {/* E — Understand schools visually */}
+      {spec ? (
+        <section aria-labelledby="specimen" className="pt-20 sm:pt-24">
+          <Page>
+            <SectionHead id="specimen" kicker="What a profile tells you" title="A school, read like a research report." lede="An excerpt from a real profile. The notes in the margin explain how to read it." />
+            <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">
+              <article className="sheet relative overflow-hidden" aria-label={`Excerpt from the ${spec.core.school.name} profile`}>
+                <header className="border-b border-rule bg-paper px-6 py-5 sm:px-8">
+                  <p className="label">School profile · excerpt</p>
+                  <h3 className="mt-2 text-h3">
+                    <Link href={`/schools/${spec.core.school.slug}`} className="no-underline hover:underline">
+                      {spec.core.school.name}
+                    </Link>
+                  </h3>
+                  <p className="mt-1 text-[1rem] text-ink-2">{[spec.core.location?.town, spec.core.la?.name].filter(Boolean).join(" · ")}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                    <Tag>{SELECTIVITY_SHORT[spec.core.school.selectivity]}</Tag>
+                    <Tag>{GENDER_LABEL[spec.core.school.gender]}</Tag>
+                    {spec.core.school.hasSixthForm ? <Tag>Sixth form</Tag> : null}
+                  </div>
+                </header>
+                <div className="grid divide-y divide-rule sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                  <div className="relative p-6">
+                    <Marker n={1} />
+                    <p className="label">Admission · Sept {spec.entryYear}</p>
+                    {spec.policy ? (
+                      <>
+                        <p className="mt-2 font-display text-[2.2rem] leading-none num">{spec.policy.scoreRules.find((r) => r.kind === "qualifying_threshold")?.scoreValue ?? "—"}</p>
+                        <p className="mt-1 text-small text-ink-2">qualifying score{spec.test ? ` · ${spec.test.test.name}` : ""}</p>
+                        <p className="mt-3 text-[0.98rem] text-ink">
+                          {spec.policy.publishedAdmissionNumber ?? "—"} places · {spec.policy.criteria.length} ordered criteria
+                        </p>
+                        <p className="text-small text-ink-2">{CATCHMENT_LABEL[spec.policy.catchmentType]}</p>
+                        <Status status={spec.policy.verificationStatus} className="mt-3" />
+                      </>
+                    ) : (
+                      <p className="mt-2 text-ink-2">Admissions rules not yet held for this year.</p>
+                    )}
+                  </div>
+                  <div className="relative p-6">
+                    <Marker n={2} />
+                    <p className="label">GCSE · Attainment 8</p>
+                    {spec.lastA8 ? (
+                      <>
+                        <p className="mt-2 font-display text-[2.2rem] leading-none num">{formatMeasure(MEASURES.ks4_attainment8, spec.lastA8.value)}</p>
+                        <p className="mt-1 text-small text-ink-2">
+                          {spec.lastA8.year} · all selective schools {formatMeasure(MEASURES.ks4_attainment8, spec.lastA8.nationalSelective)}
+                        </p>
+                        <Sparkline values={spec.a8.map((r) => r.value)} className="mt-3" />
+                      </>
+                    ) : (
+                      <p className="mt-2 text-ink-2">Not published.</p>
+                    )}
+                  </div>
+                  <div className="relative p-6">
+                    <Marker n={3} />
+                    <p className="label">Demand · Sept {spec.latest ?? "—"}</p>
+                    {spec.latest ? (
+                      <>
+                        <p className="mt-2 font-display text-[2.2rem] leading-none num">{formatNumber(spec.get(spec.latest, "times_first_preference"))}</p>
+                        <p className="mt-1 text-small text-ink-2">first preferences · {formatNumber(spec.get(spec.latest, "offers_made"))} offers made</p>
+                        <Sparkline values={spec.years.map((y) => spec.get(y, "offers_made"))} className="mt-3" />
+                      </>
+                    ) : (
+                      <p className="mt-2 text-ink-2">No DfE data.</p>
+                    )}
+                  </div>
+                </div>
+                <div className="relative border-t border-rule px-6 pt-1 pb-5 sm:px-8">
+                  <Marker n={4} />
+                  <Source source={spec.policy?.sourceDocumentId ? spec.sources.get(spec.policy.sourceDocumentId) : null} locator={spec.policy?.sourceLocator} />
+                </div>
+              </article>
+              <ol className="grid content-start gap-6">
+                {[
+                  ["The rules for one entry year", "Admissions rules change every year, so each one belongs to a single September. We never fill a gap with another year's rules."],
+                  ["Results with a fair benchmark", "Grammar schools are compared with all selective schools, not every school — and the year is always shown."],
+                  ["Demand, not chances", "First preferences and offers describe a past year. They are not a pass mark, a distance or a probability."],
+                  ["A source on every fact", "Each figure names the document it came from, and when we retrieved it. Unchecked facts say so."],
+                ].map(([t, d], i) => (
+                  <li key={t} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3">
+                    <span className="grid size-7 place-items-center rounded-full border border-copper bg-copper-wash font-mono text-[0.8rem] text-copper-ink">{i + 1}</span>
+                    <div>
+                      <p className="font-semibold text-ink">{t}</p>
+                      <p className="mt-0.5 text-[0.98rem] leading-relaxed text-ink-2">{d}</p>
+                    </div>
+                  </li>
+                ))}
+                <li className="pl-11">
+                  <ArrowLink href={`/schools/${spec.core.school.slug}`}>Read the full profile</ArrowLink>
+                </li>
+              </ol>
+            </div>
+          </Page>
+        </section>
+      ) : null}
+
+      {/* F — The knowledge atlas */}
+      <section aria-labelledby="knowledge" className="pt-20 sm:pt-24">
+        <Page>
+          <SectionHead id="knowledge" kicker="The knowledge atlas" title="Every guide connects to the next." lede="Admissions ideas depend on each other. Trace a topic to see what it leads to, or follow a reading path." />
+          <div className="mt-8">
+            <KnowledgeMap nodes={KNOWLEDGE_NODES} edges={KNOWLEDGE_EDGES} />
+          </div>
+          <div className="mt-10 grid gap-10 md:grid-cols-3">
+            {(Object.keys(READING_PATHS) as (keyof typeof READING_PATHS)[]).map((k) => (
+              <div key={k}>
+                <p className="label text-copper-ink">Reading path</p>
+                <h3 className="mt-1 text-h3">{READING_PATHS[k].title}</h3>
+                <p className="mt-1 text-[0.98rem] text-ink-2">{READING_PATHS[k].text}</p>
+                <ol className="mt-4 grid gap-0 border-t border-rule">
+                  {ADMISSIONS_GUIDES.filter((g) => g.path === k).map((g, i) => (
+                    <li key={g.slug} className="border-b border-rule">
+                      <Link href={`/admissions/${g.slug}`} className="group/p flex items-baseline gap-3 py-3 no-underline">
+                        <span className="font-mono text-[0.8rem] text-ink-2">{String(i + 1).padStart(2, "0")}</span>
+                        <span className="font-semibold text-ink group-hover/p:text-green">{g.short}</span>
+                        <IconArrow size={14} className="ml-auto shrink-0 self-center text-ink-3 transition-transform duration-[var(--d-2)] group-hover/p:translate-x-1 group-hover/p:text-green" />
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </Page>
+      </section>
+
+      {/* G — Dates and research */}
+      <section aria-labelledby="dates" className="mt-20 border-y border-rule bg-sage/50 py-16 sm:mt-24 sm:py-20">
+        <Page className="grid gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div>
+            <Kicker>Dates</Kicker>
+            <h2 id="dates" className="mt-4 text-h2">Coming up</h2>
+            <p className="mt-2 text-[1.04rem] text-ink-2">Dates from official sources only — each one says whether an editor has checked it.</p>
+            <div className="mt-6">
+              <DateLine events={events.map((e) => ({ ...e, context: `${e.nation === "northern_ireland" ? "Northern Ireland" : "England"} · September ${e.entry_year} entry` }))} today={today} emptyText="No upcoming dates are held yet." />
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <ButtonLink href="/tools/planner" arrow>
+                Plan your year
+              </ButtonLink>
+              <ButtonLink href="/calendar" variant="secondary">
+                Full calendar
+              </ButtonLink>
+            </div>
+          </div>
+          {demand.length > 1 && lastDemand ? (
+            <div className="min-w-0">
+              <Kicker>Research</Kicker>
+              <h2 className="mt-4 text-h2">Demand for places in England</h2>
+              <p className="mt-2 text-[1.04rem] text-ink-2">
+                In {lastDemand.entry_year}, families named England&apos;s {lastDemand.schools} grammar schools as a first preference {formatNumber(lastDemand.first)} times; {formatNumber(lastDemand.offers)} offers were made on national offer day.
+              </p>
+              <div className="mt-6 rounded-[8px] border border-rule bg-card p-5">
+                <GroupedBars
+                  label={`First preferences and offers made, England's fully selective schools, ${demand[0]!.entry_year}–${lastDemand.entry_year}`}
+                  xs={demand.map((d) => String(d.entry_year))}
+                  series={[
+                    { key: "first", label: "Named as first preference", tone: "school", points: demand.map((d) => ({ x: String(d.entry_year), y: d.first })) },
+                    { key: "offers", label: "Offers made", tone: "benchmark", points: demand.map((d) => ({ x: String(d.entry_year), y: d.offers })) },
+                  ]}
+                />
+                <p className="mt-3 text-small leading-relaxed text-ink-2">
+                  Year of September entry. Source: DfE school-level applications and offers. DfE&apos;s figures for 2021 entry are unusually high for first preferences and are shown as published. More first preferences than offers doesn&apos;t mean
+                  children were refused — many had not qualified, and some had other offers.
+                </p>
+              </div>
+            </div>
+          ) : null}
+        </Page>
+      </section>
+
+      {/* H — Data credibility */}
+      <section aria-labelledby="provenance" className="pt-20 sm:pt-24">
+        <Page className="grid gap-12 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+          <div>
+            <Kicker>Provenance</Kicker>
+            <h2 id="provenance" className="mt-4 text-h2">Where every fact comes from.</h2>
+            <p className="mt-3 text-[1.04rem] leading-relaxed text-ink-2">Official publishers first. Anything we haven&apos;t checked is labelled, never guessed — and if a refresh fails, the previous data stays in place.</p>
+            <ul className="mt-6 grid gap-2 text-[1rem] text-ink-2">
+              <li>— We can&apos;t promise a place or predict offers.</li>
+              <li>— A school&apos;s determined policy is always the authority.</li>
+              <li>— Postcode distances are approximate.</li>
+            </ul>
+            <div className="mt-6 flex flex-col gap-2">
+              <ArrowLink href="/methodology">Our methodology</ArrowLink>
+              <ArrowLink href="/data-sources">Every source, with licences</ArrowLink>
+            </div>
+          </div>
+          <div className="min-w-0">
+            <table className="w-full border-collapse text-left">
+              <caption className="sr-only">Data sources and when each was last refreshed</caption>
+              <thead>
+                <tr className="border-b border-ink">
+                  <th scope="col" className="label pb-2 font-medium">
+                    Source
+                  </th>
+                  <th scope="col" className="label hidden pb-2 font-medium sm:table-cell">
+                    Refreshed
+                  </th>
+                  <th scope="col" className="label pb-2 text-right font-medium">
+                    Status
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody>
                 {freshness.map((f) => (
-                  <tr key={f.job}>
-                    <td className="px-4 py-2.5">
-                      <span className="font-medium text-ink">{f.source_name ?? f.job}</span>
-                      <span className="block text-xs text-ink-3">{f.description}</span>
+                  <tr key={f.job} className="border-b border-rule align-top">
+                    <td className="py-3.5 pr-4">
+                      <span className="block font-semibold text-ink">{f.source_name ?? f.job}</span>
+                      <span className="block text-small text-ink-2">{f.description}</span>
+                      <span className="block text-small text-ink-2 sm:hidden">Refreshed {relativeAge(f.last_success)}</span>
                     </td>
-                    <td className="px-4 py-2.5 text-ink-2">{relativeAge(f.last_success)}</td>
-                    <td className="px-4 py-2.5 text-xs">{f.last_status === "failed" ? <span className="text-bad">Last run failed — previous data retained</span> : <span className="text-ok">OK</span>}</td>
+                    <td className="hidden py-3.5 pr-4 text-[0.98rem] whitespace-nowrap text-ink-2 sm:table-cell">{f.last_success ? `${relativeAge(f.last_success)} · ${formatDate(f.last_success)}` : "Never"}</td>
+                    <td className="py-3.5 text-right">
+                      {f.last_status === "failed" ? (
+                        <span className="text-small font-semibold text-bad">Last run failed — previous data kept</span>
+                      ) : f.last_status === "partial" ? (
+                        <span className="text-small font-semibold text-pend">Completed with warnings</span>
+                      ) : (
+                        <span className="text-small font-semibold text-ok">Up to date</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <Card className="p-5 text-sm">
-            <ShieldCheck aria-hidden className="size-5 text-accent-ink" />
-            <p className="mt-3 font-semibold text-ink">What we can&apos;t guarantee</p>
-            <ul className="mt-2 grid list-disc gap-1.5 pl-4 text-ink-2">
-              <li>We can&apos;t promise a place or predict offers — no published data supports that.</li>
-              <li>Schools can change arrangements; the school&apos;s determined policy is always the authority.</li>
-              <li>Postcode distances are approximate and are not the method schools use.</li>
-              <li>Facts awaiting editor verification are labelled as such.</li>
-            </ul>
-          </Card>
-        </div>
-      </Container>
-
-      {/* 11. FAQs */}
-      <section className="border-t border-line bg-surface">
-        <Container className="py-16">
-          <SectionHeading title="Questions parents ask" />
-          <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
-            {FAQS.map(([q, a, href]) => (
-              <div key={q}>
-                <h3 className="font-sans text-base font-semibold text-ink">{q}</h3>
-                <p className="mt-1.5 text-ink-2">{a}</p>
-                <Link href={href} className="mt-1.5 inline-block text-sm font-semibold link">
-                  Read more
-                </Link>
-              </div>
-            ))}
-          </div>
-        </Container>
+        </Page>
       </section>
     </>
+  );
+}
+
+function Marker({ n }: { n: number }) {
+  return (
+    <span aria-hidden className="absolute top-3 right-3 grid size-6 place-items-center rounded-full border border-copper bg-copper-wash font-mono text-[0.75rem] text-copper-ink">
+      {n}
+    </span>
   );
 }

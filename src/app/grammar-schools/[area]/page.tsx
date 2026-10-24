@@ -5,11 +5,14 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { defaultEntryYear } from "@/lib/academic-year";
 import { formatNumber } from "@/lib/format";
-import { parseDirectoryParams } from "@/server/search-params";
+import { schoolPoints, selectiveA8 } from "@/server/insights";
 import { getArea, searchSchools } from "@/server/schools";
-import { DirectoryView } from "@/components/search/directory-view";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Callout, Container } from "@/components/ui/primitives";
+import { parseDirectoryParams } from "@/server/search-params";
+import { Breadcrumbs } from "@/ui/breadcrumbs";
+import { DirectoryDesk } from "@/ui/directory/directory";
+import { Kicker, Note, Page } from "@/ui/kit";
+import { Status } from "@/ui/status";
+import { AtlasMap } from "@/ui/viz/atlas-map";
 
 export const dynamic = "force-dynamic";
 
@@ -71,7 +74,7 @@ export default async function AreaPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const p = parseDirectoryParams({ ...sp, area: area.slug });
   const entryYear = defaultEntryYear();
-  const [stats, result] = await Promise.all([areaStats(area), searchSchools(p, { entryYear })]);
+  const [stats, result, points, bench] = await Promise.all([areaStats(area), searchSchools(p, { entryYear }), schoolPoints(), selectiveA8()]);
   if (stats.total === 0) notFound();
   const isNI = area.nation === "northern_ireland";
   const crumbs = [{ href: "/grammar-schools", label: "Grammar schools" }];
@@ -79,72 +82,113 @@ export default async function AreaPage({ params, searchParams }: Props) {
   crumbs.push({ href: `/grammar-schools/${area.slug}`, label: area.name });
   const lo = stats.latestOffers;
 
+  const inArea = points.filter((pt) =>
+    area.type === "nation" ? (area.nation === "northern_ireland" ? pt.nation === "northern_ireland" : pt.nation === "england") : area.type === "region" ? pt.region_slug === area.slug : area.type === "education_authority" ? pt.nation === "northern_ireland" : pt.la_slug === area.slug,
+  );
+  const notRecorded = stats.total - stats.boys - stats.girls - stats.mixed;
+  const parts = [
+    { k: "Boys", v: stats.boys, c: "var(--series-3)" },
+    { k: "Girls", v: stats.girls, c: "var(--series-2)" },
+    { k: "Co-educational", v: stats.mixed, c: "var(--series-1)" },
+    { k: "Not recorded", v: notRecorded, c: "var(--rule-strong)" },
+  ].filter((x) => x.v > 0);
+
   return (
-    <Container className="py-8">
-      <Breadcrumbs items={crumbs} />
-      <header className="mt-4 mb-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <div className="max-w-3xl">
-          <h1 className="text-3xl font-semibold sm:text-4xl">Grammar schools in {area.name}</h1>
-          <p className="mt-3 text-lg text-ink-2">
-            {area.name} has {stats.total} {isNI ? "grammar" : "selective"} {stats.total === 1 ? "school" : "schools"}: {stats.boys} for boys, {stats.girls} for girls and {stats.mixed} co-educational
-            {stats.mixed + stats.boys + stats.girls < stats.total ? " (gender policy not recorded for the rest)" : ""}. {stats.sixth} have a sixth form.
-            {stats.partial ? ` ${stats.partial} are partially selective.` : ""}
-          </p>
-          {isNI ? (
-            <Callout className="mt-5" title="Northern Ireland uses a different system">
-              Children transfer to Year 8 (not Year 7). Most grammar schools that select academically use the SEAG Entrance Assessment, and each school sets its own admissions criteria. Applications go through the
-              Education Authority. <Link href="/admissions/northern-ireland">How transfer works in Northern Ireland</Link>.
-            </Callout>
-          ) : null}
-        </div>
-        <aside className="rounded-xl border border-line bg-surface p-5 text-sm">
-          <h2 className="font-sans text-sm font-semibold text-ink">At a glance</h2>
-          <dl className="mt-3 grid grid-cols-2 gap-4">
-            <div>
-              <dt className="text-xs text-ink-3">Schools</dt>
-              <dd className="text-xl font-semibold">{stats.total}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-3">Pupils (latest census)</dt>
-              <dd className="text-xl font-semibold">{formatNumber(stats.pupils)}</dd>
-            </div>
-            {lo ? (
-              <>
-                <div>
-                  <dt className="text-xs text-ink-3">Year 7 offers, {lo.entry_year}</dt>
-                  <dd className="text-xl font-semibold">{formatNumber(lo.offers)}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs text-ink-3">Named as first preference</dt>
-                  <dd className="text-xl font-semibold">{formatNumber(lo.first)}</dd>
-                </div>
-              </>
-            ) : null}
-          </dl>
-          {lo ? (
-            <p className="mt-3 text-xs text-ink-3">
-              National offer day, September {lo.entry_year} entry, {lo.schools} schools. {formatNumber(lo.other_la_offers)} offers went to families living in another local authority. Source: DfE school-level applications and
-              offers.
-            </p>
-          ) : null}
-          {stats.tests.length ? (
-            <div className="mt-4 border-t border-line pt-4">
-              <h3 className="font-sans text-xs font-semibold text-ink-3">Entrance tests used here</h3>
-              <ul className="mt-2 grid gap-1">
-                {stats.tests.map((t) => (
-                  <li key={t.slug}>
-                    <Link href={`/11-plus/${t.slug}`} className="link">
-                      {t.name}
-                    </Link>{" "}
-                    <span className="text-ink-3">({t.n} schools)</span>
-                  </li>
+    <>
+      <div className="border-b border-rule">
+        <Page className="pt-6 pb-10">
+          <Breadcrumbs items={crumbs} />
+          <div className="mt-6 grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
+            <div className="min-w-0">
+              <Kicker>Area profile{area.parent_name && area.parent_slug !== area.slug ? ` · ${area.parent_name}` : ""}</Kicker>
+              <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">Grammar schools in {area.name}</h1>
+              <p className="mt-4 max-w-[46rem] text-lede leading-[1.5] text-ink-2">
+                {area.name} has {stats.total} {isNI ? "grammar" : "selective"} {stats.total === 1 ? "school" : "schools"}: {stats.boys} for boys, {stats.girls} for girls and {stats.mixed} co-educational
+                {stats.mixed + stats.boys + stats.girls < stats.total ? " (gender policy not recorded for the rest)" : ""}. {stats.sixth} {stats.sixth === 1 ? "has" : "have"} a sixth form.
+                {stats.partial ? ` ${stats.partial} ${stats.partial === 1 ? "is" : "are"} partially selective.` : ""}
+              </p>
+              {isNI ? (
+                <Note className="mt-6 max-w-[46rem]" title="Northern Ireland uses a different system">
+                  Children transfer to Year 8 (not Year 7). Most grammar schools that select academically use the SEAG Entrance Assessment, and each school sets its own admissions criteria. Applications go through the Education Authority.{" "}
+                  <Link href="/admissions/northern-ireland">How transfer works in Northern Ireland</Link>.
+                </Note>
+              ) : null}
+
+              <dl className="mt-8 grid grid-cols-2 border-t border-ink sm:grid-cols-4">
+                {[
+                  ["Schools", formatNumber(stats.total), null],
+                  ["Pupils", formatNumber(stats.pupils), "latest census"],
+                  ...(lo
+                    ? [
+                        ["Offers made", formatNumber(lo.offers), `Sept ${lo.entry_year} entry`],
+                        ["First preferences", formatNumber(lo.first), `Sept ${lo.entry_year} entry`],
+                      ]
+                    : []),
+                ].map(([k, v, m]) => (
+                  <div key={k as string} className="border-b border-rule py-3 pr-4">
+                    <dt className="label">{k}</dt>
+                    <dd className="mt-1.5 font-display text-[1.9rem] leading-none text-ink num">{v}</dd>
+                    {m ? <dd className="mt-1 text-small text-ink-2">{m}</dd> : null}
+                  </div>
                 ))}
-              </ul>
+              </dl>
+              {lo ? (
+                <p className="mt-3 max-w-[60ch] text-small text-ink-2">
+                  National offer day, September {lo.entry_year} entry, {lo.schools} schools. {formatNumber(lo.other_la_offers)} offers went to families living in another local authority. Source: DfE school-level applications and offers.
+                </p>
+              ) : null}
+
+              <div className="mt-8 grid gap-8 sm:grid-cols-2">
+                <div>
+                  <p className="label mb-2">Who they admit</p>
+                  <div className="flex h-3 w-full overflow-hidden rounded-[2px]" aria-hidden>
+                    {parts.map((x) => (
+                      <span key={x.k} className="h-full border-r-2 border-paper last:border-r-0" style={{ width: `${(x.v / stats.total) * 100}%`, background: x.c }} />
+                    ))}
+                  </div>
+                  <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-small text-ink-2">
+                    {parts.map((x) => (
+                      <li key={x.k} className="inline-flex items-center gap-2">
+                        <span aria-hidden className="size-2.5 rounded-[1px]" style={{ background: x.c }} />
+                        {x.k} <span className="font-mono text-ink">{x.v}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {stats.tests.length ? (
+                  <div>
+                    <p className="label mb-2">Entrance tests used here</p>
+                    <ul className="grid gap-1.5">
+                      {stats.tests.map((t) => (
+                        <li key={t.slug} className="flex flex-wrap items-baseline gap-x-2">
+                          <Link href={`/11-plus/${t.slug}`} className="a font-semibold">
+                            {t.name}
+                          </Link>
+                          <span className="text-small text-ink-2">
+                            {t.n} {t.n === 1 ? "school" : "schools"}
+                          </span>
+                          {t.verification_status !== "officially_verified" ? <Status status={t.verification_status} quiet /> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </div>
             </div>
-          ) : null}
-        </aside>
-      </header>
-      <DirectoryView p={p} result={result} basePath={`/grammar-schools/${area.slug}`} lockArea entryYear={entryYear} />
-    </Container>
+            <figure className="min-w-0 lg:pt-6">
+              <AtlasMap points={points} groups={[]} legend={false} spotlight={inArea.map((x) => x.slug)} label={`Map: the ${inArea.length} schools in ${area.name}, in copper, among all ${points.length} grammar schools.`} />
+              <figcaption className="mt-2 text-small leading-relaxed text-ink-2">
+                <span className="label mr-2 text-copper-ink">Where it sits</span>
+                {area.name}&apos;s schools in copper, among every grammar school in the atlas.
+              </figcaption>
+            </figure>
+          </div>
+        </Page>
+      </div>
+
+      <Page className="pt-8 pb-6">
+        <DirectoryDesk p={p} result={result} basePath={`/grammar-schools/${area.slug}`} lockArea entryYear={entryYear} bench={bench} />
+      </Page>
+    </>
   );
 }

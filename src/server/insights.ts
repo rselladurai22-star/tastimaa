@@ -89,3 +89,84 @@ export async function allEvents() {
   `);
   return [...rows];
 }
+
+/** Every listed school's official coordinates and region, for the atlas map. */
+export async function schoolPoints() {
+  const rows = await db().execute<{ slug: string; name: string; lat: number; lng: number; nation: string; region_slug: string | null; region_name: string | null; la_slug: string | null; town: string | null }>(sql`
+    SELECT s.slug, s.name, ST_Y(l.location::geometry) AS lat, ST_X(l.location::geometry) AS lng, s.nation, r.slug AS region_slug, r.name AS region_name, la.slug AS la_slug, l.town
+    FROM schools s JOIN school_locations l ON l.school_id = s.id LEFT JOIN geographic_areas r ON r.id = s.region_id LEFT JOIN geographic_areas la ON la.id = s.local_authority_id
+    WHERE s.is_open AND s.selectivity <> 'non_selective' AND l.location IS NOT NULL
+  `);
+  return rows.map((r) => ({
+    ...r,
+    lat: Number(r.lat),
+    lng: Number(r.lng),
+    group: r.nation === "northern_ireland" ? "northern-ireland" : (r.region_slug ?? "england"),
+    groupName: r.nation === "northern_ireland" ? "Northern Ireland" : (r.region_name ?? "England"),
+  }));
+}
+
+/** Region summaries for the discovery module: counts, tests in use and a sample of schools. */
+export async function regionProfiles() {
+  const rows = await db().execute<{ slug: string; name: string; n: number; boys: number; girls: number; mixed: number; sixth: number; tests: string[] | null; las: string[] | null }>(sql`
+    WITH s AS (
+      SELECT s.*, CASE WHEN s.nation = 'northern_ireland' THEN 'northern-ireland' ELSE r.slug END AS gslug,
+             CASE WHEN s.nation = 'northern_ireland' THEN 'Northern Ireland' ELSE r.name END AS gname
+      FROM schools s LEFT JOIN geographic_areas r ON r.id = s.region_id
+      WHERE s.is_open AND s.selectivity <> 'non_selective'
+    )
+    SELECT gslug AS slug, gname AS name, count(*)::int AS n,
+      count(*) FILTER (WHERE gender = 'boys')::int AS boys,
+      count(*) FILTER (WHERE gender = 'girls')::int AS girls,
+      count(*) FILTER (WHERE gender = 'mixed')::int AS mixed,
+      count(*) FILTER (WHERE has_sixth_form)::int AS sixth,
+      (SELECT array_agg(DISTINCT t.name ORDER BY t.name) FROM school_entrance_tests st JOIN entrance_tests t ON t.id = st.test_id WHERE st.school_id IN (SELECT id FROM s s2 WHERE s2.gslug = s.gslug)) AS tests,
+      (SELECT array_agg(x.name ORDER BY x.cnt DESC, x.name) FROM (SELECT la.name, count(*) AS cnt FROM s s3 JOIN geographic_areas la ON la.id = s3.local_authority_id WHERE s3.gslug = s.gslug GROUP BY la.name) x) AS las
+    FROM s WHERE gslug IS NOT NULL
+    GROUP BY gslug, gname ORDER BY n DESC
+  `);
+  return rows.map((r) => ({ ...r, tests: r.tests ?? [], las: r.las ?? [] }));
+}
+
+/** Events in one nation's admission cycle (national and test dates), for journeys and FAQs. */
+export async function cycleEvents(nation: "england" | "northern_ireland", entryYear: number) {
+  const rows = await db().execute<{ id: number; title: string; event_type: string; starts_on: string; ends_on: string | null; verification_status: string; scope: string; test_name: string | null }>(sql`
+    SELECT e.id, e.title, e.event_type, e.starts_on::text, e.ends_on::text, e.verification_status, e.scope, t.name AS test_name
+    FROM admission_events e JOIN admission_cycles c ON c.id = e.cycle_id LEFT JOIN entrance_tests t ON t.id = e.test_id
+    WHERE c.nation = ${nation} AND c.entry_year = ${entryYear}
+    ORDER BY e.starts_on
+  `);
+  return [...rows];
+}
+
+/** National Attainment 8 benchmarks for selective schools, by academic year. */
+export async function selectiveA8() {
+  const rows = await db().execute<{ academic_year: string; value: number }>(sql`
+    SELECT academic_year, value FROM area_results
+    WHERE area_code = 'E92000001' AND measure = 'ks4_attainment8' AND population = 'selective_schools' AND value IS NOT NULL
+  `);
+  return Object.fromEntries(rows.map((r) => [r.academic_year, Number(r.value)])) as Record<string, number>;
+}
+
+/** Local authorities that list at least one school, grouped under their region (or nation for NI). */
+export async function areaIndex() {
+  const rows = await db().execute<{ slug: string; name: string; n: number; group_slug: string; group_name: string }>(sql`
+    SELECT la.slug, la.name, count(s.id)::int AS n,
+      CASE WHEN s.nation = 'northern_ireland' THEN 'northern-ireland' ELSE r.slug END AS group_slug,
+      CASE WHEN s.nation = 'northern_ireland' THEN 'Northern Ireland' ELSE r.name END AS group_name
+    FROM schools s
+    JOIN geographic_areas la ON la.id = s.local_authority_id
+    LEFT JOIN geographic_areas r ON r.id = s.region_id
+    WHERE s.is_open AND s.selectivity <> 'non_selective'
+    GROUP BY la.slug, la.name, group_slug, group_name
+    ORDER BY group_name, la.name
+  `);
+  const groups = new Map<string, { slug: string; name: string; n: number; las: { slug: string; name: string; n: number }[] }>();
+  for (const r of rows) {
+    const g = groups.get(r.group_slug) ?? { slug: r.group_slug, name: r.group_name, n: 0, las: [] };
+    g.n += r.n;
+    g.las.push({ slug: r.slug, name: r.name, n: r.n });
+    groups.set(r.group_slug, g);
+  }
+  return [...groups.values()].sort((a, b) => b.n - a.n);
+}

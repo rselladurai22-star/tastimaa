@@ -1,267 +1,493 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/source-serif-4";
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
+@import "@fontsource-variable/source-sans-3/wght.css";
+@import "@fontsource-variable/source-sans-3/wght-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
 
 /*
- * Design tokens. Warm neutral paper, ink-dark text, a single restrained
- * accent (deep evergreen). Status colours are reserved for data-quality
- * states and always ship with an icon and a label.
+ * Grammar Atlas — "Living Education Atlas" design tokens.
+ *
+ * Foundation colours (mandated): evergreen #1C5040, ivory #F8F7F2, ink #17231F,
+ * copper #B8773B, sage #E8EDE6, rule #D7DED7. Everything else is derived and
+ * contrast-checked (WCAG 2.2 AA): secondary text ≥ 8:1, tertiary ≥ 5.2:1 on every
+ * surface. Copper is a graphic accent (3.4:1); small copper text uses copper-ink.
  */
 :root {
   color-scheme: light;
-  --bg: #fbfaf7;
-  --surface: #ffffff;
-  --surface-2: #f4f2ec;
-  --surface-3: #ebe8df;
-  --ink: #15171a;
-  --ink-2: #43474d;
-  --ink-3: #62666d;
-  --line: #e4e1d8;
-  --line-strong: #cbc6b8;
-  --accent: #0b5d4b;
-  --accent-hover: #084a3c;
-  --accent-soft: #e5efeb;
-  --accent-ink: #0a5444;
-  --focus: #1f6feb;
 
-  --ok: #11703b;
-  --ok-soft: #e4f2ea;
-  --warn: #8a5a00;
-  --warn-soft: #fbf0d9;
-  --bad: #b42318;
-  --bad-soft: #fbe7e5;
-  --info: #2d4f8a;
-  --info-soft: #e7edf7;
-  --neutral-soft: #efede7;
+  /* Surfaces */
+  --paper: #f8f7f2; /* the canvas */
+  --card: #fffefa; /* a raised sheet of paper */
+  --sage: #e8ede6; /* subtle surface */
+  --sage-deep: #dbe3db;
+  --green-wash: #e3ece6;
+  --copper-wash: #f5eadb;
 
-  /* Charts (validated with the dataviz palette validator, all pairs, light surface #ffffff). */
-  --chart-surface: #ffffff;
-  --series-1: #1d6b9e;
-  --series-2: #c4562a;
-  --series-3: #2f8f6a;
-  --grid: #ebe8df;
-  --axis: #cbc6b8;
+  /* Ink */
+  --ink: #17231f;
+  --ink-2: #3b4843;
+  --ink-3: #55625c;
 
-  --shadow-sm: 0 1px 2px rgb(21 23 26 / 0.05);
-  --shadow-md: 0 1px 2px rgb(21 23 26 / 0.04), 0 4px 16px rgb(21 23 26 / 0.06);
-}
+  /* Brand */
+  --green: #1c5040;
+  --green-deep: #133a2e;
+  --green-bright: #23805a; /* chart and diagram step, validated */
+  --copper: #b8773b;
+  --copper-ink: #8a501c;
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #0f1112;
-    --surface: #16191b;
-    --surface-2: #1d2124;
-    --surface-3: #262b2f;
-    --ink: #eceae4;
-    --ink-2: #c4c2bb;
-    --ink-3: #9d9b95;
-    --line: #2a2f33;
-    --line-strong: #3a4045;
-    --accent: #5cc3a4;
-    --accent-hover: #7dd3b9;
-    --accent-soft: #15302a;
-    --accent-ink: #7dd3b9;
-    --focus: #6ea8ff;
-    --ok: #4cc583;
-    --ok-soft: #12291d;
-    --warn: #f0b84a;
-    --warn-soft: #2e2410;
-    --bad: #f07b70;
-    --bad-soft: #321614;
-    --info: #8fb0ec;
-    --info-soft: #18223a;
-    --neutral-soft: #22262a;
-    --chart-surface: #16191b;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --grid: #262b2f;
-    --axis: #3a4045;
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow-md: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.35);
-  }
-}
+  /* Lines */
+  --rule: #d7ded7;
+  --rule-strong: #b9c4bb;
+  --control: #74817a; /* form control borders: ≥ 3:1 on card and paper */
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --bg: #0f1112;
-  --surface: #16191b;
-  --surface-2: #1d2124;
-  --surface-3: #262b2f;
-  --ink: #eceae4;
-  --ink-2: #c4c2bb;
-  --ink-3: #9d9b95;
-  --line: #2a2f33;
-  --line-strong: #3a4045;
-  --accent: #5cc3a4;
-  --accent-hover: #7dd3b9;
-  --accent-soft: #15302a;
-  --accent-ink: #7dd3b9;
-  --focus: #6ea8ff;
-  --ok: #4cc583;
-  --ok-soft: #12291d;
-  --warn: #f0b84a;
-  --warn-soft: #2e2410;
-  --bad: #f07b70;
-  --bad-soft: #321614;
-  --info: #8fb0ec;
-  --info-soft: #18223a;
-  --neutral-soft: #22262a;
-  --chart-surface: #16191b;
-  --series-1: #3987e5;
-  --series-2: #d95926;
-  --series-3: #199e70;
-  --grid: #262b2f;
-  --axis: #3a4045;
+  /* Semantic status (always paired with an icon and a label) */
+  --ok: #1e6a44;
+  --ok-wash: #e2efe6;
+  --pend: #7a5310;
+  --pend-wash: #f6ebd4;
+  --info: #365c85;
+  --info-wash: #e4ebf2;
+  --bad: #a13a2a;
+  --bad-wash: #f7e3de;
+  --none: #525d58;
+  --none-wash: #ecede8;
+
+  /* Data visualisation (validated: lightness band, chroma floor, CVD with secondary encoding) */
+  --series-1: #23805a;
+  --series-2: #c07a35;
+  --series-3: #3f6eb0;
+  --chart-grid: #e4e8e2;
+  --chart-axis: #b9c4bb;
+
+  /* Type scale — fluid between 360px and 1440px viewports */
+  --t-display: clamp(2.55rem, 1.7rem + 3.6vw, 4.75rem);
+  --t-h1: clamp(2.15rem, 1.6rem + 2.3vw, 3.4rem);
+  --t-h2: clamp(1.65rem, 1.35rem + 1.15vw, 2.3rem);
+  --t-h3: clamp(1.28rem, 1.18rem + 0.4vw, 1.5rem);
+  --t-h4: 1.125rem;
+  --t-lede: clamp(1.18rem, 1.08rem + 0.45vw, 1.42rem);
+  --t-body: clamp(1.0625rem, 1.01rem + 0.22vw, 1.1875rem);
+  --t-ui: 1rem;
+  --t-small: 0.9375rem;
+  --t-label: 0.8125rem;
+
+  /* Measure and layout */
+  --measure: 68ch;
+  --page: 78rem;
+  --gutter: clamp(1rem, 0.6rem + 2.2vw, 2.5rem);
+  --header-h: 4.25rem;
+
+  /* Radius: fine, never pill-shaped */
+  --r-1: 3px;
+  --r-2: 5px;
+  --r-3: 8px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1);
+  --d-1: 120ms;
+  --d-2: 200ms;
+  --d-3: 320ms;
+  --d-4: 560ms;
+
+  --shadow-lift: 0 1px 0 rgb(23 35 31 / 0.04), 0 12px 32px -12px rgb(23 35 31 / 0.18);
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-surface-3: var(--surface-3);
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-sage: var(--sage);
+  --color-sage-deep: var(--sage-deep);
+  --color-green-wash: var(--green-wash);
+  --color-copper-wash: var(--copper-wash);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-soft: var(--accent-soft);
-  --color-accent-ink: var(--accent-ink);
+  --color-green: var(--green);
+  --color-green-deep: var(--green-deep);
+  --color-green-bright: var(--green-bright);
+  --color-copper: var(--copper);
+  --color-copper-ink: var(--copper-ink);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-control: var(--control);
   --color-ok: var(--ok);
-  --color-ok-soft: var(--ok-soft);
-  --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
-  --color-bad: var(--bad);
-  --color-bad-soft: var(--bad-soft);
+  --color-ok-wash: var(--ok-wash);
+  --color-pend: var(--pend);
+  --color-pend-wash: var(--pend-wash);
   --color-info: var(--info);
-  --color-info-soft: var(--info-soft);
-  --color-neutral-soft: var(--neutral-soft);
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
-  --shadow-card: var(--shadow-md);
+  --color-info-wash: var(--info-wash);
+  --color-bad: var(--bad);
+  --color-bad-wash: var(--bad-wash);
+  --color-none: var(--none);
+  --color-none-wash: var(--none-wash);
+
+  --font-display: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Source Sans 3 Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --text-display: var(--t-display);
+  --text-h1: var(--t-h1);
+  --text-h2: var(--t-h2);
+  --text-h3: var(--t-h3);
+  --text-h4: var(--t-h4);
+  --text-lede: var(--t-lede);
+  --text-body: var(--t-body);
+  --text-ui: var(--t-ui);
+  --text-small: var(--t-small);
+  --text-label: var(--t-label);
+
+  --radius-1: var(--r-1);
+  --radius-2: var(--r-2);
+  --radius-3: var(--r-3);
+
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+  --shadow-lift: var(--shadow-lift);
 }
 
-/* Element defaults live in the base layer so utility classes always win. */
 @layer base {
-html {
-  background: var(--bg);
-  -webkit-text-size-adjust: 100%;
-}
+  html {
+    background: var(--paper);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: calc(var(--header-h) + 1.25rem);
+  }
 
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 16px;
-  line-height: 1.6;
-  font-feature-settings: "cv11", "ss01";
-  text-rendering: optimizeLegibility;
-}
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--t-ui);
+    line-height: 1.55;
+    font-optical-sizing: auto;
+    font-kerning: normal;
+    font-variant-numeric: proportional-nums;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-serif);
-  letter-spacing: -0.01em;
-  color: var(--ink);
-  text-wrap: balance;
-}
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--ink);
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
 
-p {
-  text-wrap: pretty;
-}
+  h1 {
+    letter-spacing: -0.018em;
+    line-height: 1.06;
+  }
+  h2 {
+    letter-spacing: -0.012em;
+    line-height: 1.14;
+  }
+  h3 {
+    letter-spacing: -0.006em;
+    line-height: 1.22;
+  }
 
-a {
-  color: inherit;
-}
+  p,
+  li,
+  dd,
+  figcaption {
+    text-wrap: pretty;
+  }
 
-:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+  a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
 
+  ::selection {
+    background: #cfe2d7;
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  kbd {
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 2px;
+    border-radius: var(--r-1);
+    padding: 0.05em 0.35em;
+    background: var(--card);
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  summary {
+    cursor: pointer;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
 }
 
 @layer components {
-.tabular {
-  font-variant-numeric: tabular-nums;
+  /* Mono label: section kickers, data labels, figure numbers. 13px minimum, full-contrast ink. */
+  .label {
+    font-family: var(--font-mono);
+    font-size: var(--t-label);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* Inline text link: evergreen, underlined, thickens on hover. */
+  .a {
+    color: var(--green);
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in srgb, var(--green) 45%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition: text-decoration-color var(--d-1) var(--ease-out), color var(--d-1) var(--ease-out);
+  }
+  .a:hover {
+    color: var(--green-deep);
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+  }
+
+  /* A raised sheet: hairline border, no heavy shadow. */
+  .sheet {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-3);
+  }
+
+  /* Long-form reading. */
+  .prose-atlas {
+    font-size: var(--t-body);
+    line-height: 1.68;
+    color: var(--ink);
+    max-width: var(--measure);
+  }
+  .prose-atlas > * + * {
+    margin-top: 1.05em;
+  }
+  .prose-atlas h2:not(:where(.not-prose, .not-prose *)) {
+    font-size: var(--t-h2);
+    margin-top: 2.2em;
+    margin-bottom: 0.1em;
+  }
+  .prose-atlas h3:not(:where(.not-prose, .not-prose *)) {
+    font-size: var(--t-h3);
+    margin-top: 1.8em;
+  }
+  .prose-atlas strong {
+    font-weight: 650;
+  }
+  .prose-atlas a:not(:where(.not-prose, .not-prose *)) {
+    color: var(--green);
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in srgb, var(--green) 45%, transparent);
+    text-underline-offset: 0.2em;
+  }
+  .prose-atlas a:not(:where(.not-prose, .not-prose *)):hover {
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+  }
+  .prose-atlas ul:not(:where(.not-prose, .not-prose *)),
+  .prose-atlas ol:not(:where(.not-prose, .not-prose *)) {
+    padding-left: 1.4em;
+  }
+  .prose-atlas ul:not(:where(.not-prose, .not-prose *)) {
+    list-style: none;
+  }
+  .prose-atlas ul:not(:where(.not-prose, .not-prose *)) > li {
+    position: relative;
+  }
+  .prose-atlas ul:not(:where(.not-prose, .not-prose *)) > li::before {
+    content: "";
+    position: absolute;
+    left: -1.05em;
+    top: 0.72em;
+    width: 0.42em;
+    height: 1px;
+    background: var(--copper);
+  }
+  .prose-atlas ol:not(:where(.not-prose, .not-prose *)) {
+    list-style: decimal;
+  }
+  .prose-atlas ol:not(:where(.not-prose, .not-prose *)) > li::marker {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--copper-ink);
+  }
+  .prose-atlas li:not(:where(.not-prose, .not-prose *)) + li {
+    margin-top: 0.45em;
+  }
+  .prose-atlas em {
+    font-style: italic;
+  }
+
+  /* Hairline rule with a copper tick at the start — the atlas "meridian". */
+  .meridian {
+    position: relative;
+    border-top: 1px solid var(--rule);
+  }
+  .meridian::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 2.25rem;
+    height: 2px;
+    background: var(--copper);
+  }
 }
 
-/* Long-form editorial text. */
-.prose-gsi {
-  max-width: 70ch;
-  color: var(--ink-2);
-}
-.prose-gsi h2 {
-  font-size: 1.5rem;
-  margin: 2.25rem 0 0.75rem;
-  color: var(--ink);
-}
-.prose-gsi h3 {
-  font-size: 1.15rem;
-  margin: 1.75rem 0 0.5rem;
-  color: var(--ink);
-}
-.prose-gsi p,
-.prose-gsi ul,
-.prose-gsi ol {
-  margin: 0 0 1rem;
-}
-.prose-gsi ul {
-  list-style: disc;
-  padding-left: 1.25rem;
-}
-.prose-gsi ol {
-  list-style: decimal;
-  padding-left: 1.25rem;
-}
-.prose-gsi li {
-  margin: 0.25rem 0;
-}
-.prose-gsi a {
-  color: var(--accent-ink);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.prose-gsi strong {
-  color: var(--ink);
+@layer utilities {
+  .container-page {
+    width: 100%;
+    max-width: var(--page);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .measure {
+    max-width: var(--measure);
+  }
 }
 
-.link {
-  color: var(--accent-ink);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+/* Motion primitives — transform and opacity only. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.link:hover {
-  text-decoration-thickness: 2px;
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dashoffset: var(--len, 400);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
+.anim-rise {
+  animation: rise var(--d-3) var(--ease-out) both;
+}
+.anim-fade {
+  animation: fade var(--d-2) var(--ease-out) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
 }
 
 @media print {
-  header[data-site-header],
-  footer[data-site-footer],
+  [data-site-header],
+  [data-site-footer],
   [data-no-print] {
     display: none !important;
   }
-  body {
+  body,
+  html {
     background: #fff;
-    color: #000;
   }
+  .sheet {
+    border-color: #999;
+  }
+  a {
+    text-decoration: none;
+  }
+}
+
+/* Street map chrome, in atlas tokens */
+.maplibregl-popup-content {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  background: var(--card);
+  box-shadow: var(--shadow-lift);
+  padding: 10px 30px 10px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+.maplibregl-popup-close-button {
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  color: var(--ink-2);
+}
+.atlas-pop-link {
+  font-weight: 600;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.atlas-pop-sub {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.atlas-origin {
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--copper);
+  background: var(--card);
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 3px rgb(184 119 59 / 0.25);
+}
+.maplibregl-ctrl-group {
+  border-radius: var(--r-2) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--rule-strong);
 }

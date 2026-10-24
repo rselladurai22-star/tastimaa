@@ -2,7 +2,8 @@ import "server-only";
 import { sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { defaultEntryYear } from "@/lib/academic-year";
-import { lookupOutcode, lookupPostcode } from "@/lib/postcode";
+import { lookupOutcode, lookupPostcode, normalisePostcode } from "@/lib/postcode";
+import { searchIndex } from "@/content/site-index";
 import { expandQuery, looksLikePostcode, normaliseQuery, toPrefixTsQuery } from "@/lib/search-terms";
 import { PAGE_SIZE, type DirectoryParams } from "./search-params";
 
@@ -176,7 +177,7 @@ export async function searchSchools(p: DirectoryParams, opts: { entryYear?: numb
 }
 
 export interface Suggestion {
-  type: "school" | "area";
+  type: "school" | "area" | "postcode" | "test" | "guide" | "tool" | "page";
   label: string;
   sublabel: string;
   href: string;
@@ -189,7 +190,26 @@ export async function suggest(raw: string): Promise<Suggestion[]> {
   const tsq = toPrefixTsQuery(q);
   const expanded = expandQuery(q);
   const norm = normaliseQuery(q);
-  if (!tsq) return [];
+  // A postcode becomes a distance search; guides, tools and tests come from the site index and the database.
+  const pcKind = looksLikePostcode(q);
+  const postcode: Suggestion[] = [];
+  if (pcKind === "full") {
+    const pc = normalisePostcode(q);
+    if (pc) postcode.push({ type: "postcode", label: `Schools near ${pc}`, sublabel: "Postcode · straight-line distance from its centre", href: `/grammar-schools?postcode=${encodeURIComponent(pc)}&sort=distance` });
+  } else if (pcKind === "outward") {
+    const oc = q.toUpperCase().replace(/\s+/g, "");
+    postcode.push({ type: "postcode", label: `Schools near ${oc}`, sublabel: "Postcode district · approximate centre", href: `/grammar-schools?postcode=${encodeURIComponent(oc)}&sort=distance` });
+  }
+  const pages: Suggestion[] = pcKind ? [] : searchIndex(q, 4).map((e) => ({ type: e.type, label: e.title, sublabel: e.description, href: e.href }));
+  const tests = pcKind
+    ? []
+    : await db().execute<{ slug: string; name: string; nation: string }>(sql`
+        SELECT slug, name, nation FROM entrance_tests
+        WHERE lower(name) LIKE ${`%${norm}%`} OR similarity(lower(name), ${norm}) > 0.3 OR (${norm} IN ('11', '11+', '11 plus', 'eleven plus') )
+        ORDER BY similarity(lower(name), ${norm}) DESC LIMIT 3
+      `);
+  const testSuggestions: Suggestion[] = tests.map((t) => ({ type: "test", label: t.name, sublabel: `11+ test · ${t.nation === "northern_ireland" ? "Northern Ireland" : "England"}`, href: `/11-plus/${t.slug}` }));
+  if (!tsq) return [...postcode, ...testSuggestions, ...pages];
   const schools = await db().execute<{ slug: string; name: string; town: string | null; la: string | null; nation: string }>(sql`
     SELECT s.slug, s.name, l.town, la.name AS la, s.nation
     FROM schools s
@@ -208,8 +228,11 @@ export async function suggest(raw: string): Promise<Suggestion[]> {
     GROUP BY a.id ORDER BY count(s.id) DESC LIMIT 3
   `);
   return [
+    ...postcode,
     ...areas.map((a) => ({ type: "area" as const, label: a.name, sublabel: `${a.n} school${a.n === 1 ? "" : "s"} · ${a.type === "region" ? "region" : "local authority"}`, href: `/grammar-schools/${a.slug}` })),
     ...schools.map((s) => ({ type: "school" as const, label: s.name, sublabel: [s.town, s.la].filter(Boolean).join(", "), href: `/schools/${s.slug}` })),
+    ...testSuggestions,
+    ...pages,
   ];
 }
 
@@ -246,8 +269,10 @@ export async function getArea(slug: string) {
 }
 
 export async function siteStats() {
-  const [row] = await db().execute<{ england: number; ni: number; partial: number; las: number; inspections: number; results: number; allocations: number; policies: number }>(sql`
+  // "listed" uses exactly the directory's rule (open, not non-selective), so every page quotes the same total.
+  const [row] = await db().execute<{ listed: number; england: number; ni: number; partial: number; las: number; inspections: number; results: number; allocations: number; policies: number }>(sql`
     SELECT
+      count(*) FILTER (WHERE is_open AND selectivity <> 'non_selective')::int AS listed,
       count(*) FILTER (WHERE nation = 'england' AND selectivity = 'fully_selective' AND is_open)::int AS england,
       count(*) FILTER (WHERE nation = 'northern_ireland' AND is_open)::int AS ni,
       count(*) FILTER (WHERE selectivity = 'partially_selective' AND is_open)::int AS partial,

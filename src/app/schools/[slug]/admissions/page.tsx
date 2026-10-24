@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { clampEntryYear, selectableEntryYears } from "@/lib/academic-year";
 import { formatDate } from "@/lib/format";
-import { getDocuments, getEntranceTests, getPolicies, getSchoolCore, getSchoolEvents, loadSources, policyForYear } from "@/server/profile";
-import { AdmissionsSummary, CriteriaList, KeyDates, NoPolicy, PolicyDetails, ThreeSteps, YearPicker } from "@/components/school/admissions";
-import { Callout, SectionHeading } from "@/components/ui/primitives";
-import { VerificationBadge } from "@/components/ui/verification";
-
 import { tabIndexable } from "@/server/indexability";
+import { getDocuments, getEntranceTests, getPolicies, getSchoolCore, getSchoolEvents, loadSources, policyForYear } from "@/server/profile";
+import { IconDocument } from "@/ui/icons";
+import { ExternalLink, Note, Source } from "@/ui/kit";
+import { AdmissionsGlance, ChapterIntro, NoPolicy, PolicyDetails, ReportBody, RSection, YearPicker } from "@/ui/report/parts";
+import { Status } from "@/ui/status";
+import { JourneyStepper } from "@/ui/viz/admission-journey";
+import { DateLine, PriorityLadder } from "@/ui/viz/admissions-viz";
 
 export const dynamic = "force-dynamic";
 
@@ -42,100 +44,126 @@ export default async function AdmissionsPage({ params, searchParams }: Props) {
   const test = tests[0];
   const today = new Date().toISOString().slice(0, 10);
   const isNI = school.nation === "northern_ireland";
+  const yearEvents = [...events].filter((e) => e.entry_year === entryYear);
+
+  const contents = [
+    { id: "how-it-works", label: "How it works" },
+    { id: "summary", label: "This year's rules" },
+    ...(policy ? [{ id: "criteria", label: "Oversubscription criteria" }] : []),
+    ...(policy?.scoreRules.length ? [{ id: "scores", label: "Score rules" }] : []),
+    ...(policy ? [{ id: "details", label: "The detail" }] : []),
+    { id: "dates", label: "Key dates" },
+    ...(versions.length > 1 ? [{ id: "versions", label: "Version history" }] : []),
+    { id: "docs", label: "Official documents" },
+  ];
+  const marks = Object.fromEntries(contents.map((c, i) => [c.id, String.fromCharCode(65 + i)]));
 
   return (
-    <div className="grid gap-12">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="max-w-3xl">
-          <h2 className="text-2xl font-semibold sm:text-3xl">How places are allocated</h2>
-          <p className="mt-1 text-ink-2">Admissions rules change each year, so every rule here belongs to one entry year. Choose the year your child will start.</p>
-        </div>
-        <YearPicker years={years} selected={entryYear} basePath={`/schools/${slug}/admissions`} />
-      </div>
+    <ReportBody contents={contents}>
+      <ChapterIntro
+        kicker="Chapter 02 · Admissions"
+        title="How places are allocated"
+        lede="Admissions rules change each year, so every rule here belongs to one entry year. Choose the year your child will start."
+        aside={<YearPicker years={years} selected={entryYear} basePath={`/schools/${slug}/admissions`} />}
+      />
 
-      <ThreeSteps />
+      <RSection id="how-it-works" mark={marks["how-it-works"]} title="Three steps, in order" lede="Qualifying makes a child eligible to be considered. The criteria then decide the order, until places run out.">
+        <JourneyStepper />
+      </RSection>
 
       {isNI ? (
-        <Callout title="Northern Ireland transfer">
-          Children transfer to Year 8. Each school publishes its own admissions criteria each year through the Education Authority, setting out how it uses SEAG outcomes and other criteria.{" "}
-          <Link href="/admissions/northern-ireland">How the NI process works</Link>.
-        </Callout>
+        <Note title="Northern Ireland transfer">
+          Children transfer to Year 8. Each school publishes its own admissions criteria each year through the Education Authority, setting out how it uses SEAG outcomes and other criteria. <Link href="/admissions/northern-ireland">How the NI process works</Link>.
+        </Note>
       ) : null}
 
+      <RSection id="summary" mark={marks.summary} title={`September ${entryYear} entry`}>
+        {policy ? (
+          <div className="grid gap-4">
+            <AdmissionsGlance policy={policy} sources={sources} testName={test?.test.name ?? null} testSlug={test?.test.slug ?? null} />
+            {policy.status === "awaiting_verification" ? (
+              <Note tone="caution" title="Not yet checked by an editor">
+                We extracted these rules from the school&apos;s published policy and cite each one, but an editor has not yet confirmed them. Always read the official document before relying on them.
+              </Note>
+            ) : null}
+          </div>
+        ) : (
+          <NoPolicy schoolName={school.name} entryYear={entryYear} website={contact?.website} otherYears={otherYears} />
+        )}
+      </RSection>
+
       {policy ? (
-        <>
-          <AdmissionsSummary policy={policy} sources={sources} testName={test?.test.name ?? null} testSlug={test?.test.slug ?? null} />
-          {policy.status === "awaiting_verification" ? (
-            <Callout tone="warn" title="Not yet checked by an editor">
-              We extracted these rules from the school&apos;s published policy and cite each one, but an editor has not yet confirmed them. Always read the official document before relying on them.
-            </Callout>
-          ) : null}
-          <section aria-labelledby="criteria">
-            <SectionHeading id="criteria" title="Oversubscription criteria" description="The order in which qualified applicants are offered places when there are more applicants than places." />
-            <CriteriaList policy={policy} sources={sources} />
-          </section>
-          {policy.scoreRules.length ? (
-            <section aria-labelledby="scores">
-              <SectionHeading id="scores" title="Score rules" description="Every score rule in the policy, with who it applies to. Scores only apply to this school's own test." />
-              <ul className="grid gap-3">
-                {policy.scoreRules.map((r) => (
-                  <li key={r.id} className="rounded-xl border border-line bg-surface p-4">
-                    <p className="font-semibold text-ink">
-                      {r.scoreValue ?? "—"} <span className="font-normal text-ink-3">· {r.scoreScale}</span>
-                    </p>
-                    <p className="mt-1 text-sm text-ink-2">{r.description}</p>
-                    <p className="mt-1 text-xs text-ink-3">Policy reference: {r.sourceLocator}</p>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-          <section aria-labelledby="details">
-            <SectionHeading id="details" title="The detail" />
-            <PolicyDetails policy={policy} />
-          </section>
-        </>
-      ) : (
-        <NoPolicy schoolName={school.name} entryYear={entryYear} website={contact?.website} otherYears={otherYears} />
-      )}
+        <RSection id="criteria" mark={marks.criteria} title="Oversubscription criteria" lede="The order in which qualified applicants are offered places when there are more applicants than places. Open a rung to read the policy's wording.">
+          <PriorityLadder policy={policy} testName={test?.test.name ?? null} />
+          <Source source={policy.sourceDocumentId ? sources.get(policy.sourceDocumentId) : null} locator="Oversubscription criteria" status={policy.verificationStatus} />
+        </RSection>
+      ) : null}
 
-      <section aria-labelledby="dates">
-        <SectionHeading id="dates" title={`Key dates for September ${entryYear} entry`} />
-        <KeyDates events={[...events]} entryYear={entryYear} today={today} />
-      </section>
-
-      {versions.length > 1 ? (
-        <section aria-labelledby="versions">
-          <SectionHeading id="versions" title="Version history" description="When a school's rules change, the old version is kept so you can see what changed." />
-          <ul className="grid gap-2 text-sm">
-            {versions.map((v) => (
-              <li key={v.id} className="flex flex-wrap items-center gap-2">
-                Version {v.version} · recorded {formatDate(v.createdAt)} <VerificationBadge status={v.status === "superseded" ? "historical" : v.verificationStatus} />
+      {policy?.scoreRules.length ? (
+        <RSection id="scores" mark={marks.scores} title="Score rules" lede="Every score rule in the policy, with who it applies to. Scores only apply to this school's own test.">
+          <ul className="grid gap-px overflow-hidden rounded-[6px] border border-rule bg-rule">
+            {policy.scoreRules.map((r) => (
+              <li key={r.id} className="grid gap-x-6 gap-y-1 bg-card px-5 py-4 sm:grid-cols-[8rem_minmax(0,1fr)]">
+                <p>
+                  <span className="block font-display text-[1.9rem] leading-none text-ink num">{r.scoreValue ?? "—"}</span>
+                  <span className="mt-1 block text-small text-ink-2">{r.scoreScale}</span>
+                </p>
+                <div>
+                  <p className="text-[1.02rem] leading-relaxed text-ink">{r.description}</p>
+                  <p className="mt-1 font-mono text-[0.8rem] text-ink-2">Policy reference: {r.sourceLocator}</p>
+                </div>
               </li>
             ))}
           </ul>
-        </section>
+        </RSection>
       ) : null}
 
-      <section aria-labelledby="docs">
-        <SectionHeading id="docs" title="Official documents" description="Documents we have retrieved for this school, with dates." />
+      {policy ? (
+        <RSection id="details" mark={marks.details} title="The detail" lede="Address rules, distance, waiting lists and appeals, in the policy's terms.">
+          <PolicyDetails policy={policy} />
+        </RSection>
+      ) : null}
+
+      <RSection id="dates" mark={marks.dates} title={`Key dates for September ${entryYear} entry`}>
+        <DateLine events={yearEvents} today={today} emptyText={`We don't hold verified dates for September ${entryYear} entry for this school yet. Dates are only shown once taken from an official source.`} />
+      </RSection>
+
+      {versions.length > 1 ? (
+        <RSection id="versions" mark={marks.versions} title="Version history" lede="When a school's rules change, the old version is kept so you can see what changed.">
+          <ol className="border-l border-rule">
+            {versions.map((v) => (
+              <li key={v.id} className="relative flex flex-wrap items-center gap-3 py-2 pl-5">
+                <span aria-hidden className="absolute top-1/2 -left-[5px] size-[9px] -translate-y-1/2 rounded-full border-2 border-green bg-paper" />
+                <span className="font-mono text-[0.9rem] text-ink">v{v.version}</span>
+                <span className="text-ink-2">recorded {formatDate(v.createdAt)}</span>
+                <Status status={v.status === "superseded" ? "historical" : v.verificationStatus} />
+              </li>
+            ))}
+          </ol>
+        </RSection>
+      ) : null}
+
+      <RSection id="docs" mark={marks.docs} title="Official documents" lede="Documents we have retrieved for this school, with dates.">
         {documents.length ? (
-          <ul className="grid gap-2 text-sm">
+          <ul className="grid gap-px overflow-hidden rounded-[6px] border border-rule bg-rule">
             {documents.map(({ doc, source }) => (
-              <li key={doc.id} className="rounded-lg border border-line bg-surface px-4 py-3">
-                <a href={doc.url} className="link font-medium" rel="noopener noreferrer" target="_blank">
-                  {doc.title}
-                </a>
-                <span className="block text-xs text-ink-3">
-                  {source.publisher} · retrieved {formatDate(doc.retrievedAt)} · {doc.status === "active" ? "current" : doc.status}
-                </span>
+              <li key={doc.id} className="flex gap-3 bg-card px-4 py-3.5">
+                <IconDocument size={18} className="mt-0.5 shrink-0 text-copper-ink" />
+                <div className="min-w-0">
+                  <ExternalLink href={doc.url} className="font-semibold">
+                    {doc.title}
+                  </ExternalLink>
+                  <span className="mt-0.5 block text-small text-ink-2">
+                    {source.publisher} · retrieved {formatDate(doc.retrievedAt)} · {doc.status === "active" ? "current" : doc.status}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-ink-2">We have not retrieved any documents for this school yet.</p>
+          <p className="text-ink-2">We have not retrieved any documents for this school yet.</p>
         )}
-      </section>
-    </div>
+      </RSection>
+    </ReportBody>
   );
 }
