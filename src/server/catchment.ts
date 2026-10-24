@@ -27,9 +27,15 @@ export async function checkCatchment(postcodeInput: string, slugs: string[], ent
   const pc = await lookupPostcode(postcodeInput);
   if (!pc.ok) return { ok: false, message: pc.message };
   const { latitude, longitude, postcode } = pc.location;
+  return { ok: true, result: { postcode, latitude, longitude, schools: await checkPoint(latitude, longitude, postcode, slugs, entryYear) } };
+}
+
+/** Compare a point with verified boundaries for one entry year. Exported for tests. */
+export async function checkPoint(latitude: number, longitude: number, label: string, slugs: string[], entryYear: number): Promise<CatchmentCheck["schools"]> {
+  const postcode = label;
   const point = sql`ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography`;
   const slugList = slugs.slice(0, 5);
-  if (!slugList.length) return { ok: true, result: { postcode, latitude, longitude, schools: [] } };
+  if (!slugList.length) return [];
   const rows = await db().execute<{ slug: string; name: string; miles: number | null; catchment_type: string | null; policy_status: string | null; b_name: string | null; b_year: number | null; b_status: string | null; inside: boolean | null }>(sql`
     WITH pol AS (
       SELECT DISTINCT ON (p.school_id) p.school_id, p.catchment_type, p.status
@@ -51,13 +57,7 @@ export async function checkCatchment(postcodeInput: string, slugs: string[], ent
     LEFT JOIN b ON b.school_id = s.id
     WHERE s.slug IN (${sql.join(slugList.map((s) => sql`${s}`), sql`, `)})
   `);
-  return {
-    ok: true,
-    result: {
-      postcode,
-      latitude,
-      longitude,
-      schools: rows.map((r) => {
+  return rows.map((r) => {
         const boundary: CatchmentCheck["schools"][number]["boundary"] =
           r.inside === null ? { status: "no_verified_boundary" } : { status: r.inside ? "inside" : "outside", name: r.b_name ?? undefined, effectiveEntryYear: r.b_year ?? undefined, verificationStatus: r.b_status ?? undefined };
         let explanation: string;
@@ -68,7 +68,5 @@ export async function checkCatchment(postcodeInput: string, slugs: string[], ent
         else if (r.catchment_type === "none") explanation = `${r.name} does not use a catchment area for ${entryYear}.`;
         else explanation = `We don't yet hold ${r.name}'s ${entryYear} admissions rules, so we can't say whether residence matters.`;
         return { slug: r.slug, name: r.name, straightLineMiles: r.miles === null ? null : Number(r.miles), catchmentType: r.catchment_type, policyStatus: r.policy_status, boundary, explanation };
-      }),
-    },
-  };
+      });
 }

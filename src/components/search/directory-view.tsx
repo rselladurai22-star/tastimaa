@@ -24,7 +24,9 @@ function Check({ name, value, checked, label }: { name: string; value: string; c
   );
 }
 
-async function Filters({ p, basePath, lockArea }: { p: DirectoryParams; basePath: string; lockArea: boolean }) {
+async function Filters({ p, basePath, lockArea, idPrefix }: { p: DirectoryParams; basePath: string; lockArea: boolean; idPrefix: string }) {
+  // Rendered twice (mobile disclosure and desktop sidebar), so ids need a per-copy prefix.
+  const fid = (name: string) => `${idPrefix}-${name}`;
   const tests = await testOptions();
   return (
     <form method="get" action={basePath} className="space-y-6">
@@ -33,14 +35,14 @@ async function Filters({ p, basePath, lockArea }: { p: DirectoryParams; basePath
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Near a postcode</legend>
         <div className="flex gap-2">
-          <label htmlFor="f-postcode" className="sr-only">
+          <label htmlFor={fid("postcode")} className="sr-only">
             Postcode
           </label>
-          <input id="f-postcode" name="postcode" defaultValue={p.postcode ?? ""} placeholder="e.g. HP21 7RP" autoComplete="postal-code" className="w-full min-w-0 rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm uppercase placeholder:normal-case" />
-          <label htmlFor="f-radius" className="sr-only">
+          <input id={fid("postcode")} name="postcode" defaultValue={p.postcode ?? ""} placeholder="e.g. HP21 7RP" autoComplete="postal-code" className="w-full min-w-0 rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm uppercase placeholder:normal-case" />
+          <label htmlFor={fid("radius")} className="sr-only">
             Radius
           </label>
-          <select id="f-radius" name="radius" defaultValue={String(p.radius ?? 30)} className="rounded-lg border border-line-strong bg-surface px-2 py-2 text-sm">
+          <select id={fid("radius")} name="radius" defaultValue={String(p.radius ?? 30)} className="rounded-lg border border-line-strong bg-surface px-2 py-2 text-sm">
             {[5, 10, 20, 30, 50, 100].map((r) => (
               <option key={r} value={r}>
                 {r} mi
@@ -86,10 +88,10 @@ async function Filters({ p, basePath, lockArea }: { p: DirectoryParams; basePath
 
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Entrance test</legend>
-        <label htmlFor="f-test" className="sr-only">
+        <label htmlFor={fid("test")} className="sr-only">
           Entrance test
         </label>
-        <select id="f-test" name="test" defaultValue={p.test ?? ""} className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm">
+        <select id={fid("test")} name="test" defaultValue={p.test ?? ""} className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm">
           <option value="">Any test</option>
           {tests.map((t) => (
             <option key={t.slug} value={t.slug}>
@@ -110,10 +112,10 @@ async function Filters({ p, basePath, lockArea }: { p: DirectoryParams; basePath
 
       <fieldset>
         <legend className="mb-2 text-sm font-semibold text-ink">Sort by</legend>
-        <label htmlFor="f-sort" className="sr-only">
+        <label htmlFor={fid("sort")} className="sr-only">
           Sort by
         </label>
-        <select id="f-sort" name="sort" defaultValue={p.sort ?? ""} className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm">
+        <select id={fid("sort")} name="sort" defaultValue={p.sort ?? ""} className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm">
           <option value="">Best match</option>
           <option value="distance">Distance (needs a postcode)</option>
           <option value="name">Name (A–Z)</option>
@@ -181,7 +183,7 @@ export async function DirectoryView({ p, result, basePath, lockArea = false, ent
   const activeFilters = [p.gender.length, p.selectivity.length, p.sixthForm, p.boarding, p.test, p.outOfArea, p.scoreRoute, p.siblingPriority, p.history, p.postcode, !lockArea && p.nation].filter(Boolean).length;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[18rem_minmax(0,1fr)]">
       <aside aria-label="Filters">
         <details className="group rounded-xl border border-line bg-surface lg:hidden">
           <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
@@ -192,11 +194,11 @@ export async function DirectoryView({ p, result, basePath, lockArea = false, ent
             <span className="hidden text-xs text-ink-3 group-open:inline">Hide</span>
           </summary>
           <div className="border-t border-line p-4">
-            <Filters p={p} basePath={basePath} lockArea={lockArea} />
+            <Filters p={p} basePath={basePath} lockArea={lockArea} idPrefix="fm" />
           </div>
         </details>
         <div className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-auto rounded-xl border border-line bg-surface p-5 lg:block">
-          <Filters p={p} basePath={basePath} lockArea={lockArea} />
+          <Filters p={p} basePath={basePath} lockArea={lockArea} idPrefix="fd" />
         </div>
       </aside>
 
@@ -262,7 +264,7 @@ export async function DirectoryView({ p, result, basePath, lockArea = false, ent
         ) : view === "table" ? (
           <ResultsTable r={result} />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {result.items.map((s) => (
               <SchoolCard key={s.id} s={s} locationPrecision={result.location?.precision} />
             ))}

@@ -35,7 +35,7 @@ export async function plannerEvents(slugs: string[], entryYear: number): Promise
   if (!nations.length) nations.push("england");
   const idList = ids.length ? sql.join(ids.map((i) => sql`${i}`), sql`, `) : sql`NULL`;
   const rows = await db().execute<{ id: number; title: string; description: string | null; event_type: string; starts_on: string; ends_on: string | null; url: string | null; scope: string; nation: string; entry_year: number; test_name: string | null; school_name: string | null; verification_status: string }>(sql`
-    SELECT DISTINCT e.id, e.title, e.description, e.event_type, e.starts_on::text, e.ends_on::text, e.url, e.scope, c.nation, c.entry_year,
+    SELECT e.id, e.title, e.description, e.event_type, e.starts_on::text, e.ends_on::text, e.url, e.scope, c.nation, c.entry_year,
            t.name AS test_name, s.name AS school_name, e.verification_status
     FROM admission_events e
     JOIN admission_cycles c ON c.id = e.cycle_id

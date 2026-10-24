@@ -42,14 +42,14 @@ export function CompareView({
                   <Link
                     key={g}
                     href={qs(next.length ? next : groups, diffOnly)}
-                    aria-pressed={on}
+                    aria-current={on ? "true" : undefined}
                     className={clsx("rounded-full border px-3 py-1.5 text-sm font-medium", on ? "border-accent/40 bg-accent-soft text-accent-ink" : "border-line-strong text-ink-2 hover:text-ink")}
                   >
                     {COMPARE_GROUPS[g]}
                   </Link>
                 );
               })}
-              <Link href={qs(groups, !diffOnly)} aria-pressed={diffOnly} className={clsx("rounded-full border px-3 py-1.5 text-sm font-medium", diffOnly ? "border-ink bg-ink text-bg" : "border-line-strong text-ink-2 hover:text-ink")}>
+              <Link href={qs(groups, !diffOnly)} aria-current={diffOnly ? "true" : undefined} className={clsx("rounded-full border px-3 py-1.5 text-sm font-medium", diffOnly ? "border-ink bg-ink text-bg" : "border-line-strong text-ink-2 hover:text-ink")}>
                 Only differences
               </Link>
             </nav>

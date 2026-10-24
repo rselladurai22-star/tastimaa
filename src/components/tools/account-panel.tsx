@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useShortlist } from "@/components/school/shortlist";
 
 export function SignInForm() {
@@ -34,6 +35,7 @@ export function SignInForm() {
 export function SavedSchools({ initial }: { initial: { slug: string; name: string }[] }) {
   const { list } = useShortlist();
   const [saved, setSaved] = useState(initial);
+  const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const unsynced = list.filter((l) => !saved.some((s) => s.slug === l.slug));
   return (
@@ -76,7 +78,10 @@ export function SavedSchools({ initial }: { initial: { slug: string; name: strin
             if (!window.confirm("Delete your account and all saved data now?")) return;
             setDeleting(true);
             const res = await fetch("/api/account/saved", { method: "DELETE" });
-            if (res.ok) window.location.href = "/account?deleted=1";
+            if (res.ok) {
+              router.replace("/account?deleted=1");
+              router.refresh();
+            }
             else setDeleting(false);
           }}
           className="mt-3 rounded-lg border border-bad/40 px-3 py-2 text-sm font-semibold text-bad"

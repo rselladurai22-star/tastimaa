@@ -34,6 +34,7 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
+        <div aria-hidden className="flex-1 md:hidden" />
         <div className="ml-auto hidden w-72 md:block xl:w-80">
           <SearchBox shortcut placeholder="School, town or postcode" />
         </div>

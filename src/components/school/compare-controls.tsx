@@ -11,20 +11,20 @@ interface Suggestion {
   href: string;
 }
 
+const NO_SUGGESTIONS: Suggestion[] = [];
+
 export function AddSchool({ current, entryYear }: { current: string[]; entryYear: number }) {
   const router = useRouter();
   const [q, setQ] = useState("");
-  const [items, setItems] = useState<Suggestion[]>([]);
+  const [results, setResults] = useState<Suggestion[]>([]);
+  const items = q.trim().length < 2 ? NO_SUGGESTIONS : results;
   useEffect(() => {
-    if (q.trim().length < 2) {
-      setItems([]);
-      return;
-    }
+    if (q.trim().length < 2) return;
     const ctrl = new AbortController();
     const t = setTimeout(() => {
       fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
         .then((r) => r.json())
-        .then((j: { suggestions: Suggestion[] }) => setItems(j.suggestions.filter((s) => s.type === "school")))
+        .then((j: { suggestions: Suggestion[] }) => setResults(j.suggestions.filter((s) => s.type === "school")))
         .catch(() => {});
     }, 150);
     return () => {
@@ -46,7 +46,7 @@ export function AddSchool({ current, entryYear }: { current: string[]; entryYear
         placeholder="Add a school…"
         autoComplete="off"
         className="w-full rounded-lg border border-line-strong bg-surface py-2.5 pr-3 pl-9 text-sm"
-        aria-controls="add-school-list"
+        aria-controls={items.length ? "add-school-list" : undefined}
       />
       {items.length ? (
         <ul id="add-school-list" className="absolute z-30 mt-1 w-full rounded-lg border border-line bg-surface p-1 shadow-[var(--shadow-md)]">
@@ -60,7 +60,7 @@ export function AddSchool({ current, entryYear }: { current: string[]; entryYear
                   disabled={already}
                   onClick={() => {
                     setQ("");
-                    setItems([]);
+                    setResults([]);
                     router.push(`/compare?schools=${[...current, slug].join(",")}&year=${entryYear}`);
                   }}
                   className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-surface-2 disabled:opacity-50"

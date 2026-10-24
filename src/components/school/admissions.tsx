@@ -234,7 +234,7 @@ export function KeyDates({ events, entryYear, today, emptyText }: { events: Even
       {rows.map((e) => {
         const past = (e.ends_on ?? e.starts_on) < today;
         return (
-          <li key={e.id} className={past ? "flex gap-4 px-5 py-4 opacity-70" : "flex gap-4 px-5 py-4"}>
+          <li key={e.id} className={past ? "flex gap-4 bg-surface-2/60 px-5 py-4" : "flex gap-4 px-5 py-4"}>
             <CalendarDays aria-hidden className="mt-0.5 size-5 shrink-0 text-accent-ink" />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">

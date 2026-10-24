@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { QUESTIONS, SKILL_LABEL, type Skill } from "@/content/practice";
+import { useStoredJson } from "@/lib/use-stored-json";
 
 const KEY = "gsi.practice.v1";
 interface Attempt {
@@ -13,6 +14,7 @@ interface Attempt {
   seconds: number;
   byTopic: Record<string, [number, number]>;
 }
+const NO_HISTORY: Attempt[] = [];
 
 function shuffle<T>(a: T[]): T[] {
   const r = a.slice();
@@ -32,21 +34,10 @@ export function PracticeTool() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [start, setStart] = useState(0);
   const [now, setNow] = useState(0);
-  const [history, setHistory] = useState<Attempt[]>([]);
+  const [history, setHistory] = useStoredJson(KEY, NO_HISTORY);
   const [done, setDone] = useState<Attempt | null>(null);
 
-  useEffect(() => {
-    try {
-      setHistory(JSON.parse(localStorage.getItem(KEY) ?? "[]") as Attempt[]);
-    } catch {
-      setHistory([]);
-    }
-  }, []);
-  useEffect(() => {
-    if (!running) return;
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, [running]);
+  const finishRef = useRef<() => void>(() => {});
 
   const qs = useMemo(() => order.map((id) => QUESTIONS.find((q) => q.id === id)).filter((q): q is (typeof QUESTIONS)[number] => !!q), [order]);
   const q = qs[idx];
@@ -74,21 +65,23 @@ export function PracticeTool() {
       byTopic[x.topic] = [t[0] + (ok ? 1 : 0), t[1] + 1];
     }
     const attempt: Attempt = { at: new Date().toISOString(), skill, correct, total: qs.length, seconds: Math.floor((Date.now() - start) / 1000), byTopic };
-    const next = [attempt, ...history].slice(0, 20);
-    setHistory(next);
-    try {
-      localStorage.setItem(KEY, JSON.stringify(next));
-    } catch {
-      /* storage unavailable */
-    }
+    setHistory([attempt, ...history].slice(0, 20));
     setDone(attempt);
     setRunning(false);
   }
 
   useEffect(() => {
-    if (running && limit > 0 && elapsed >= limit) finish();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elapsed, limit, running]);
+    finishRef.current = finish;
+  });
+  useEffect(() => {
+    if (!running) return;
+    const t = setInterval(() => {
+      const n = Date.now();
+      setNow(n);
+      if (limit > 0 && (n - start) / 1000 >= limit) finishRef.current();
+    }, 1000);
+    return () => clearInterval(t);
+  }, [running, start, limit]);
 
   if (!running && !done) {
     return (
@@ -121,12 +114,7 @@ export function PracticeTool() {
               type="button"
               className="mt-2 text-xs text-ink-3 underline"
               onClick={() => {
-                setHistory([]);
-                try {
-                  localStorage.removeItem(KEY);
-                } catch {
-                  /* ignore */
-                }
+                setHistory(null);
               }}
             >
               Clear history

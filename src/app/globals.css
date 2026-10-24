@@ -144,6 +144,8 @@
   --shadow-card: var(--shadow-md);
 }
 
+/* Element defaults live in the base layer so utility classes always win. */
+@layer base {
 html {
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
@@ -182,6 +184,9 @@ a {
   border-radius: 4px;
 }
 
+}
+
+@layer components {
 .tabular {
   font-variant-numeric: tabular-nums;
 }
@@ -234,6 +239,8 @@ a {
 }
 .link:hover {
   text-decoration-thickness: 2px;
+}
+
 }
 
 @media (prefers-reduced-motion: reduce) {

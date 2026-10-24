@@ -100,7 +100,7 @@ export default async function TestPage({ params }: Props) {
             {events.length ? (
               <ol className="divide-y divide-line rounded-xl border border-line bg-surface">
                 {events.map(({ e, c }) => (
-                  <li key={e.id} className={(e.endsOn ?? e.startsOn) < today ? "px-5 py-4 opacity-70" : "px-5 py-4"}>
+                  <li key={e.id} className={(e.endsOn ?? e.startsOn) < today ? "bg-surface-2/60 px-5 py-4" : "px-5 py-4"}>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-ink">{e.title}</span>
                       <span className="text-xs text-ink-3">{EVENT_TYPE_LABEL[e.eventType]}</span>

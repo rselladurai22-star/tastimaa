@@ -5,6 +5,7 @@ import { CalendarPlus, CheckCircle2, Circle } from "lucide-react";
 import { clsx } from "clsx";
 import { useShortlist } from "@/components/school/shortlist";
 import { formatWeekdayDate } from "@/lib/format";
+import { useStoredJson } from "@/lib/use-stored-json";
 
 interface Ev {
   id: number;
@@ -25,12 +26,13 @@ interface Data {
 }
 
 const doneKey = (year: number) => `gsi.planner.done.${year}`;
+const NONE_DONE: string[] = [];
 
 export function Planner({ years, defaultYear, notice }: { years: number[]; defaultYear: number; notice?: string | null }) {
   const { list } = useShortlist();
   const [year, setYear] = useState(defaultYear);
   const [data, setData] = useState<Data | null>(null);
-  const [done, setDone] = useState<string[]>([]);
+  const [done, setDone] = useStoredJson(doneKey(year), NONE_DONE);
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -42,21 +44,10 @@ export function Planner({ years, defaultYear, notice }: { years: number[]; defau
       .then((r) => r.json())
       .then(setData)
       .catch(() => setData(null));
-    try {
-      setDone(JSON.parse(localStorage.getItem(doneKey(year)) ?? "[]"));
-    } catch {
-      setDone([]);
-    }
   }, [slugs, year]);
 
   function toggle(key: string) {
-    const next = done.includes(key) ? done.filter((k) => k !== key) : [...done, key];
-    setDone(next);
-    try {
-      localStorage.setItem(doneKey(year), JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
+    setDone(done.includes(key) ? done.filter((k) => k !== key) : [...done, key]);
   }
 
   async function subscribe(e: React.FormEvent) {
@@ -115,7 +106,7 @@ export function Planner({ years, defaultYear, notice }: { years: number[]; defau
                       {s.events.length ? (
                         <ul className="mt-2 grid gap-1.5">
                           {s.events.map((e) => (
-                            <li key={e.id} className={clsx("rounded-lg border border-line bg-surface px-3 py-2 text-sm", (e.endsOn ?? e.startsOn) < today && "opacity-60")}>
+                            <li key={e.id} className={clsx("rounded-lg border border-line bg-surface px-3 py-2 text-sm", (e.endsOn ?? e.startsOn) < today && "bg-surface-2")}>
                               <span className="font-semibold text-accent-ink tabular">{formatWeekdayDate(e.startsOn)}</span> · {e.title}
                               {e.testName ? <span className="text-ink-3"> · {e.testName}</span> : null}
                               {e.verificationStatus !== "officially_verified" ? <span className="ml-1 text-xs text-warn">(awaiting verification)</span> : null}

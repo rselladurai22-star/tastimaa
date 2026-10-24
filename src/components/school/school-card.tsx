@@ -9,7 +9,7 @@ import { SaveButton } from "./shortlist";
 
 export function SchoolCard({ s, locationPrecision }: { s: SchoolListItem; locationPrecision?: "postcode_centroid" | "postcode_district" }) {
   return (
-    <article className="group relative flex flex-col rounded-xl border border-line bg-surface p-5 shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)]">
+    <article className="group relative flex min-w-0 flex-col rounded-xl border border-line bg-surface p-5 shadow-[var(--shadow-sm)] transition-shadow hover:shadow-[var(--shadow-md)]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-serif text-lg leading-snug font-semibold">

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, CircleHelp, Plus, X, XCircle } from "lucide-react";
 import { clsx } from "clsx";
 import { ACADEMIC_LABEL, MATCH_LABEL, OVERALL_LABEL, type Assessment } from "@/domain/eligibility";
@@ -154,29 +154,28 @@ function ResultCard({ r, source }: { r: Assessment; source: { title: string; url
 
 export function EligibilityChecker({ initialSchools, years, defaultYear }: { initialSchools: { slug: string; name: string }[]; years: number[]; defaultYear: number }) {
   const { list } = useShortlist();
-  const [schools, setSchools] = useState(initialSchools);
+  // null = not chosen yet, so follow the parent's shortlist (first five).
+  const [chosen, setChosen] = useState<{ slug: string; name: string }[] | null>(initialSchools.length ? initialSchools : null);
+  const fromShortlist = useMemo(() => list.slice(0, 5), [list]);
+  const schools = chosen ?? fromShortlist;
+  const setSchools = (update: (current: { slug: string; name: string }[]) => { slug: string; name: string }[]) => setChosen(update(schools));
   const [entryYear, setEntryYear] = useState(defaultYear);
   const [answers, setAnswers] = useState<Answers>({});
-  const [data, setData] = useState<Response | null>(null);
   const [scenario, setScenario] = useState<{ testSlug: string; score: number } | null>(null);
   const [scenarioData, setScenarioData] = useState<Response | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
-  const [sugs, setSugs] = useState<{ label: string; href: string; sublabel: string; type: string }[]>([]);
-
-  useEffect(() => {
-    if (!initialSchools.length && list.length) setSchools(list.slice(0, 5));
-    // only on first load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [list.length]);
+  const [sugResults, setSugs] = useState<{ label: string; href: string; sublabel: string; type: string }[]>([]);
+  const sugs = q.trim().length < 2 ? [] : sugResults;
+  // Results are keyed by the request that produced them, so "busy" is derived rather than toggled.
+  const requestKey = JSON.stringify([schools.map((s) => s.slug), entryYear, answers]);
+  const [result, setResult] = useState<{ key: string; data: Response | null; error: string | null } | null>(null);
+  const data = result?.data ?? null;
+  const error = result?.error ?? null;
+  const busy = result?.key !== requestKey;
 
   const run = useCallback(
     async (a: Answers) => {
-      if (!schools.length) {
-        setData(null);
-        return null;
-      }
+      if (!schools.length) return null;
       const res = await fetch("/api/eligibility", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ schools: schools.map((s) => s.slug), entryYear, answers: a }) });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? "Something went wrong");
       return (await res.json()) as Response;
@@ -186,22 +185,21 @@ export function EligibilityChecker({ initialSchools, years, defaultYear }: { ini
 
   useEffect(() => {
     let cancelled = false;
-    setBusy(true);
     run(answers)
-      .then((d) => !cancelled && setData(d))
-      .catch((e: Error) => !cancelled && setError(e.message))
-      .finally(() => !cancelled && setBusy(false));
+      .then((d) => {
+        if (!cancelled) setResult({ key: requestKey, data: d, error: null });
+      })
+      .catch((e: Error) => {
+        if (!cancelled) setResult((r) => ({ key: requestKey, data: r?.data ?? null, error: e.message }));
+      });
     return () => {
       cancelled = true;
     };
     // Re-run when answers change too, so results stay in sync with the form.
-  }, [run, answers]);
+  }, [run, answers, requestKey]);
 
   useEffect(() => {
-    if (q.trim().length < 2) {
-      setSugs([]);
-      return;
-    }
+    if (q.trim().length < 2) return;
     const ctrl = new AbortController();
     const t = setTimeout(() => {
       fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })

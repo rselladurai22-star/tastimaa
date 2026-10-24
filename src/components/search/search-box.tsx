@@ -16,6 +16,8 @@ interface Suggestion {
  * Accessible combobox (WAI-ARIA 1.2 list autocomplete). Works without
  * JavaScript as a plain GET form to the directory.
  */
+const NO_SUGGESTIONS: Suggestion[] = [];
+
 export function SearchBox({
   size = "md",
   placeholder = "Search by school, town or postcode",
@@ -34,7 +36,8 @@ export function SearchBox({
   const listId = `${id}-list`;
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(defaultValue);
-  const [items, setItems] = useState<Suggestion[]>([]);
+  const [results, setResults] = useState<Suggestion[]>([]);
+  const items = value.trim().length < 2 ? NO_SUGGESTIONS : results;
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [loading, setLoading] = useState(false);
@@ -54,10 +57,7 @@ export function SearchBox({
 
   useEffect(() => {
     const q = value.trim();
-    if (q.length < 2) {
-      setItems([]);
-      return;
-    }
+    if (q.length < 2) return;
     const ctrl = new AbortController();
     const t = setTimeout(async () => {
       setLoading(true);
@@ -65,7 +65,7 @@ export function SearchBox({
         const res = await fetch(`/api/search/suggest?q=${encodeURIComponent(q)}`, { signal: ctrl.signal });
         if (res.ok) {
           const json = (await res.json()) as { suggestions: Suggestion[] };
-          setItems(json.suggestions);
+          setResults(json.suggestions);
           setActive(-1);
         }
       } catch {

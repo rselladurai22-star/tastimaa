@@ -4,7 +4,6 @@ import { NATION_LABEL } from "@/domain/labels";
 import { listTests } from "@/server/tests";
 import { ArticleLayout } from "@/components/layout/article";
 import { Card } from "@/components/ui/primitives";
-import { VerificationBadge } from "@/components/ui/verification";
 
 export const dynamic = "force-dynamic";
 

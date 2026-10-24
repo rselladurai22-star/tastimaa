@@ -8,8 +8,19 @@ export function decodeCsv(buf: Buffer, fallback: "windows-1252" | "utf-8" = "win
   try {
     return new TextDecoder("utf-8", { fatal: true }).decode(buf);
   } catch {
-    return new TextDecoder("windows-1252").decode(buf);
+    return decodeWindows1252(buf);
   }
+}
+
+// Windows-1252 differs from Latin-1 only in 0x80–0x9F (curly quotes, dashes, €, …).
+// Node's TextDecoder maps that range to C1 control characters, so remap it explicitly.
+const CP1252_HIGH = [
+  0x20ac, 0xfffd, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021, 0x02c6, 0x2030, 0x0160, 0x2039, 0x0152, 0xfffd, 0x017d, 0xfffd,
+  0xfffd, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014, 0x02dc, 0x2122, 0x0161, 0x203a, 0x0153, 0xfffd, 0x017e, 0x0178,
+];
+
+export function decodeWindows1252(buf: Buffer): string {
+  return buf.toString("latin1").replace(/[\x80-\x9f]/g, (c) => String.fromCharCode(CP1252_HIGH[c.charCodeAt(0) - 0x80]!));
 }
 
 /**
