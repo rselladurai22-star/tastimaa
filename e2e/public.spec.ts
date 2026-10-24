@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("homepage leads with search and real coverage figures", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Find the right grammar school/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Find a grammar school, and understand exactly how it chooses/);
   await expect(page.getByText("Grammar schools, England")).toBeVisible();
   await expect(page.locator("link[rel=canonical]")).toHaveAttribute("href", /^https?:\/\/[^/]+\/?$/);
   const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
@@ -37,7 +37,7 @@ test("school profile shows sourced admissions information and tabs", async ({ pa
   await expect(page.getByRole("heading", { level: 1, name: "Aylesbury Grammar School" })).toBeVisible();
   await expect(page.getByText("Qualifying score")).toBeVisible();
   await expect(page.getByText("Awaiting verification").first()).toBeVisible();
-  await expect(page.getByText(/Source: GIAS all establishment data extract/)).toBeVisible();
+  await expect(page.getByText(/GIAS all establishment data extract/)).toBeVisible();
   const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(ld.some((t) => t.includes('"School"') && t.includes("Aylesbury Grammar School"))).toBe(true);
   await page.getByRole("link", { name: "Admissions", exact: true }).click();

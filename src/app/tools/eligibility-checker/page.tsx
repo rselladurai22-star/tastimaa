@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { inArray } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { clampEntryYear, selectableEntryYears } from "@/lib/academic-year";
-import { EligibilityChecker } from "@/components/tools/eligibility-checker";
-import { ThreeSteps } from "@/components/school/admissions";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Callout, Container } from "@/components/ui/primitives";
+import { Breadcrumbs } from "@/ui/breadcrumbs";
+import { Note, Page, PageHead } from "@/ui/kit";
+import { StepsStrip } from "@/ui/report/parts";
+import { EligibilityChecker } from "@/ui/tools/eligibility";
 
 export const dynamic = "force-dynamic";
 
@@ -20,19 +20,25 @@ export default async function EligibilityPage({ searchParams }: { searchParams: 
   const slugs = (sp.schools ?? "").split(",").filter((s) => /^[a-z0-9-]{1,120}$/.test(s)).slice(0, 5);
   const rows = slugs.length ? await db().select({ slug: schema.schools.slug, name: schema.schools.name }).from(schema.schools).where(inArray(schema.schools.slug, slugs)) : [];
   return (
-    <Container className="py-8">
-      <Breadcrumbs items={[{ href: "/tools/eligibility-checker", label: "Eligibility checker" }]} />
-      <header className="mt-4 mb-6 max-w-3xl">
-        <h1 className="text-3xl font-semibold sm:text-4xl">Eligibility checker</h1>
-        <p className="mt-3 text-lg text-ink-2">See how each school&apos;s published rules for your child&apos;s entry year would apply — and what you still need to find out. No sign-in and no personal details.</p>
-      </header>
-      <div className="mb-6">
-        <ThreeSteps compact />
+    <Page className="pb-16">
+      <div className="pt-6">
+        <Breadcrumbs items={[{ href: "/tools/eligibility-checker", label: "Eligibility checker" }]} />
       </div>
-      <Callout className="mb-8" title="What this can and can't tell you">
-        It applies the structured rules we hold for each school&apos;s selected entry year. It can&apos;t tell you whether a place will be offered — that depends on how many other children apply — and it never estimates a probability. Where we don&apos;t hold a school&apos;s rules for that year, it says so.
-      </Callout>
+      <PageHead
+        kicker="Research tools"
+        title="Eligibility checker"
+        lede="See how each school's published rules for your child's entry year would apply — and what you still need to find out. No sign-in and no personal details."
+        aside={
+          <Note title="What this can and can't tell you">
+            It applies the structured rules we hold for each school&apos;s selected entry year. It can&apos;t tell you whether a place will be offered — that depends on how many other children apply — and it never estimates a probability. Where we
+            don&apos;t hold a school&apos;s rules for that year, it says so.
+          </Note>
+        }
+      />
+      <div className="mb-10">
+        <StepsStrip />
+      </div>
       <EligibilityChecker initialSchools={slugs.map((s) => rows.find((r) => r.slug === s)).filter((r): r is { slug: string; name: string } => !!r)} years={selectableEntryYears()} defaultYear={clampEntryYear(sp.year)} />
-    </Container>
+    </Page>
   );
 }

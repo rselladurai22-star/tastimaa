@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
-import { JsonLd } from "@/components/ui/json-ld";
 import { SITE } from "@/lib/site";
+import { JsonLd } from "@/ui/json-ld";
+import { SiteFooter } from "@/ui/site-footer";
+import { SiteHeader } from "@/ui/site-header";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
-  title: { default: `${SITE.name} — UK grammar schools, admissions and 11+ explained`, template: `%s | ${SITE.name}` },
+  title: { default: `${SITE.name} — UK grammar schools, admissions and the 11+ explained`, template: `%s | ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
   openGraph: { type: "website", siteName: SITE.name, locale: "en_GB" },
@@ -16,10 +16,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f1112" },
-  ],
+  themeColor: "#f8f7f2",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };
@@ -27,8 +25,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB">
-      <body className="min-h-screen antialiased">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:rounded-md focus:bg-surface focus:px-4 focus:py-2 focus:shadow-lg">
+      <body className="min-h-screen">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[90] focus:rounded-[5px] focus:bg-green focus:px-4 focus:py-3 focus:font-semibold focus:text-paper"
+        >
           Skip to main content
         </a>
         <SiteHeader />

@@ -1,7 +1,28 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const PAGES = ["/", "/grammar-schools", "/grammar-schools/kent", "/schools/aylesbury-grammar-school", "/schools/aylesbury-grammar-school/admissions", "/schools/maidstone-grammar-school/results", "/tools/eligibility-checker?schools=aylesbury-grammar-school", "/compare?schools=aylesbury-grammar-school,aylesbury-high-school", "/11-plus", "/admissions/appeals", "/calendar", "/assistant"];
+const PAGES = [
+  "/",
+  "/grammar-schools",
+  "/grammar-schools?view=table",
+  "/grammar-schools/kent",
+  "/schools/aylesbury-grammar-school",
+  "/schools/aylesbury-grammar-school/admissions",
+  "/schools/aylesbury-grammar-school/catchment",
+  "/schools/aylesbury-grammar-school/historical-admissions",
+  "/schools/maidstone-grammar-school/results",
+  "/tools/eligibility-checker?schools=aylesbury-grammar-school",
+  "/tools/catchment-checker?schools=aylesbury-grammar-school",
+  "/tools/planner",
+  "/compare?schools=aylesbury-grammar-school,aylesbury-high-school",
+  "/admissions",
+  "/admissions/appeals",
+  "/11-plus",
+  "/11-plus/preparation",
+  "/calendar",
+  "/assistant",
+  "/methodology",
+];
 
 for (const path of PAGES) {
   test(`no serious accessibility violations: ${path}`, async ({ page }) => {
@@ -13,7 +34,7 @@ for (const path of PAGES) {
   });
 }
 
-test("dark mode keeps contrast", async ({ page }) => {
+test("contrast holds when the system prefers dark mode", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark" });
   await page.goto("/schools/aylesbury-grammar-school");
   const results = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();

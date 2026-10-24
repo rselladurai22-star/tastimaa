@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { PracticeTool } from "@/components/practice/practice-tool";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Callout, Card, Container } from "@/components/ui/primitives";
+import { Breadcrumbs } from "@/ui/breadcrumbs";
+import { ArrowLink, Kicker, Note, Page } from "@/ui/kit";
+import { PracticeTool } from "@/ui/tools/practice";
 
 export const metadata: Metadata = {
   title: "11+ preparation: planning checklist and free practice questions",
@@ -21,43 +20,55 @@ const PLAN = [
 
 export default function PreparationPage() {
   return (
-    <Container className="py-8">
-      <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: "/11-plus/preparation", label: "Preparation" }]} />
-      <header className="mt-4 mb-8 max-w-3xl">
-        <h1 className="text-3xl font-semibold sm:text-4xl">11+ preparation</h1>
-        <p className="mt-3 text-lg text-ink-2">A simple plan and free practice. Exact dates differ by area — use the planner for your schools&apos; verified dates.</p>
-      </header>
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        <section aria-labelledby="practice">
-          <h2 id="practice" className="mb-3 text-2xl font-semibold">
+    <>
+      <Page className="pt-6 pb-10">
+        <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: "/11-plus/preparation", label: "Preparation" }]} />
+        <div className="mt-8 max-w-[48rem]">
+          <Kicker>Explore 11+ exams</Kicker>
+          <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">11+ preparation</h1>
+          <p className="mt-4 text-lede leading-[1.5] text-ink-2">A simple plan and free practice. Exact dates differ by area — use the planner for your schools&apos; verified dates.</p>
+        </div>
+      </Page>
+
+      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-14 pb-16 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <section aria-labelledby="practice" className="min-w-0">
+          <h2 id="practice" className="text-h2">
             Timed practice
           </h2>
-          <Callout className="mb-4">
+          <Note className="mt-4 mb-6">
             These are original questions written for this site to illustrate common question types. They are not past papers and won&apos;t predict a score in any real test. Answers and timings stay in your browser.
-          </Callout>
+          </Note>
           <PracticeTool />
         </section>
-        <aside className="grid content-start gap-4">
-          <Card className="p-5">
-            <h2 className="font-sans text-sm font-semibold">A typical timeline in England</h2>
-            <ol className="mt-3 grid gap-3 text-sm">
+
+        <aside className="grid content-start gap-10">
+          <section aria-labelledby="timeline">
+            <h2 id="timeline" className="label text-ink">
+              A typical timeline in England
+            </h2>
+            <ol className="relative mt-4 border-l border-rule-strong">
               {PLAN.map(([when, what]) => (
-                <li key={when}>
-                  <p className="font-semibold text-ink">{when}</p>
-                  <p className="text-ink-2">{what}</p>
+                <li key={when} className="relative pb-5 pl-5 last:pb-0">
+                  <span aria-hidden className="absolute top-1.5 -left-[5px] size-[9px] rounded-full border-2 border-green bg-paper" />
+                  <p className="font-mono text-[0.8rem] text-copper-ink">{when}</p>
+                  <p className="mt-0.5 text-[0.98rem] leading-relaxed text-ink">{what}</p>
                 </li>
               ))}
             </ol>
-            <Link href="/tools/planner" className="mt-4 inline-block text-sm font-semibold link">
+            <ArrowLink href="/tools/planner" className="mt-5">
               Build a plan with your schools&apos; dates
-            </Link>
-          </Card>
-          <Card className="p-5 text-sm text-ink-2">
-            <h2 className="font-sans text-sm font-semibold text-ink">Keeping it healthy</h2>
-            <p className="mt-2">Short, regular practice usually works better than long sessions. Keep perspective: a grammar school is one good option among several, and every child should have a strong school on their list they are very likely to be offered.</p>
-          </Card>
+            </ArrowLink>
+          </section>
+          <section aria-labelledby="healthy" className="border-t border-rule pt-5">
+            <h2 id="healthy" className="label text-ink">
+              Keeping it healthy
+            </h2>
+            <p className="mt-3 text-[0.98rem] leading-relaxed text-ink-2">
+              Short, regular practice usually works better than long sessions. Keep perspective: a grammar school is one good option among several, and every child should have a strong school on their list they are very likely to be offered.
+            </p>
+          </section>
         </aside>
-      </div>
-    </Container>
+      </Page>
+    </>
   );
 }
