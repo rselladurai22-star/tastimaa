@@ -96,7 +96,7 @@ export function ChartTable({ xs, series, unit, decimals, caption, xLabel = "Year
       <summary className="inline-flex min-h-10 items-center gap-2 text-[0.95rem] font-semibold text-green hover:text-green-deep">
         <span className="underline decoration-green/40 underline-offset-4 group-hover/t:decoration-current">Show the data as a table</span>
       </summary>
-      <div className="mt-2 overflow-x-auto rounded-[5px] border border-rule bg-card" role="region" aria-label={caption} tabIndex={0}>
+      <div className="relative mt-2 overflow-x-auto rounded-[5px] border border-rule bg-card" role="region" aria-label={caption} tabIndex={0}>
         <table className="w-full min-w-[420px] text-[0.95rem]">
           <caption className="sr-only">{caption}</caption>
           <thead>

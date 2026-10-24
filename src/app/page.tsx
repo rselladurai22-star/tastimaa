@@ -142,12 +142,9 @@ export default async function HomePage() {
                 [stats.partial, "partially selective"],
                 [stats.ni, "Northern Ireland"],
               ].map(([v, l]) => (
-                <div key={l as string}>
-                  <dt className="sr-only">{l}</dt>
-                  <dd>
-                    <span className="block font-display text-[2rem] leading-none text-ink num [font-variation-settings:'opsz'_48]">{v}</span>
-                    <span className="mt-1.5 block text-small text-ink-2">{l}</span>
-                  </dd>
+                <div key={l as string} className="flex flex-col">
+                  <dt className="order-2 mt-1.5 text-small text-ink-2">{l}</dt>
+                  <dd className="order-1 font-display text-[2rem] leading-none text-ink num [font-variation-settings:'opsz'_48]">{v}</dd>
                 </div>
               ))}
             </dl>

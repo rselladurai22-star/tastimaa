@@ -19,11 +19,11 @@ export default async function ReviewQueue({ searchParams }: { searchParams: Prom
   `);
   return (
     <div className="grid gap-6">
-      <h1 className="text-2xl font-semibold">Review queue</h1>
+      <h1 className="text-h2">Review queue</h1>
       <p className="max-w-3xl text-sm text-ink-2">Nothing extracted automatically or submitted by users becomes a verified fact until it is approved here against the cited evidence.</p>
       <nav className="flex flex-wrap gap-2 text-sm" aria-label="Filter">
         {[null, ...TYPES].map((t) => (
-          <Link key={t ?? "all"} href={`/admin/review?${t ? `type=${t}&` : ""}status=${status}`} className={t === type ? "rounded-full bg-accent-soft px-3 py-1 font-semibold text-accent-ink" : "rounded-full border border-line px-3 py-1 text-ink-2"}>
+          <Link key={t ?? "all"} href={`/admin/review?${t ? `type=${t}&` : ""}status=${status}`} className={t === type ? "rounded-[4px] bg-green-wash px-3 py-1 font-semibold text-green" : "rounded-[4px] border border-rule px-3 py-1 text-ink-2"}>
             {t ? t.replace(/_/g, " ") : "all"}
           </Link>
         ))}
@@ -34,12 +34,12 @@ export default async function ReviewQueue({ searchParams }: { searchParams: Prom
           </Link>
         ))}
       </nav>
-      <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
+      <ul className="divide-y divide-rule rounded-[8px] border border-rule bg-card">
         {rows.length === 0 ? <li className="p-6 text-sm text-ink-3">Nothing here.</li> : null}
         {rows.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-            <span className={r.priority === 1 ? "rounded bg-bad-soft px-1.5 py-0.5 text-xs font-semibold text-bad" : "rounded bg-surface-2 px-1.5 py-0.5 text-xs text-ink-2"}>P{r.priority}</span>
-            <span className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs">{r.type}</span>
+            <span className={r.priority === 1 ? "rounded bg-bad-wash px-1.5 py-0.5 text-xs font-semibold text-bad" : "rounded bg-paper px-1.5 py-0.5 text-xs text-ink-2"}>P{r.priority}</span>
+            <span className="rounded bg-paper px-1.5 py-0.5 font-mono text-xs">{r.type}</span>
             <Link href={`/admin/review/${r.id}`} className="min-w-0 flex-1 font-medium hover:underline">
               {r.title}
             </Link>

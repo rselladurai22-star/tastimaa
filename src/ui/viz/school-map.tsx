@@ -129,9 +129,11 @@ export function SchoolMap({
           });
           map.on("mouseenter", "schools", () => (map.getCanvas().style.cursor = "pointer"));
           map.on("mouseleave", "schools", () => (map.getCanvas().style.cursor = ""));
-          if (!center && points.length > 1) {
-            const lngs = points.map((p) => p.lng);
-            const lats = points.map((p) => p.lat);
+          // Frame every school, plus the user's postcode centre when there is one.
+          const frame = [...points.map((p) => [p.lng, p.lat] as const), ...(origin ? [[origin.lng, origin.lat] as const] : [])];
+          if (!center && frame.length > 1) {
+            const lngs = frame.map((p) => p[0]);
+            const lats = frame.map((p) => p[1]);
             map.fitBounds(
               [
                 [Math.min(...lngs), Math.min(...lats)],
@@ -139,8 +141,8 @@ export function SchoolMap({
               ],
               { padding: 56, maxZoom: 11, duration: 0 },
             );
-          } else if (!center && points.length === 1) {
-            map.jumpTo({ center: [points[0]!.lng, points[0]!.lat], zoom: 11 });
+          } else if (!center && frame.length === 1) {
+            map.jumpTo({ center: [frame[0]![0], frame[0]![1]], zoom: 11 });
           }
         });
       } catch {

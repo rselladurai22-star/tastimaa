@@ -206,34 +206,44 @@ export function ApplicationJourney({ events, entryYear }: { events: JourneyEvent
   const stageEvents = events.filter((e) => stage.types.includes(e.type));
   return (
     <div className="overflow-hidden rounded-[8px] border border-rule bg-card">
-      <ol className="relative flex overflow-x-auto border-b border-rule bg-paper [scrollbar-width:thin]" role="tablist" aria-label={`Application journey for September ${entryYear} entry`}>
+      <div className="relative flex overflow-x-auto border-b border-rule bg-paper [scrollbar-width:thin]" role="tablist" aria-label={`Application journey for September ${entryYear} entry`}>
         <span aria-hidden className="absolute top-[30px] right-6 left-6 h-px bg-rule-strong" />
         {STAGES.map((s, i) => {
           const has = events.some((e) => s.types.includes(e.type));
           return (
-            <li key={s.key} className="min-w-[8.5rem] flex-1">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={s.key === sel}
-                aria-controls="aj-panel"
-                id={`aj-tab-${s.key}`}
-                onClick={() => setSel(s.key)}
-                className="group/aj relative flex w-full flex-col items-center gap-2 px-2 pt-[22px] pb-4 text-center"
-              >
-                <span
-                  className={clsx(
-                    "relative z-10 grid size-4 place-items-center rounded-full border-2 transition-[transform,background-color,border-color] duration-[var(--d-2)] ease-[var(--ease-out)]",
-                    s.key === sel ? "scale-125 border-copper bg-copper" : has ? "border-green bg-green" : "border-green bg-paper group-hover/aj:scale-110",
-                  )}
-                />
-                <span className="font-mono text-[0.78rem] text-ink-2">{String(i + 1).padStart(2, "0")} · {s.when}</span>
-                <span className={clsx("text-[0.95rem] leading-tight font-semibold", s.key === sel ? "text-ink" : "text-ink-2")}>{s.title}</span>
-              </button>
-            </li>
+            <button
+              key={s.key}
+              type="button"
+              role="tab"
+              aria-selected={s.key === sel}
+              aria-controls="aj-panel"
+              id={`aj-tab-${s.key}`}
+              tabIndex={s.key === sel ? 0 : -1}
+              onClick={() => setSel(s.key)}
+              onKeyDown={(e) => {
+                if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                e.preventDefault();
+                const next = STAGES[(i + (e.key === "ArrowRight" ? 1 : STAGES.length - 1)) % STAGES.length]!;
+                setSel(next.key);
+                document.getElementById(`aj-tab-${next.key}`)?.focus();
+              }}
+              className="group/aj relative flex min-w-[8.5rem] flex-1 flex-col items-center gap-2 px-2 pt-[22px] pb-4 text-center"
+            >
+              <span
+                aria-hidden
+                className={clsx(
+                  "relative z-10 grid size-4 place-items-center rounded-full border-2 transition-[transform,background-color,border-color] duration-[var(--d-2)] ease-[var(--ease-out)]",
+                  s.key === sel ? "scale-125 border-copper bg-copper" : has ? "border-green bg-green" : "border-green bg-paper group-hover/aj:scale-110",
+                )}
+              />
+              <span className="font-mono text-[0.78rem] text-ink-2">
+                {String(i + 1).padStart(2, "0")} · {s.when}
+              </span>
+              <span className={clsx("text-[0.95rem] leading-tight font-semibold", s.key === sel ? "text-ink" : "text-ink-2")}>{s.title}</span>
+            </button>
           );
         })}
-      </ol>
+      </div>
       <div id="aj-panel" role="tabpanel" aria-labelledby={`aj-tab-${sel}`} className="grid gap-5 p-6 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <div key={sel} className="anim-rise">
           <p className="label text-copper-ink">{stage.when}</p>

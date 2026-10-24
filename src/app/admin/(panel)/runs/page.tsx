@@ -9,17 +9,17 @@ export default async function RunsPage() {
   const issues = runs.length ? await db().select().from(schema.ingestionIssues).where(inArray(schema.ingestionIssues.runId, runs.map((r) => r.id))) : [];
   return (
     <div className="grid gap-6">
-      <h1 className="text-2xl font-semibold">Ingestion runs</h1>
-      <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+      <h1 className="text-h2">Ingestion runs</h1>
+      <div className="relative overflow-x-auto rounded-[8px] border border-rule bg-card">
         <table className="w-full min-w-[900px] text-sm">
-          <thead className="border-b border-line bg-surface-2 text-left text-xs text-ink-3">
+          <thead className="border-b border-ink bg-paper text-left font-mono text-[0.72rem] tracking-[0.06em] text-ink-2 uppercase">
             <tr>
               {["#", "Job", "Trigger", "Started", "Duration", "Status", "Read", "Inserted", "Updated", "Unchanged", "Rejected", "Issues"].map((h) => (
                 <th key={h} className="px-3 py-2 font-medium">{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-line tabular">
+          <tbody className="divide-y divide-rule num">
             {runs.map((r) => {
               const ri = issues.filter((i) => i.runId === r.id);
               return (
@@ -29,7 +29,7 @@ export default async function RunsPage() {
                   <td className="px-3 py-2 text-xs">{r.trigger}</td>
                   <td className="px-3 py-2 text-xs">{formatDate(r.startedAt)} {r.startedAt.toISOString().slice(11, 16)}</td>
                   <td className="px-3 py-2 text-xs">{r.finishedAt ? `${Math.round((r.finishedAt.getTime() - r.startedAt.getTime()) / 1000)}s` : r.status === "running" ? "running" : "did not finish"}</td>
-                  <td className={r.status === "failed" ? "px-3 py-2 font-semibold text-bad" : r.status === "partial" ? "px-3 py-2 text-warn" : "px-3 py-2 text-ok"}>
+                  <td className={r.status === "failed" ? "px-3 py-2 font-semibold text-bad" : r.status === "partial" ? "px-3 py-2 text-pend" : "px-3 py-2 text-ok"}>
                     {r.status}
                     {r.error ? <span className="block max-w-xs text-xs font-normal">{r.error}</span> : null}
                   </td>

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { clampEntryYear, selectableEntryYears } from "@/lib/academic-year";
 import { loadComparison, parseGroups } from "@/server/compare";
-import { CompareView } from "@/components/school/compare-view";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Container } from "@/components/ui/primitives";
+import { Breadcrumbs } from "@/ui/breadcrumbs";
+import { Page, PageHead } from "@/ui/kit";
+import { CompareView } from "@/ui/tools/compare";
 
 export const dynamic = "force-dynamic";
 
@@ -21,13 +21,12 @@ export default async function ComparePage({ searchParams }: { searchParams: SP }
   const entryYear = clampEntryYear(sp.year);
   const data = await loadComparison(slugs, entryYear);
   return (
-    <Container className="py-8">
-      <Breadcrumbs items={[{ href: "/compare", label: "Compare schools" }]} />
-      <header className="mt-4 mb-8 max-w-3xl">
-        <h1 className="text-3xl font-semibold sm:text-4xl">Compare schools</h1>
-        <p className="mt-3 text-lg text-ink-2">Side-by-side facts for up to five schools, for one admission year. Differences are highlighted and explained.</p>
-      </header>
+    <Page className="pb-16">
+      <div className="pt-6">
+        <Breadcrumbs items={[{ href: "/compare", label: "Compare schools" }]} />
+      </div>
+      <PageHead kicker="Research tools" title="Compare schools" lede="Side-by-side facts for up to five schools, for one admission year. Differences are highlighted and explained." />
       <CompareView data={data} groups={parseGroups(sp.dims)} diffOnly={sp.diff === "1"} years={selectableEntryYears()} />
-    </Container>
+    </Page>
   );
 }

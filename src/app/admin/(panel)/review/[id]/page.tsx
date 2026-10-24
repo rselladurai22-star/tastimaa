@@ -4,8 +4,7 @@ import { asc, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { formatDate } from "@/lib/format";
 import { approveTask, rejectTask, resolveTask } from "@/app/admin/actions";
-import { Card } from "@/components/ui/primitives";
-import { VerificationBadge } from "@/components/ui/verification";
+import { Status as VerificationBadge } from "@/ui/status";
 import { requireRole } from "@/server/auth";
 
 export default async function ReviewTask({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
@@ -25,7 +24,7 @@ export default async function ReviewTask({ params, searchParams }: { params: Pro
   return (
     <div className="grid gap-6">
       <div>
-        <Link href="/admin/review" className="text-sm link">
+        <Link href="/admin/review" className="text-sm a">
           ← Review queue
         </Link>
         <h1 className="mt-2 text-2xl font-semibold">{task.title}</h1>
@@ -35,7 +34,7 @@ export default async function ReviewTask({ params, searchParams }: { params: Pro
             <>
               {" "}
               ·{" "}
-              <Link href={`/schools/${school.slug}`} className="link">
+              <Link href={`/schools/${school.slug}`} className="a">
                 {school.name}
               </Link>
             </>
@@ -45,7 +44,7 @@ export default async function ReviewTask({ params, searchParams }: { params: Pro
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="grid content-start gap-4">
           {policy ? (
-            <Card className="p-5 text-sm">
+            <div className="rounded-[8px] border border-rule bg-card p-5 text-sm">
               <div className="flex items-center justify-between">
                 <h2 className="font-sans font-semibold">Proposed policy (v{policy.version})</h2>
                 <VerificationBadge status={policy.verificationStatus} />
@@ -60,55 +59,55 @@ export default async function ReviewTask({ params, searchParams }: { params: Pro
               <ul className="mt-1 grid gap-1">{rules.map((r) => <li key={r.id}>{r.kind}: {r.scoreValue} ({r.appliesTo}) — {r.sourceLocator}</li>)}</ul>
               <h3 className="mt-4 font-sans font-semibold">Criteria</h3>
               <ol className="mt-1 grid gap-1">{criteria.map((c) => <li key={c.id}>{c.rank}. {c.title} <span className="text-ink-3">[{c.sourceLocator}] {JSON.stringify(c.conditions)}</span></li>)}</ol>
-            </Card>
+            </div>
           ) : null}
-          <Card className="p-5">
+          <div className="rounded-[8px] border border-rule bg-card p-5">
             <h2 className="font-sans font-semibold">Payload</h2>
-            <pre className="mt-2 max-h-[28rem] overflow-auto rounded bg-surface-2 p-3 text-xs whitespace-pre-wrap">{JSON.stringify(task.payload, null, 2)}</pre>
+            <pre className="relative mt-2 max-h-[28rem] overflow-auto rounded bg-paper p-3 text-xs whitespace-pre-wrap">{JSON.stringify(task.payload, null, 2)}</pre>
             {task.submittedByEmail ? <p className="mt-2 text-xs text-ink-3">Submitted by {task.submittedByEmail}</p> : null}
-          </Card>
+          </div>
           {open ? (
-            <Card className="p-5">
+            <div className="rounded-[8px] border border-rule bg-card p-5">
               <h2 className="font-sans font-semibold">Decision</h2>
               {sp.error === "note" ? <p className="mt-2 text-sm text-bad">A note is required when rejecting.</p> : null}
               <form className="mt-3 grid gap-3">
                 <input type="hidden" name="taskId" value={task.id} />
                 <label htmlFor="note" className="text-sm font-medium">Note (what you checked, or why rejected)</label>
-                <textarea id="note" name="note" rows={3} className="rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm" />
+                <textarea id="note" name="note" rows={3} className="min-h-11 w-full rounded-[5px] border border-control bg-card px-3 text-ink focus:border-green focus:outline-none text-sm" />
                 <div className="flex flex-wrap gap-2">
                   {policy ? (
-                    <button formAction={approveTask} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white dark:text-[#0f1112]">
+                    <button formAction={approveTask} className="rounded-[5px] bg-green px-4 py-2 text-sm font-semibold text-paper">
                       Approve and publish as verified
                     </button>
                   ) : null}
                   {policy ? (
-                    <button formAction={rejectTask} className="rounded-lg border border-bad/40 px-4 py-2 text-sm font-semibold text-bad">
+                    <button formAction={rejectTask} className="rounded-[5px] border border-bad/40 px-4 py-2 text-sm font-semibold text-bad">
                       Reject
                     </button>
                   ) : null}
-                  <button formAction={resolveTask} className="rounded-lg border border-line-strong px-4 py-2 text-sm font-medium">
+                  <button formAction={resolveTask} className="rounded-[5px] border border-control px-4 py-2 text-sm font-medium">
                     Mark resolved
                   </button>
                 </div>
               </form>
-            </Card>
+            </div>
           ) : (
             <p className="text-sm text-ink-2">Resolved {task.resolvedAt ? formatDate(task.resolvedAt) : ""}: {task.resolutionNote}</p>
           )}
         </div>
-        <Card className="p-5">
+        <div className="rounded-[8px] border border-rule bg-card p-5">
           <h2 className="font-sans font-semibold">Evidence</h2>
           {doc ? (
             <>
               <p className="mt-2 text-sm">
-                <a href={doc.url} className="link" target="_blank" rel="noopener noreferrer">
+                <a href={doc.url} className="a" target="_blank" rel="noopener noreferrer">
                   {doc.title}
                 </a>{" "}
                 <span className="text-ink-3">retrieved {formatDate(doc.retrievedAt)} · sha256 {doc.checksumSha256?.slice(0, 12) ?? "—"}</span>
               </p>
-              <ol className="mt-3 grid max-h-[40rem] gap-2 overflow-auto text-xs">
+              <ol className="relative mt-3 grid max-h-[40rem] gap-2 overflow-auto text-xs">
                 {passages.map((p, i) => (
-                  <li key={i} className="rounded border border-line p-2">
+                  <li key={i} className="rounded border border-rule p-2">
                     <span className="font-semibold text-ink-3">{p.locator}</span>
                     <p className="mt-1 whitespace-pre-wrap text-ink-2">{p.text}</p>
                   </li>
@@ -118,7 +117,7 @@ export default async function ReviewTask({ params, searchParams }: { params: Pro
           ) : (
             <p className="mt-2 text-sm text-ink-3">No evidence document attached.</p>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );

@@ -126,7 +126,7 @@ export function DateLine({ events, today, emptyText }: { events: DateRow[]; toda
                 <span className="h-px flex-1 bg-copper/50" />
               </div>
             ) : null}
-            <div className={clsx("grid grid-cols-[4.5rem_1.5rem_minmax(0,1fr)] gap-x-3 py-3 sm:grid-cols-[5.75rem_1.5rem_minmax(0,1fr)]", past && "opacity-70")}>
+            <div className={clsx("grid grid-cols-[4.5rem_1.5rem_minmax(0,1fr)] gap-x-3 py-3 sm:grid-cols-[5.75rem_1.5rem_minmax(0,1fr)]", past && "[&_.num]:text-ink-3")}>
               <p className="text-right leading-tight">
                 <span className="block font-display text-[1.7rem] leading-none text-ink num [font-variation-settings:'opsz'_48]">{d.toLocaleDateString("en-GB", { day: "numeric", timeZone: "Europe/London" })}</span>
                 <span className="mt-1 block font-mono text-[0.78rem] text-ink-2 uppercase">{d.toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "Europe/London" })}</span>

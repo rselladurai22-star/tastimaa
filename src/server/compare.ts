@@ -31,6 +31,10 @@ export interface CompareRow {
   /** Values differ in a way that matters (not just "—" vs a value). */
   differs: boolean;
   note?: string;
+  /** Numeric values behind the text, for drawing comparisons. */
+  nums?: (number | null)[];
+  /** Upper end of the scale for those numbers (defaults to the row's largest). */
+  scaleMax?: number;
 }
 
 export interface CompareSchool {
@@ -60,9 +64,9 @@ export async function loadComparison(slugs: string[], entryYear: number) {
 
   const schools: CompareSchool[] = data.map((d) => ({ slug: d.core.school.slug, name: d.core.school.name, town: d.core.location?.town ?? null, la: d.core.la?.name ?? null, nation: d.core.school.nation }));
   const rows: CompareRow[] = [];
-  const add = (group: CompareGroup, label: string, values: string[], note?: string) => {
+  const add = (group: CompareGroup, label: string, values: string[], note?: string, nums?: (number | null)[], scaleMax?: number) => {
     const real = values.filter((v) => v !== "—" && !v.startsWith("Not "));
-    rows.push({ group, label, values, differs: new Set(real).size > 1, note });
+    rows.push({ group, label, values, differs: new Set(real).size > 1, note, ...(nums && nums.filter((n) => n !== null).length > 1 ? { nums, scaleMax } : {}) });
   };
 
   add("basics", "Location", data.map((d) => [d.core.location?.town, d.core.la?.name].filter(Boolean).join(", ") || "—"));
@@ -70,8 +74,8 @@ export async function loadComparison(slugs: string[], entryYear: number) {
   add("basics", "Pupils admitted", data.map((d) => GENDER_LABEL[d.core.school.gender] ?? "—"));
   add("basics", "Sixth form", data.map((d) => (d.core.school.hasSixthForm === null ? "Not recorded" : d.core.school.hasSixthForm ? "Yes" : "No")));
   add("basics", "Boarding", data.map((d) => (d.core.school.boarding === "boarding" ? "Yes" : d.core.school.boarding === "none" ? "No" : "Not recorded")));
-  add("basics", "Pupils on roll", data.map((d) => (d.core.census?.pupils ? formatNumber(d.core.census.pupils) : "—")));
-  add("basics", "Capacity", data.map((d) => (d.core.census?.capacity ? formatNumber(d.core.census.capacity) : "—")));
+  add("basics", "Pupils on roll", data.map((d) => (d.core.census?.pupils ? formatNumber(d.core.census.pupils) : "—")), undefined, data.map((d) => d.core.census?.pupils ?? null));
+  add("basics", "Capacity", data.map((d) => (d.core.census?.capacity ? formatNumber(d.core.census.capacity) : "—")), undefined, data.map((d) => d.core.census?.capacity ?? null));
 
   const testNames = data.map((d) => d.tests[0]?.test.name ?? "Not recorded");
   const distinctTests = new Set(testNames.filter((t) => t !== "Not recorded"));
@@ -81,7 +85,7 @@ export async function loadComparison(slugs: string[], entryYear: number) {
     const r = d.policy?.scoreRules.find((x) => x.kind === "qualifying_threshold");
     return r?.scoreValue != null ? `${r.scoreValue} (${r.scoreScale ?? "test score"})` : "—";
   }), distinctTests.size > 1 ? "Qualifying scores are on each test's own scale." : undefined);
-  add("admissions", "Published admission number", data.map((d) => (d.policy?.publishedAdmissionNumber ? String(d.policy.publishedAdmissionNumber) : "—")));
+  add("admissions", "Published admission number", data.map((d) => (d.policy?.publishedAdmissionNumber ? String(d.policy.publishedAdmissionNumber) : "—")), undefined, data.map((d) => d.policy?.publishedAdmissionNumber ?? null));
   add("admissions", "Catchment", data.map((d) => (d.policy ? CATCHMENT_LABEL[d.policy.catchmentType]! : "—")));
   add("admissions", "Out-of-area applicants", data.map((d) => (d.policy ? OUT_OF_AREA_LABEL[d.policy.outOfAreaRoute]! : "—")));
   add("admissions", "Pupil Premium priority", data.map((d) => (d.policy ? (d.policy.criteria.some((c) => c.category === "pupil_premium") ? "Yes" : "No") : "—")));
@@ -97,6 +101,8 @@ export async function loadComparison(slugs: string[], entryYear: number) {
       MEASURES[m].label,
       latest.map((l) => (l ? `${formatMeasure(MEASURES[m], l.value)}${l.valueText ? ` (${l.valueText})` : ""} · ${l.year}` : "Not published")),
       years.size > 1 ? "Latest figures are from different years; compare like with like on each school's results page." : undefined,
+      latest.map((l) => l?.value ?? null),
+      MEASURES[m].unit === "percent" ? 100 : m === "ks4_attainment8" ? 90 : undefined,
     );
   }
 
@@ -117,9 +123,13 @@ export async function loadComparison(slugs: string[], entryYear: number) {
   const latestYear = Math.max(0, ...data.flatMap((d) => d.allocations.map((a) => a.entryYear)));
   const alloc = (d: (typeof data)[number], m: string) => d.allocations.find((a) => a.entryYear === latestYear && a.metric === m)?.value ?? null;
   if (latestYear) {
-    add("demand", `Named as first preference (${latestYear})`, data.map((d) => (alloc(d, "times_first_preference") !== null ? formatNumber(alloc(d, "times_first_preference")) : "—")));
-    add("demand", `Offers made (${latestYear})`, data.map((d) => (alloc(d, "offers_made") !== null ? formatNumber(alloc(d, "offers_made")) : "—")));
-    add("demand", `Offers to families in other LAs (${latestYear})`, data.map((d) => (alloc(d, "offers_to_other_la") !== null ? formatNumber(alloc(d, "offers_to_other_la")) : "—")));
+    for (const [m, label] of [
+      ["times_first_preference", "Named as first preference"],
+      ["offers_made", "Offers made"],
+      ["offers_to_other_la", "Offers to families in other LAs"],
+    ] as const) {
+      add("demand", `${label} (${latestYear})`, data.map((d) => (alloc(d, m) !== null ? formatNumber(alloc(d, m)) : "—")), undefined, data.map((d) => alloc(d, m)));
+    }
   }
   return { schools, rows, entryYear };
 }

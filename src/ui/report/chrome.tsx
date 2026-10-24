@@ -11,7 +11,7 @@ export function ChapterNav({ slug, chapters }: { slug: string; chapters: { href:
   const pathname = usePathname();
   return (
     <nav aria-label="School report chapters" className="sticky top-[var(--header-h)] z-30 border-b border-rule bg-paper/95 backdrop-blur-md supports-[backdrop-filter]:bg-paper/85" data-no-print>
-      <div className="container-page overflow-x-auto [scrollbar-width:none]">
+      <div className="relative container-page overflow-x-auto [scrollbar-width:none]">
         <ol className="flex min-w-max">
           {chapters.map((c, i) => {
             const href = `/schools/${slug}${c.href}`;

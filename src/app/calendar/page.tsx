@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarPlus } from "lucide-react";
+import { clsx } from "clsx";
 import { EVENT_TYPE_LABEL } from "@/domain/labels";
 import { formatWeekdayDate } from "@/lib/format";
 import { allEvents } from "@/server/insights";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
-import { Callout, Container } from "@/components/ui/primitives";
-import { VerificationBadge } from "@/components/ui/verification";
+import { Breadcrumbs } from "@/ui/breadcrumbs";
+import { IconCalendarAdd, IconExternal } from "@/ui/icons";
+import { Gap, Page, PageHead } from "@/ui/kit";
+import { Status } from "@/ui/status";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     const k = e.starts_on.slice(0, 7);
     byMonth.set(k, [...(byMonth.get(k) ?? []), e]);
   }
-  const monthLabel = (k: string) => new Date(`${k}-01T12:00:00Z`).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "Europe/London" });
+  const months = [...byMonth.keys()];
+  const max = Math.max(1, ...[...byMonth.values()].map((v) => v.length));
+  const monthLabel = (k: string, style: "long" | "short" = "long") => new Date(`${k}-01T12:00:00Z`).toLocaleDateString("en-GB", { month: style, year: "numeric", timeZone: "Europe/London" });
   const link = (patch: Record<string, string | null>) => {
     const q = new URLSearchParams();
     const merged = { nation, past: showPast ? "1" : null, ...patch };
@@ -36,85 +39,140 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
     return `/calendar${s ? `?${s}` : ""}`;
   };
   return (
-    <Container className="py-8">
-      <Breadcrumbs items={[{ href: "/calendar", label: "Key dates" }]} />
-      <header className="mt-4 mb-6 max-w-3xl">
-        <h1 className="text-3xl font-semibold sm:text-4xl">Admissions calendar</h1>
-        <p className="mt-3 text-lg text-ink-2">Dates from official sources only. Each school and test has its own timetable; your home council may set further deadlines.</p>
-      </header>
-      <div className="mb-6 flex flex-wrap items-center gap-2 text-sm">
-        {(
-          [
-            [null, "All"],
-            ["england", "England"],
-            ["northern_ireland", "Northern Ireland"],
-          ] as [string | null, string][]
-        ).map(([v, l]) => (
-          <Link key={l} href={link({ nation: v })} aria-current={nation === v ? "true" : undefined} className={nation === v ? "rounded-full bg-accent-soft px-3 py-1.5 font-semibold text-accent-ink" : "rounded-full border border-line-strong px-3 py-1.5 text-ink-2"}>
-            {l}
+    <Page className="pb-16">
+      <div className="pt-6">
+        <Breadcrumbs items={[{ href: "/calendar", label: "Key dates" }]} />
+      </div>
+      <PageHead
+        kicker="Dates & data"
+        title="Admissions calendar"
+        lede="Dates from official sources only. Each school and test has its own timetable; your home council may set further deadlines."
+        aside={
+          <Link href="/tools/planner" className="inline-flex min-h-11 items-center gap-2 rounded-[5px] border border-control bg-card px-3.5 font-semibold text-ink no-underline hover:border-ink">
+            <IconCalendarAdd size={17} /> Personal planner
           </Link>
-        ))}
-        <Link href={link({ past: showPast ? null : "1" })} className="ml-2 text-ink-2 underline">
+        }
+      />
+
+      <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-rule py-3">
+        <nav aria-label="Nation" className="flex overflow-hidden rounded-[5px] border border-control">
+          {(
+            [
+              [null, "All"],
+              ["england", "England"],
+              ["northern_ireland", "Northern Ireland"],
+            ] as [string | null, string][]
+          ).map(([v, l]) => (
+            <Link
+              key={l}
+              href={link({ nation: v })}
+              aria-current={nation === v ? "true" : undefined}
+              className={clsx("inline-flex min-h-10 items-center border-r border-control px-3.5 text-[0.95rem] no-underline last:border-r-0", nation === v ? "bg-ink font-semibold text-paper" : "bg-card text-ink-2 hover:text-ink")}
+            >
+              {l}
+            </Link>
+          ))}
+        </nav>
+        <Link href={link({ past: showPast ? null : "1" })} className="a text-[0.95rem]">
           {showPast ? "Hide past dates" : "Show past dates"}
         </Link>
-        <a href="/tools/planner" className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-line-strong bg-surface px-3 py-1.5 font-medium">
-          <CalendarPlus aria-hidden className="size-4" /> Personal planner
-        </a>
+        <span className="ml-auto font-mono text-[0.85rem] text-ink-2">
+          {events.length} {events.length === 1 ? "date" : "dates"}
+        </span>
       </div>
-      {events.length === 0 ? <Callout>No verified dates match these filters.</Callout> : null}
-      <div className="grid gap-8">
-        {[...byMonth.entries()].map(([k, evs]) => (
-          <section key={k} aria-labelledby={`m-${k}`}>
-            <h2 id={`m-${k}`} className="mb-3 text-xl font-semibold">
-              {monthLabel(k)}
-            </h2>
-            <ol className="divide-y divide-line rounded-xl border border-line bg-surface">
-              {evs.map((e) => (
-                <li key={e.id} className="grid gap-1 px-5 py-4 sm:grid-cols-[13rem_minmax(0,1fr)]">
-                  <p className="font-semibold text-accent-ink tabular">
-                    {formatWeekdayDate(e.starts_on)}
-                    {e.ends_on ? <span className="block text-xs font-normal text-ink-3">to {formatWeekdayDate(e.ends_on)}</span> : null}
-                  </p>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-ink">{e.title}</p>
-                      <span className="text-xs text-ink-3">{EVENT_TYPE_LABEL[e.event_type]}</span>
-                      <VerificationBadge status={e.verification_status} />
-                    </div>
-                    <p className="text-sm text-ink-2">
-                      {e.nation === "northern_ireland" ? "Northern Ireland" : "England"} · September {e.entry_year} entry
-                      {e.test_slug ? (
-                        <>
-                          {" "}
-                          ·{" "}
-                          <Link href={`/11-plus/${e.test_slug}`} className="link">
-                            {e.test_name}
-                          </Link>
-                        </>
-                      ) : null}
-                      {e.school_slug ? (
-                        <>
-                          {" "}
-                          ·{" "}
-                          <Link href={`/schools/${e.school_slug}`} className="link">
-                            {e.school_name}
-                          </Link>
-                        </>
-                      ) : null}
-                    </p>
-                    {e.description ? <p className="mt-1 text-sm text-ink-3">{e.description}</p> : null}
-                    {e.url ? (
-                      <a href={e.url} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs link">
-                        Official source{e.source_locator ? ` — ${e.source_locator}` : ""}
-                      </a>
-                    ) : null}
-                  </div>
+
+      {months.length > 1 ? (
+        <nav aria-label="Months" className="relative mb-12 overflow-x-auto">
+          <ol className="flex min-w-max items-end gap-1">
+            {months.map((k) => {
+              const n = byMonth.get(k)!.length;
+              return (
+                <li key={k}>
+                  <a href={`#m-${k}`} className="group/mo flex w-[4.5rem] flex-col items-center gap-1.5 rounded-[4px] px-1 py-2 no-underline hover:bg-card">
+                    <span aria-hidden className="flex h-14 items-end">
+                      <span className="w-3 rounded-t-[2px] bg-green-bright transition-colors group-hover/mo:bg-copper" style={{ height: `${Math.max(10, (n / max) * 100)}%` }} />
+                    </span>
+                    <span className="font-mono text-[0.75rem] text-ink-2 uppercase">{monthLabel(k, "short")}</span>
+                    <span className="sr-only">
+                      {n} {n === 1 ? "date" : "dates"}
+                    </span>
+                  </a>
                 </li>
-              ))}
+              );
+            })}
+          </ol>
+        </nav>
+      ) : null}
+
+      {events.length === 0 ? <Gap title="No verified dates match these filters." /> : null}
+      <div className="grid gap-14">
+        {[...byMonth.entries()].map(([k, evs]) => (
+          <section key={k} id={`m-${k}`} aria-labelledby={`h-${k}`} className="grid scroll-mt-[calc(var(--header-h)+1.5rem)] gap-x-12 gap-y-4 lg:grid-cols-[13rem_minmax(0,1fr)]">
+            <div>
+              <h2 id={`h-${k}`} className="text-h2 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
+                {monthLabel(k)}
+              </h2>
+            </div>
+            <ol className="border-t border-ink">
+              {evs.map((e) => {
+                const d = new Date(`${e.starts_on}T12:00:00Z`);
+                const past = (e.ends_on ?? e.starts_on) < today;
+                return (
+                  <li key={e.id} className={clsx("grid grid-cols-[4.25rem_minmax(0,1fr)] gap-x-5 border-b border-rule py-5 sm:grid-cols-[5.5rem_minmax(0,1fr)]", past && "[&_.num]:text-ink-3")}>
+                    <p className="text-right">
+                      <span className="block font-display text-[2.4rem] leading-none text-ink num [font-variation-settings:'opsz'_72]">{d.toLocaleDateString("en-GB", { day: "numeric", timeZone: "Europe/London" })}</span>
+                      <span className="mt-1 block font-mono text-[0.75rem] text-ink-2 uppercase">{d.toLocaleDateString("en-GB", { weekday: "short", timeZone: "Europe/London" })}</span>
+                    </p>
+                    <div className="min-w-0">
+                      <p className="label text-[0.72rem]">
+                        {EVENT_TYPE_LABEL[e.event_type]}
+                        {past ? " · passed" : ""}
+                      </p>
+                      <p className="mt-1 text-[1.12rem] leading-snug font-semibold text-ink">{e.title}</p>
+                      <p className="mt-1 text-[0.98rem] text-ink-2">
+                        {formatWeekdayDate(e.starts_on)}
+                        {e.ends_on ? ` – ${formatWeekdayDate(e.ends_on)}` : ""}
+                      </p>
+                      <p className="mt-0.5 text-[0.98rem] text-ink-2">
+                        {e.nation === "northern_ireland" ? "Northern Ireland" : "England"} · September {e.entry_year} entry
+                        {e.test_slug ? (
+                          <>
+                            {" "}
+                            ·{" "}
+                            <Link href={`/11-plus/${e.test_slug}`} className="a">
+                              {e.test_name}
+                            </Link>
+                          </>
+                        ) : null}
+                        {e.school_slug ? (
+                          <>
+                            {" "}
+                            ·{" "}
+                            <Link href={`/schools/${e.school_slug}`} className="a">
+                              {e.school_name}
+                            </Link>
+                          </>
+                        ) : null}
+                      </p>
+                      {e.description ? <p className="mt-1.5 max-w-[64ch] text-small leading-relaxed text-ink-2">{e.description}</p> : null}
+                      <div className="mt-2.5 flex flex-wrap items-center gap-3">
+                        <Status status={e.verification_status} />
+                        {e.url ? (
+                          <a href={e.url} target="_blank" rel="noopener noreferrer" className="a inline-flex items-center gap-1 text-small">
+                            Source document{e.source_locator ? ` — ${e.source_locator}` : ""}
+                            <IconExternal size={12} />
+                            <span className="sr-only">(opens in a new tab)</span>
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           </section>
         ))}
       </div>
-    </Container>
+    </Page>
   );
 }

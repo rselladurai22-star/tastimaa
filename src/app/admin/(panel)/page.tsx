@@ -6,7 +6,6 @@ import { formatDate, relativeAge } from "@/lib/format";
 import { requireRole } from "@/server/auth";
 import { dataFreshness } from "@/server/insights";
 import { runIngestionJob } from "@/app/admin/actions";
-import { Card } from "@/components/ui/primitives";
 
 export default async function AdminDashboard() {
   // Checked per page as well as in the layout: layouts are not re-run on client navigation.
@@ -45,7 +44,7 @@ export default async function AdminDashboard() {
   ];
   return (
     <div className="grid gap-8">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      <h1 className="text-h2">Dashboard</h1>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
           ["Open review tasks", q!.open, "/admin/review"],
@@ -54,17 +53,17 @@ export default async function AdminDashboard() {
           ["Manual uploads needed", q!.uploads, "/admin/review?type=missing_field"],
           ["Ingestion failures", q!.failures, "/admin/review?type=ingestion_failure"],
         ].map(([label, n, href]) => (
-          <Link key={label as string} href={href as string} className="rounded-xl border border-line bg-surface p-4 hover:border-line-strong">
+          <Link key={label as string} href={href as string} className="rounded-[8px] border border-rule bg-card p-4 hover:border-control">
             <p className="text-xs text-ink-3">{label}</p>
             <p className={Number(n) > 0 && label === "Ingestion failures" ? "text-2xl font-semibold text-bad" : "text-2xl font-semibold"}>{n}</p>
           </Link>
         ))}
       </div>
       <section>
-        <h2 className="mb-3 font-sans text-lg font-semibold">Ingestion health</h2>
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+        <h2 className="mb-3 text-h4">Ingestion health</h2>
+        <div className="relative overflow-x-auto rounded-[8px] border border-rule bg-card">
           <table className="w-full min-w-[720px] text-sm">
-            <thead className="border-b border-line bg-surface-2 text-left text-xs text-ink-3">
+            <thead className="border-b border-ink bg-paper text-left font-mono text-[0.72rem] tracking-[0.06em] text-ink-2 uppercase">
               <tr>
                 <th className="px-4 py-2 font-medium">Job</th>
                 <th className="px-4 py-2 font-medium">Last success</th>
@@ -74,7 +73,7 @@ export default async function AdminDashboard() {
                 {user?.role === "admin" ? <th className="px-4 py-2 font-medium">Run</th> : null}
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody className="divide-y divide-rule">
               {Object.keys(JOBS).map((job) => {
                 const f = freshness.find((x) => x.job === job);
                 return (
@@ -88,7 +87,7 @@ export default async function AdminDashboard() {
                       <td className="px-4 py-2">
                         <form action={runIngestionJob}>
                           <input type="hidden" name="job" value={job} />
-                          <button type="submit" className="rounded-md border border-line px-2 py-1 text-xs hover:bg-surface-2">
+                          <button type="submit" className="rounded-[4px] border border-rule px-2 py-1 text-xs hover:bg-sage">
                             Run now
                           </button>
                         </form>
@@ -102,27 +101,27 @@ export default async function AdminDashboard() {
         </div>
       </section>
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-5">
-          <h2 className="font-sans text-lg font-semibold">Coverage gaps ({c.schools} schools)</h2>
+        <div className="rounded-[8px] border border-rule bg-card p-5">
+          <h2 className="text-h4">Coverage gaps ({c.schools} schools)</h2>
           <ul className="mt-3 grid gap-2 text-sm">
             {gaps.map(([label, n]) => (
               <li key={label} className="flex items-center gap-3">
                 <span className="w-48 text-ink-2">{label}</span>
-                <span className="h-2 flex-1 rounded bg-surface-3">
-                  <span className="block h-2 rounded bg-accent" style={{ width: `${Math.round((n / Math.max(1, c.schools)) * 100)}%` }} />
+                <span className="h-2 flex-1 rounded bg-sage-deep">
+                  <span className="block h-2 rounded bg-green" style={{ width: `${Math.round((n / Math.max(1, c.schools)) * 100)}%` }} />
                 </span>
-                <span className="w-12 text-right tabular">{n}</span>
+                <span className="w-12 text-right num">{n}</span>
               </li>
             ))}
           </ul>
-        </Card>
-        <Card className="p-5">
-          <h2 className="font-sans text-lg font-semibold">Recent detected changes</h2>
+        </div>
+        <div className="rounded-[8px] border border-rule bg-card p-5">
+          <h2 className="text-h4">Recent detected changes</h2>
           <ul className="mt-3 grid gap-2 text-sm">
             {changes.length ? (
               changes.map((ch, i) => (
                 <li key={i}>
-                  <Link className="link" href={`/schools/${ch.slug}`}>
+                  <Link className="a" href={`/schools/${ch.slug}`}>
                     {ch.name}
                   </Link>{" "}
                   <span className="text-ink-3">
@@ -134,7 +133,7 @@ export default async function AdminDashboard() {
               <li className="text-ink-3">No changes detected yet.</li>
             )}
           </ul>
-        </Card>
+        </div>
       </div>
     </div>
   );

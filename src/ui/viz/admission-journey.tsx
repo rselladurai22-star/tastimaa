@@ -228,7 +228,7 @@ export function AdmissionJourney() {
             data-step={i}
             className={clsx("lg:flex lg:min-h-[64vh] lg:items-center", i !== step && "hidden lg:flex")}
           >
-            <div className={clsx("border-l-2 pl-5 transition-[border-color,opacity] duration-[var(--d-3)] ease-[var(--ease-out)]", i === step ? "border-copper opacity-100" : "border-rule opacity-55")}>
+            <div className={clsx("border-l-2 pl-5 transition-[border-color,opacity] duration-[var(--d-3)] ease-[var(--ease-out)]", i === step ? "border-copper" : "border-rule [&_h3]:text-ink-2")}>
               <p className="label text-copper-ink">{s.kicker}</p>
               <h3 className="mt-2 text-h3">{s.title}</h3>
               <p className="mt-3 text-body leading-relaxed text-ink-2">{s.body}</p>
@@ -250,7 +250,7 @@ export function AdmissionJourney() {
                   type="button"
                   onClick={() => setStep(i)}
                   aria-pressed={i === step}
-                  aria-label={`${s.kicker}: ${s.title}`}
+                  aria-label={i === 0 ? `Start: ${s.title}` : `Step ${i}: ${s.title}`}
                   className={clsx("grid h-10 min-w-10 place-items-center rounded-[4px] border px-2 font-mono text-[0.85rem] transition-colors duration-[var(--d-1)]", i === step ? "border-green bg-green text-paper" : "border-rule-strong bg-card text-ink hover:border-ink")}
                 >
                   {i === 0 ? "Start" : i}
@@ -290,7 +290,7 @@ export function JourneyStepper() {
               type="button"
               onClick={() => setStep(i)}
               aria-pressed={i === step}
-              aria-label={`${x.kicker}: ${x.title}`}
+              aria-label={i === 0 ? `Start: ${x.title}` : `Step ${i}: ${x.title}`}
               className={clsx("grid h-10 min-w-10 place-items-center rounded-[4px] border px-2 font-mono text-[0.85rem] transition-colors duration-[var(--d-1)]", i === step ? "border-green bg-green text-paper" : "border-rule-strong bg-card text-ink hover:border-ink")}
             >
               {i === 0 ? "Start" : i}

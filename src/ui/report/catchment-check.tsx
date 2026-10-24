@@ -14,7 +14,7 @@ const OUTCOME = {
 } as const;
 
 /** Postcode check against official boundaries only. Nothing is stored. */
-export function CatchmentCheck({ schools, entryYear, idPrefix = "cc" }: { schools: { slug: string; name: string }[]; entryYear: number; idPrefix?: string }) {
+export function CatchmentCheck({ schools, entryYear, idPrefix = "cc", onResult }: { schools: { slug: string; name: string }[]; entryYear: number; idPrefix?: string; onResult?: (r: Result | null) => void }) {
   const [postcode, setPostcode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,8 +29,12 @@ export function CatchmentCheck({ schools, entryYear, idPrefix = "cc" }: { school
       const json = await res.json();
       if (!res.ok) {
         setResult(null);
+        onResult?.(null);
         setError(json.error ?? "Something went wrong.");
-      } else setResult(json as Result);
+      } else {
+        setResult(json as Result);
+        onResult?.(json as Result);
+      }
     } catch {
       setError("The check couldn't be completed. Please try again.");
     } finally {

@@ -120,7 +120,7 @@ function ResultsTable({ r, p, basePath, bench }: { r: SearchResult; p: Directory
   const cell = "border-b border-rule px-3 py-3 align-top";
   const sortHref = (sort: DirectoryParams["sort"]) => `${basePath}${directoryQueryString(p, { sort, page: 1 })}`;
   return (
-    <div className="max-h-[75vh] overflow-auto rounded-[5px] border border-rule bg-card" role="region" aria-label="Results table" tabIndex={0}>
+    <div className="relative max-h-[75vh] overflow-auto rounded-[5px] border border-rule bg-card" role="region" aria-label="Results table" tabIndex={0}>
       <table className="w-full min-w-[860px] border-collapse text-[0.95rem]">
         <caption className="sr-only">Grammar schools matching your search</caption>
         <thead>
