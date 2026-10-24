@@ -2,6 +2,7 @@ import "./_env";
 import { closeDb } from "@/db";
 import { JOBS, JOB_ORDER } from "@/etl/jobs";
 import { cronMatches } from "@/lib/cron";
+import { SERVICE_SCHEDULES } from "@/lib/schedules";
 import { runMaintenance } from "@/server/maintenance";
 import { sendDueReminders } from "@/server/reminders";
 
@@ -14,8 +15,8 @@ type Task = { name: string; schedule: string; run: () => Promise<unknown> };
 
 const TASKS: Task[] = [
   ...JOB_ORDER.filter((name) => JOBS[name]!.schedule !== "manual").map((name) => ({ name, schedule: JOBS[name]!.schedule, run: () => JOBS[name]!.run("worker") })),
-  { name: "maintenance", schedule: "15 3 * * *", run: () => runMaintenance() },
-  { name: "reminders", schedule: "0 8 * * *", run: () => sendDueReminders() },
+  { name: "maintenance", schedule: SERVICE_SCHEDULES.maintenance, run: () => runMaintenance() },
+  { name: "reminders", schedule: SERVICE_SCHEDULES.reminders, run: () => sendDueReminders() },
 ];
 
 const queue: Task[] = [];

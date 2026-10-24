@@ -14,14 +14,24 @@ const serverSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().url().default("postgres://gsi:gsi@localhost:5432/gsi"),
   DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),
-  SITE_URL: z.string().url().default("http://localhost:3000"),
+  /** Set to "false" behind a transaction-mode pooler that can't hold prepared statements (e.g. Supabase port 6543). */
+  DATABASE_PREPARE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  SITE_URL: z
+    .string()
+    .url()
+    .default(process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000"),
   SESSION_SECRET: z.string().min(32).optional(),
   CRON_SECRET: z.string().min(16).optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Grammar Atlas <no-reply@example.com>"),
-  STORAGE_DIR: z.string().default("./storage"),
+  // Vercel functions can only write to /tmp, which is ephemeral: raw copies are kept for the
+  // run only, while checksums, metadata and extracted text live in the database.
+  STORAGE_DIR: z.string().default(process.env.VERCEL ? "/tmp/grammar-atlas" : "./storage"),
   POSTCODES_IO_BASE_URL: z.string().url().default("https://api.postcodes.io"),
   /**
    * Northern Ireland postcode data distributed via ONSPD/postcodes.io is

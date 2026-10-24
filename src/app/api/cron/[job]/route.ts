@@ -5,7 +5,8 @@ import { env } from "@/lib/env";
 import { runMaintenance } from "@/server/maintenance";
 import { sendDueReminders } from "@/server/reminders";
 
-export const maxDuration = 800;
+// 300 s is the maximum on every Vercel plan (Pro and Enterprise may raise this to 800).
+export const maxDuration = 300;
 
 function authorised(req: Request): boolean {
   const secret = env().CRON_SECRET;

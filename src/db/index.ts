@@ -10,12 +10,23 @@ declare global {
   var __gsiDb: Database | undefined;
 }
 
+/**
+ * Neon's connection strings include `channel_binding=require`, which postgres.js
+ * doesn't understand and would send to the server as a runtime setting.
+ */
+export function normaliseDatabaseUrl(raw: string): string {
+  const url = new URL(raw);
+  url.searchParams.delete("channel_binding");
+  return url.toString();
+}
+
 /** Shared connection pool. Reused across hot reloads in development. */
 export function sqlClient() {
   if (!globalThis.__gsiSql) {
     const e = env();
-    globalThis.__gsiSql = postgres(e.DATABASE_URL, {
+    globalThis.__gsiSql = postgres(normaliseDatabaseUrl(e.DATABASE_URL), {
       max: e.DATABASE_POOL_MAX,
+      prepare: e.DATABASE_PREPARE,
       idle_timeout: 20,
       connect_timeout: 10,
       onnotice: () => {},

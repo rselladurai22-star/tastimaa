@@ -4,7 +4,11 @@ import { formatMiles, relativeAge, titleCaseName } from "@/lib/format";
 import { isNorthernIrelandPostcode, normalisePostcode } from "@/lib/postcode";
 import { expandQuery, looksLikePostcode, normaliseQuery, toPrefixTsQuery } from "@/lib/search-terms";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { readFileSync } from "node:fs";
 import { cronMatches, parseCron } from "@/lib/cron";
+import { SERVICE_SCHEDULES } from "@/lib/schedules";
+import { JOBS } from "@/etl/jobs";
+import { normaliseDatabaseUrl } from "@/db";
 import { formatMeasure, MEASURES, MEASURE_YEAR_NOTES } from "@/domain/measures";
 import { directoryQueryString, parseDirectoryParams } from "@/server/search-params";
 
@@ -140,5 +144,27 @@ describe("worker cron schedules", () => {
   });
   it("rejects malformed expressions", () => {
     for (const bad of ["manual", "* * * *", "60 * * * *", "* 24 * * *", "*/0 * * * *", "5-1 * * * *"]) expect(parseCron(bad)).toBeNull();
+  });
+});
+
+describe("Vercel configuration", () => {
+  it("schedules exactly the worker's tasks in vercel.json", () => {
+    const vercel = JSON.parse(readFileSync("vercel.json", "utf8")) as { crons: { path: string; schedule: string }[] };
+    const fromVercel = Object.fromEntries(vercel.crons.map((c) => [c.path.replace("/api/cron/", ""), c.schedule]));
+    const expected: Record<string, string> = { ...SERVICE_SCHEDULES };
+    for (const [name, job] of Object.entries(JOBS)) if (job.schedule !== "manual") expected[name] = job.schedule;
+    expect(fromVercel).toEqual(expected);
+  });
+  it("keeps Vercel Hobby's once-a-day cron limit", () => {
+    const vercel = JSON.parse(readFileSync("vercel.json", "utf8")) as { crons: { schedule: string }[] };
+    for (const { schedule } of vercel.crons) {
+      const [minute, hour] = parseCron(schedule)!;
+      expect(minute!.size * hour!.size).toBe(1);
+    }
+  });
+  it("drops Neon's channel_binding parameter but keeps TLS settings", () => {
+    const url = normaliseDatabaseUrl("postgresql://u:p@ep-x-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require");
+    expect(url).toContain("sslmode=require");
+    expect(url).not.toContain("channel_binding");
   });
 });

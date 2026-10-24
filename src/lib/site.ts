@@ -1,7 +1,11 @@
 /** Public site configuration. Safe to import from client components. */
 export const SITE = {
   name: process.env.NEXT_PUBLIC_SITE_NAME ?? "Grammar Atlas",
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
+  // On Vercel, fall back to the project's production domain so canonical URLs never point at localhost.
+  url: (
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000")
+  ).replace(/\/$/, ""),
   description:
     "Verified information on every UK grammar school: entrance tests, admission rules, catchment, results and inspection outcomes, with a source for every fact.",
   contactEmail: "corrections@example.com",

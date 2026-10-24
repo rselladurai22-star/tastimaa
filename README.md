@@ -94,6 +94,14 @@ docker compose up -d --build    # PostGIS, migrations, web app on :3000, schedul
 docker compose run --rm web npm run etl -- all
 ```
 
+## Deploying to Vercel
+
+The repository includes `vercel.json` (build command and cron jobs) and a
+build script that applies migrations and can create the first admin. Connect a
+Neon Postgres database from the Vercel dashboard. See
+[Option C in docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#option-c-vercel) for the
+steps.
+
 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) covers production hosting, schedules
 and secrets.
 

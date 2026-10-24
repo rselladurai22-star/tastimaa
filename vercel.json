@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "npm run vercel-build",
+  "crons": [
+    { "path": "/api/cron/gias", "schedule": "0 4 * * 1" },
+    { "path": "/api/cron/ni_schools", "schedule": "0 4 1 * *" },
+    { "path": "/api/cron/ofsted_mi", "schedule": "0 5 15 * *" },
+    { "path": "/api/cron/ees_ks4", "schedule": "0 5 * * 2" },
+    { "path": "/api/cron/ees_1618", "schedule": "0 5 * * 2" },
+    { "path": "/api/cron/ees_apps_offers", "schedule": "0 5 1 * *" },
+    { "path": "/api/cron/admissions_documents", "schedule": "0 6 * * 3" },
+    { "path": "/api/cron/maintenance", "schedule": "15 3 * * *" },
+    { "path": "/api/cron/reminders", "schedule": "0 8 * * *" }
+  ]
+}

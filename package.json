@@ -4,11 +4,12 @@
   "private": true,
   "description": "UK grammar school intelligence platform: verified school data, admissions rules, catchment and results with full provenance.",
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "node scripts/vercel-build.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
