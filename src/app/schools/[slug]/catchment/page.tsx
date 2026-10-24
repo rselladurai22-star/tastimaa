@@ -9,6 +9,8 @@ import { SchoolMap } from "@/components/map/school-map";
 import { Callout, Card, SectionHeading } from "@/components/ui/primitives";
 import { SourceNote } from "@/components/ui/source-note";
 
+import { tabIndexable } from "@/server/indexability";
+
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ year?: string }> };
@@ -21,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${core.school.name} catchment area and distance rules`,
     description: `Does ${core.school.name} have a catchment area? How residence and distance are used, how distance is measured, and how to check your postcode.`,
     alternates: { canonical: `/schools/${slug}/catchment` },
+    robots: (await tabIndexable(slug, "catchment")) ? undefined : { index: false, follow: true },
   };
 }
 

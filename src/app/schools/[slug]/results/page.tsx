@@ -5,6 +5,8 @@ import { KS4_HEADLINE, KS5_HEADLINE, measureRows } from "@/server/profile-view";
 import { MeasureChart, MeasureTable, ResultsCaveat } from "@/components/school/results";
 import { Callout, EmptyState, SectionHeading } from "@/components/ui/primitives";
 
+import { tabIndexable } from "@/server/indexability";
+
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -17,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${core.school.name} GCSE and A level results by year`,
     description: `Official DfE GCSE (Attainment 8, English and maths) and A level results for ${core.school.name}, compared with all selective schools and local averages.`,
     alternates: { canonical: `/schools/${slug}/results` },
+    robots: (await tabIndexable(slug, "results")) ? undefined : { index: false, follow: true },
   };
 }
 

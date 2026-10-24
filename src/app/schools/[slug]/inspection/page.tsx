@@ -4,6 +4,8 @@ import { getInspections, getSchoolCore, loadSources } from "@/server/profile";
 import { InspectionList } from "@/components/school/inspection-history";
 import { Callout } from "@/components/ui/primitives";
 
+import { tabIndexable } from "@/server/indexability";
+
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -16,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${core.school.name} Ofsted inspection and report card`,
     description: `Latest Ofsted inspection outcomes for ${core.school.name}, with report card evaluations and earlier graded and ungraded inspections kept separate.`,
     alternates: { canonical: `/schools/${slug}/inspection` },
+    robots: (await tabIndexable(slug, "inspection")) ? undefined : { index: false, follow: true },
   };
 }
 

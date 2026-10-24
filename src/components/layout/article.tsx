@@ -16,6 +16,7 @@ export function ArticleLayout({ crumbs, title, description, updated, sources, pa
             <p className="mt-3 text-xs text-ink-3">Last reviewed {formatDate(updated)}</p>
           </header>
           <div className="prose-gsi mt-8">{children}</div>
+          {sources.length ? (
           <section aria-labelledby="sources" className="mt-12 max-w-3xl border-t border-line pt-6">
             <h2 id="sources" className="font-sans text-base font-semibold">
               Official sources
@@ -30,6 +31,7 @@ export function ArticleLayout({ crumbs, title, description, updated, sources, pa
               ))}
             </ul>
           </section>
+          ) : null}
         </article>
         {aside ? <aside className="grid content-start gap-4">{aside}</aside> : null}
       </div>

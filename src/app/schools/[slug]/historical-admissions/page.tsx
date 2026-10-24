@@ -4,6 +4,8 @@ import { getAllocations, getSchoolCore, loadSources } from "@/server/profile";
 import { AllocationsSection } from "@/components/school/inspection-history";
 import { Callout, SectionHeading } from "@/components/ui/primitives";
 
+import { tabIndexable } from "@/server/indexability";
+
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -16,6 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${core.school.name} applications and offers by year`,
     description: `How many families named ${core.school.name} as a preference, offers made on national offer day and offers to families from other local authorities, from official DfE data.`,
     alternates: { canonical: `/schools/${slug}/historical-admissions` },
+    robots: (await tabIndexable(slug, "historical-admissions")) ? undefined : { index: false, follow: true },
   };
 }
 

@@ -18,7 +18,7 @@ const serverSchema = z.object({
   SESSION_SECRET: z.string().min(32).optional(),
   CRON_SECRET: z.string().min(16).optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
-  ANTHROPIC_MODEL: z.string().default("claude-sonnet-5-5"),
+  ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("Grammar Atlas <no-reply@example.com>"),
   STORAGE_DIR: z.string().default("./storage"),

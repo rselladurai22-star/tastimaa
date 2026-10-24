@@ -8,6 +8,8 @@ import { AdmissionsSummary, CriteriaList, KeyDates, NoPolicy, PolicyDetails, Thr
 import { Callout, SectionHeading } from "@/components/ui/primitives";
 import { VerificationBadge } from "@/components/ui/verification";
 
+import { tabIndexable } from "@/server/indexability";
+
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ year?: string }> };
@@ -20,6 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${core.school.name} admissions: criteria, qualifying score and how places are allocated`,
     description: `How ${core.school.name} allocates places: entrance test, qualifying score, oversubscription criteria, tie-breaks, waiting lists and appeals, from the school's determined admission arrangements.`,
     alternates: { canonical: `/schools/${slug}/admissions` },
+    robots: (await tabIndexable(slug, "admissions")) ? undefined : { index: false, follow: true },
   };
 }
 

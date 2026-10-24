@@ -8,6 +8,8 @@ import { Callout, Card, EmptyState, SectionHeading } from "@/components/ui/primi
 import { SourceNote } from "@/components/ui/source-note";
 import { VerificationBadge } from "@/components/ui/verification";
 
+import { tabIndexable } from "@/server/indexability";
+
 export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ year?: string }> };
@@ -20,6 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${core.school.name} 11+ entrance test: format, registration and dates`,
     description: `Which entrance test ${core.school.name} uses, what it covers, how scores are standardised and the official registration and test dates.`,
     alternates: { canonical: `/schools/${slug}/11-plus` },
+    robots: (await tabIndexable(slug, "11-plus")) ? undefined : { index: false, follow: true },
   };
 }
 
