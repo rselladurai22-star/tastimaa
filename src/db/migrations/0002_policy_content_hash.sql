@@ -1,0 +1,1 @@
+ALTER TABLE "admission_policies" ADD COLUMN "content_hash" text;

@@ -1,0 +1,29 @@
+{
+  "$comment": "Official admissions arrangements to fetch and extract. Each document is fetched only if robots.txt allows it; otherwise a manual-upload review task is raised. Extracted facts always go to the review queue.",
+  "documents": [
+    {
+      "urn": "136884",
+      "schoolName": "Aylesbury Grammar School",
+      "entryYear": 2027,
+      "title": "Aylesbury Grammar School Admissions Policy 2027 (determined 5 December 2025)",
+      "url": "https://www.ags.bucks.sch.uk/wp-content/uploads/2026/06/Admissions-Policy-2027-Determined-on-5-December-2025.pdf",
+      "landingPage": "https://www.ags.bucks.sch.uk/admissions/policy/"
+    },
+    {
+      "urn": "149899",
+      "schoolName": "Colchester Royal Grammar School",
+      "entryYear": 2027,
+      "title": "Colchester Royal Grammar School Admissions Policy 2027–2028",
+      "url": "https://0e58658be539ee7325a0-220f04f871df648cf4a4d93a111e3366.ssl.cf3.rackcdn.com/colchester/uploads/asset_file/3_1166_crgs-admissions-policy-2027-2028.pdf",
+      "landingPage": "https://www.crgs.co.uk/132/admissions-policy"
+    },
+    {
+      "urn": "136353",
+      "schoolName": "Pate's Grammar School",
+      "entryYear": 2027,
+      "title": "Pate's Grammar School Admissions Policy 2027 Entry",
+      "url": "https://www.patesgs.org/Admissions/Year-7-11-Entry/2027/PGS_Admissions_Policy_2027_Entry.pdf",
+      "landingPage": "https://www.patesgs.org/Admissions/Year-7-September-2027-Entry/"
+    }
+  ]
+}

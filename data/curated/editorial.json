@@ -1,0 +1,392 @@
+{
+  "$comment": "Editorial research. Every fact cites the official page it was checked against (url + locator + retrievedOn). Anything not independently re-checked by a human editor is imported as awaiting_verification and must be approved in /admin before it is shown as verified.",
+  "sources": [
+    {
+      "key": "govuk-school-admissions",
+      "title": "School admissions — GOV.UK (How to apply)",
+      "url": "https://www.gov.uk/schools-admissions/how-to-apply",
+      "publisher": "GOV.UK",
+      "retrievedOn": "2026-10-24",
+      "status": "officially_verified"
+    },
+    {
+      "key": "govuk-school-admissions-criteria",
+      "title": "School admissions — GOV.UK (Admission criteria)",
+      "url": "https://www.gov.uk/schools-admissions/admissions-criteria",
+      "publisher": "GOV.UK",
+      "retrievedOn": "2026-10-24",
+      "status": "officially_verified"
+    },
+    {
+      "key": "govuk-school-admissions-appeals",
+      "title": "School admissions — GOV.UK (Appealing a school's decision)",
+      "url": "https://www.gov.uk/schools-admissions/appealing-a-schools-decision",
+      "publisher": "GOV.UK",
+      "retrievedOn": "2026-10-24",
+      "status": "officially_verified"
+    },
+    {
+      "key": "tbgs-stt",
+      "title": "The Secondary Transfer Test — The Buckinghamshire Grammar Schools",
+      "url": "https://www.thebucksgrammarschools.org/the-secondary-transfer-test",
+      "publisher": "The Buckinghamshire Grammar Schools (TBGS)",
+      "retrievedOn": "2026-10-24",
+      "status": "awaiting_verification"
+    },
+    {
+      "key": "csse-home",
+      "title": "CSSE 11+ Examination — Consortium of Selective Schools in Essex",
+      "url": "https://csse.org.uk/",
+      "publisher": "Consortium of Selective Schools in Essex (CSSE)",
+      "retrievedOn": "2026-10-24",
+      "status": "awaiting_verification"
+    },
+    {
+      "key": "seag-key-dates",
+      "title": "Key Dates — SEAG Entrance Assessment",
+      "url": "https://seagni.co.uk/guidance/key-dates",
+      "publisher": "Schools' Entrance Assessment Group (SEAG)",
+      "retrievedOn": "2026-10-24",
+      "status": "awaiting_verification"
+    },
+    {
+      "key": "seag-assessment-guide",
+      "title": "Assessment Guide — SEAG Entrance Assessment",
+      "url": "https://seagni.co.uk/guidance/assessment-guide",
+      "publisher": "Schools' Entrance Assessment Group (SEAG)",
+      "retrievedOn": "2026-10-24",
+      "status": "awaiting_verification"
+    },
+    {
+      "key": "methody-form-1",
+      "title": "Form 1 admissions — Methodist College Belfast",
+      "url": "https://www.methody.org/admissions/form-1-admissions",
+      "publisher": "Methodist College Belfast",
+      "retrievedOn": "2026-10-24",
+      "status": "awaiting_verification"
+    },
+    {
+      "key": "kent-test",
+      "title": "Kent Test — Kent County Council",
+      "url": "https://www.kent.gov.uk/education-and-children/schools/school-places/kent-test",
+      "publisher": "Kent County Council",
+      "retrievedOn": "2026-10-24",
+      "status": "unavailable",
+      "notes": "The publisher blocks automated access (HTTP 403). Details must be checked and entered by an editor."
+    }
+  ],
+  "testProviders": [
+    {
+      "slug": "gl-assessment",
+      "name": "GL Assessment",
+      "nation": "england",
+      "description": "Commercial assessment publisher. Produces the Buckinghamshire Secondary Transfer Test for The Buckinghamshire Grammar Schools.",
+      "website": "https://www.gl-assessment.co.uk/",
+      "source": "tbgs-stt",
+      "locator": "\"is produced by GL Assessment\""
+    },
+    {
+      "slug": "csse",
+      "name": "Consortium of Selective Schools in Essex (CSSE)",
+      "nation": "england",
+      "description": "Administers the 11+ examination on behalf of its member schools in Essex and Southend-on-Sea.",
+      "website": "https://csse.org.uk/",
+      "source": "csse-home",
+      "locator": "\"The CSSE Office administers the 11+ Examination on behalf of the CSSE Member schools.\""
+    },
+    {
+      "slug": "seag",
+      "name": "Schools' Entrance Assessment Group (SEAG)",
+      "nation": "northern_ireland",
+      "description": "Runs the SEAG Entrance Assessment used by Northern Ireland post-primary schools that admit pupils on the basis of academic selection.",
+      "website": "https://seagni.co.uk/",
+      "source": "seag-assessment-guide",
+      "locator": "Assessment Guide"
+    }
+  ],
+  "entranceTests": [
+    {
+      "slug": "buckinghamshire-secondary-transfer-test",
+      "name": "Buckinghamshire Secondary Transfer Test",
+      "provider": "gl-assessment",
+      "nation": "england",
+      "administeredBy": "Buckinghamshire Council on behalf of The Buckinghamshire Grammar Schools",
+      "areaDescription": "The thirteen state grammar schools in Buckinghamshire.",
+      "components": [
+        { "subject": "Verbal skills", "detail": "One paper assesses verbal skills." },
+        { "subject": "Mathematical and non-verbal skills", "detail": "The other paper assesses mathematical and non-verbal skills." }
+      ],
+      "format": "Two test papers, each approximately 60 minutes, taken on the same day in the autumn term of Year 6.",
+      "standardisation": "Scores in the three skill areas are age-standardised and added together to give the Secondary Transfer Test Score (STTS) (Aylesbury Grammar School admissions policy 2027, 3.2).",
+      "scoreScale": "Secondary Transfer Test Score (STTS). A score of 121 or above automatically qualifies a child for consideration.",
+      "website": "https://www.thebucksgrammarschools.org/the-secondary-transfer-test",
+      "summary": "Children who attend Buckinghamshire state primary schools are registered automatically unless a parent opts out; others must register with Buckinghamshire Council. A standardised score of 121 or above qualifies a child for consideration; children below 121 can apply for a Selection Review.",
+      "source": "tbgs-stt",
+      "locator": "The Secondary Transfer Test page",
+      "schoolUrns": ["136884", "136846", "140893", "137564", "137091", "136419", "137219", "136771", "137344", "136845", "136781", "136484", "136723"],
+      "schoolLinkNote": "TBGS states the Secondary Transfer Test selects pupils for the thirteen Buckinghamshire grammar schools; these are the thirteen state grammar schools in Buckinghamshire in GIAS."
+    },
+    {
+      "slug": "csse-11-plus",
+      "name": "CSSE 11+ Examination",
+      "provider": "csse",
+      "nation": "england",
+      "administeredBy": "CSSE Office, on behalf of member schools",
+      "areaDescription": "CSSE member schools in Essex and Southend-on-Sea.",
+      "components": [
+        { "subject": "English", "detail": "60 minutes, plus ten minutes of additional reading time." },
+        { "subject": "Mathematics", "detail": "60 minutes." }
+      ],
+      "format": "Two papers: English and Mathematics.",
+      "standardisation": null,
+      "scoreScale": "Not stated on the CSSE home page. Each member school's admissions policy sets how scores are used.",
+      "website": "https://csse.org.uk/",
+      "summary": "CSSE administers one 11+ examination for its member schools. Registration for 2028 entry opens in May 2027. How scores are used differs by school: always check each school's admissions policy.",
+      "source": "csse-home",
+      "locator": "Home page — CSSE 11+ Examination and CSSE Members",
+      "schoolUrns": ["136642", "137515", "149899", "136444", "136443", "136490", "136272", "137312", "137310", "137733"],
+      "schoolLinkNote": "Schools listed as CSSE member schools on csse.org.uk."
+    },
+    {
+      "slug": "seag-entrance-assessment",
+      "name": "SEAG Entrance Assessment",
+      "provider": "seag",
+      "nation": "northern_ireland",
+      "administeredBy": "Schools' Entrance Assessment Group",
+      "areaDescription": "Northern Ireland post-primary schools that use academic selection.",
+      "components": [
+        { "subject": "English (or Gaeilge)", "detail": "28 questions in the Main Test of each paper." },
+        { "subject": "Mathematics", "detail": "28 questions in the Main Test of each paper." }
+      ],
+      "format": "Two papers with an identical format, set at the same level of difficulty. Each has an untimed practice test and a 60-minute main test.",
+      "standardisation": "Outcomes are standardised to take account of the pupil's age when they took the assessment.",
+      "scoreScale": "Statement of Outcomes: a Band from 1 (highest) to 6 (lowest), a Total Standardised Age Score (English/Gaeilge SAS + Mathematics SAS), and a cohort percentile.",
+      "website": "https://seagni.co.uk/",
+      "summary": "Taken by pupils in their final year of primary school (P7) who will transfer to post-primary school the following September. Each school publishes its own admissions criteria, which say how SEAG outcomes are used.",
+      "source": "seag-assessment-guide",
+      "locator": "Assessment Guide",
+      "schoolUrns": [],
+      "schoolDeni": [],
+      "schoolLinkNote": "School-by-school use of SEAG must be confirmed from each school's published admissions criteria."
+    },
+    {
+      "slug": "kent-test",
+      "name": "The Kent Test",
+      "provider": null,
+      "nation": "england",
+      "administeredBy": "Kent County Council",
+      "areaDescription": "Kent County Council's selection test for Kent grammar schools.",
+      "components": [],
+      "format": null,
+      "standardisation": null,
+      "scoreScale": null,
+      "website": "https://www.kent.gov.uk/education-and-children/schools/school-places/kent-test",
+      "summary": "We have not been able to verify the current Kent Test arrangements automatically (the council's website blocks automated access). Please check Kent County Council's Kent Test page for registration and test dates.",
+      "source": "kent-test",
+      "locator": null,
+      "status": "unavailable",
+      "schoolUrns": []
+    }
+  ],
+  "cycles": [
+    { "nation": "england", "entryYear": 2027, "entryPoint": "year7", "label": "Year 7 entry, September 2027" },
+    { "nation": "england", "entryYear": 2028, "entryPoint": "year7", "label": "Year 7 entry, September 2028" },
+    { "nation": "northern_ireland", "entryYear": 2027, "entryPoint": "year8", "label": "Year 8 entry, September 2027" }
+  ],
+  "events": [
+    {
+      "cycle": ["england", 2027, "year7"],
+      "scope": "nation",
+      "eventType": "application_deadline",
+      "title": "Secondary school applications close",
+      "description": "Apply through your home council by 31 October, including for schools in other council areas.",
+      "startsOn": "2026-10-31",
+      "url": "https://www.gov.uk/schools-admissions/how-to-apply",
+      "source": "govuk-school-admissions",
+      "locator": "\"You must apply for a secondary school place by 31 October.\""
+    },
+    {
+      "cycle": ["england", 2027, "year7"],
+      "scope": "nation",
+      "eventType": "national_offer_day",
+      "title": "National offer day (secondary)",
+      "description": "Councils send offers of secondary school places on 1 March, or the next working day if 1 March falls on a weekend or bank holiday.",
+      "startsOn": "2027-03-01",
+      "url": "https://www.gov.uk/schools-admissions/how-to-apply",
+      "source": "govuk-school-admissions",
+      "locator": "\"Councils will send offers of school places for … secondary schools on 1 March\""
+    },
+    {
+      "cycle": ["england", 2028, "year7"],
+      "scope": "nation",
+      "eventType": "application_deadline",
+      "title": "Secondary school applications close",
+      "description": "Apply through your home council by 31 October. Check your council's website for how it handles a deadline that falls at a weekend.",
+      "startsOn": "2027-10-31",
+      "url": "https://www.gov.uk/schools-admissions/how-to-apply",
+      "source": "govuk-school-admissions",
+      "locator": "\"You must apply for a secondary school place by 31 October.\""
+    },
+    {
+      "cycle": ["england", 2028, "year7"],
+      "scope": "nation",
+      "eventType": "national_offer_day",
+      "title": "National offer day (secondary)",
+      "description": "Councils send offers of secondary school places on 1 March, or the next working day.",
+      "startsOn": "2028-03-01",
+      "url": "https://www.gov.uk/schools-admissions/how-to-apply",
+      "source": "govuk-school-admissions",
+      "locator": "\"secondary schools on 1 March\""
+    },
+    {
+      "cycle": ["england", 2028, "year7"],
+      "scope": "nation",
+      "eventType": "other",
+      "title": "Deadline to object to admission arrangements (Schools Adjudicator)",
+      "description": "Objections to a school's admission arrangements must reach the Schools Adjudicator by 15 May of the year before the year you are applying for.",
+      "startsOn": "2027-05-15",
+      "url": "https://www.gov.uk/schools-admissions/admissions-criteria",
+      "source": "govuk-school-admissions-criteria",
+      "locator": "\"You need to complain by 15 May of the year before you're applying for a place.\""
+    },
+    {
+      "cycle": ["england", 2027, "year7"],
+      "scope": "test_area",
+      "test": "buckinghamshire-secondary-transfer-test",
+      "eventType": "registration_closes",
+      "title": "Secondary Transfer Test registration deadline (children not at Buckinghamshire state primary schools)",
+      "description": "Children at Buckinghamshire state primary schools are registered automatically. Others, including children at independent schools, apply to Buckinghamshire Council.",
+      "startsOn": "2026-06-02",
+      "url": "https://www.ags.bucks.sch.uk/admissions/policy/",
+      "source": "@document:Aylesbury Grammar School Admissions Policy 2027 (determined 5 December 2025)",
+      "locator": "Page 2, paragraph 3.3"
+    },
+    {
+      "cycle": ["northern_ireland", 2027, "year8"],
+      "scope": "test_area",
+      "test": "seag-entrance-assessment",
+      "eventType": "registration_closes",
+      "title": "SEAG registration closes",
+      "description": "Final date to submit pupil applications and access arrangements applications. SEAG described 19–20 October 2026 as an emergency registration window.",
+      "startsOn": "2026-10-20",
+      "url": "https://seagni.co.uk/guidance/key-dates",
+      "source": "seag-key-dates",
+      "locator": "Key dates: \"Tuesday, 20th October 2026 — Registration Closes\""
+    },
+    {
+      "cycle": ["northern_ireland", 2027, "year8"],
+      "scope": "test_area",
+      "test": "seag-entrance-assessment",
+      "eventType": "test_date",
+      "title": "SEAG Entrance Assessment — Paper 1",
+      "startsOn": "2026-11-14",
+      "url": "https://seagni.co.uk/guidance/key-dates",
+      "source": "seag-key-dates",
+      "locator": "Key dates: \"Saturday, 14th November 2026 — Assessment Paper 1\""
+    },
+    {
+      "cycle": ["northern_ireland", 2027, "year8"],
+      "scope": "test_area",
+      "test": "seag-entrance-assessment",
+      "eventType": "test_date",
+      "title": "SEAG Entrance Assessment — Paper 2",
+      "startsOn": "2026-11-21",
+      "url": "https://seagni.co.uk/guidance/key-dates",
+      "source": "seag-key-dates",
+      "locator": "Key dates: \"Saturday, 21st November 2026 — Assessment Paper 2\""
+    },
+    {
+      "cycle": ["northern_ireland", 2027, "year8"],
+      "scope": "test_area",
+      "test": "seag-entrance-assessment",
+      "eventType": "results_released",
+      "title": "SEAG Statements of Outcomes issued",
+      "startsOn": "2027-01-23",
+      "url": "https://seagni.co.uk/guidance/key-dates",
+      "source": "seag-key-dates",
+      "locator": "Key dates: \"Saturday, 23rd January 2027 — Outcomes Issued\""
+    },
+    {
+      "cycle": ["northern_ireland", 2027, "year8"],
+      "scope": "test_area",
+      "test": "seag-entrance-assessment",
+      "eventType": "other",
+      "title": "SEAG re-mark request window",
+      "startsOn": "2027-01-25",
+      "endsOn": "2027-02-03",
+      "url": "https://seagni.co.uk/guidance/key-dates",
+      "source": "seag-key-dates",
+      "locator": "Key dates: re-mark opens 25 January 2027, closes 3 February 2027"
+    }
+  ],
+  "partiallySelective": [
+    { "urn": "137312", "name": "St Bernard's High School", "source": "csse-home", "note": "Listed as a CSSE member school using the CSSE 11+ examination; GIAS records the school as non-selective. The number of selective places must be confirmed from the school's admission arrangements." },
+    { "urn": "137310", "name": "St Thomas More High School", "source": "csse-home", "note": "Listed as a CSSE member school using the CSSE 11+ examination; GIAS records the school as non-selective. The number of selective places must be confirmed from the school's admission arrangements." },
+    { "urn": "137733", "name": "Shoeburyness High School", "source": "csse-home", "note": "Listed as a CSSE member school using the CSSE 11+ examination; GIAS records the school as non-selective. The number of selective places must be confirmed from the school's admission arrangements." }
+  ],
+  "policies": [
+    {
+      "urn": "136884",
+      "cycle": ["england", 2027, "year7"],
+      "document": "Aylesbury Grammar School Admissions Policy 2027 (determined 5 December 2025)",
+      "determinedOn": "2025-12-05",
+      "publishedAdmissionNumber": 186,
+      "publishedAdmissionNumberLocator": "Page 2, 2.1 (\"Year 7 186\")",
+      "test": "buckinghamshire-secondary-transfer-test",
+      "catchmentType": "defined_area",
+      "outOfAreaRoute": "yes",
+      "summary": "Boys qualify by achieving a Secondary Transfer Test Score of 121 or more, or by being deemed qualified at a Selection Review. If more qualified boys apply than there are places, looked after and previously looked after boys come first. Up to 6 places then go to catchment-area boys eligible for Pupil Premium who scored 115–120. After that come catchment Pupil Premium boys, siblings, staff children, medical or social need and other catchment-area boys. All other qualified boys come last. Within each category, boys living closer to the school are offered places first.",
+      "qualificationSummary": "Secondary Transfer Test Score (STTS) of 121 or more, or deemed qualified by a Selection Review (or, exceptionally, an admissions appeal). Up to 6 places are available to looked after/previously looked after boys and catchment-area boys eligible for Pupil Premium who score 115–120.",
+      "catchmentSummary": "The school has a defined catchment area. A map is published on the school's website, and Buckinghamshire Council provides a catchment checker by postcode. Residence counts from 1 September of the year before entry and must be continuous.",
+      "distanceMethod": "Straight-line distance from the child's home address to the middle of the school's main entrance gate on Walton Road. The home point is taken from Ordnance Survey ADDRESS-POINT.",
+      "tieBreak": "Distance (closest first). Where two applicants live exactly the same distance away, random selection supervised by a person independent of the school.",
+      "waitingList": "Buckinghamshire Council manages waiting lists for Years 7–9 for qualifying applicants, ranked by the oversubscription criteria (not by date added). Test qualification remains current until the end of Year 9.",
+      "appeals": "Parents can appeal to an Independent Appeal Panel. The school has contracted Buckinghamshire Council to manage appeals. An appeal panel will not ordinarily re-review whether a boy could have qualified — that is the role of the Selection Review.",
+      "addressRules": "Home address is where the boy lives and sleeps more than 50% of Sunday–Thursday nights in term time. To count as resident in catchment for the 1 March allocation, families should have disposed of any previous property by 1 September of the preceding year.",
+      "supplementaryForm": null,
+      "lateApplications": null,
+      "inYearAdmissions": "Admission other than into Year 7 via the Secondary Transfer Test follows the school's Late Transfer Procedure (tests coordinated by Buckinghamshire Council for Years 7–9; school-set English and maths tests for Years 10–11).",
+      "locators": {
+        "summary": "Pages 2–4, sections 3 and 5",
+        "catchment": "Page 6, section 8; page 5, 7.2",
+        "distance": "Page 4, 6.1; page 5, 6.2",
+        "tieBreak": "Page 4–5, 6.1–6.3",
+        "waitingList": "Page 6, section 10",
+        "appeals": "Page 3, 3.6–3.8"
+      },
+      "scoreRules": [
+        {
+          "kind": "qualifying_threshold",
+          "appliesTo": "all",
+          "scoreValue": 121,
+          "scoreScale": "Buckinghamshire Secondary Transfer Test Score (STTS)",
+          "description": "Boys are eligible to be considered for admission if they meet the qualifying score of 121, or have been deemed qualified by a Selection Review.",
+          "locator": "Page 2, 3.1–3.2"
+        },
+        {
+          "kind": "reserved_places_threshold",
+          "appliesTo": "pupil_premium_catchment_or_looked_after",
+          "scoreValue": 115,
+          "scoreScale": "Buckinghamshire Secondary Transfer Test Score (STTS), 115 to 120 inclusive",
+          "description": "Up to 6 places for looked after or previously looked after boys living anywhere, or catchment-area boys eligible for Pupil Premium, who score 115 to 120 inclusive and have not been deemed qualified by Selection Review.",
+          "locator": "Page 3–4, 5.1.2"
+        }
+      ],
+      "criteria": [
+        { "rank": 1, "category": "looked_after", "title": "Looked after and previously looked after boys", "requiresQualification": true, "locator": "Page 3, 5.1.1", "conditions": { "lookedAfter": true } },
+        { "rank": 2, "category": "pupil_premium", "title": "Up to 6 places: looked after/previously looked after boys, or catchment-area boys eligible for Pupil Premium, scoring 115–120", "description": "Applies to boys scoring 115–120 who have not been deemed qualified by Selection Review. Within this category, looked after children are prioritised.", "requiresQualification": false, "placesReserved": 6, "locator": "Pages 3–4, 5.1.2", "conditions": { "scoreMin": 115, "scoreMax": 120, "anyOf": [{ "lookedAfter": true }, { "pupilPremium": true, "inCatchment": true }] } },
+        { "rank": 3, "category": "pupil_premium", "title": "Catchment-area boys eligible for Pupil Premium", "requiresQualification": true, "locator": "Page 4, 5.1.3", "conditions": { "pupilPremium": true, "inCatchment": true } },
+        { "rank": 4, "category": "sibling", "title": "Siblings of boys on roll at Aylesbury Grammar School at the date of entry", "requiresQualification": true, "locator": "Page 4, 5.1.4", "conditions": { "sibling": true } },
+        { "rank": 5, "category": "sibling", "title": "Siblings of girls on roll at Aylesbury High School at the date of entry", "requiresQualification": true, "locator": "Page 4, 5.1.5", "conditions": { "siblingAtLinkedSchool": "Aylesbury High School" } },
+        { "rank": 6, "category": "sibling", "title": "Siblings of boys who have previously been on roll at Aylesbury Grammar School", "requiresQualification": true, "locator": "Page 4, 5.1.6", "conditions": { "formerSibling": true } },
+        { "rank": 7, "category": "staff_child", "title": "Children of eligible Aylesbury Grammar School staff", "description": "Staff on a permanent contract for at least two years at the time of application, or recruited to fill a post with a demonstrable skills shortage.", "requiresQualification": true, "locator": "Page 4, 5.1.7", "conditions": { "staffChild": true } },
+        { "rank": 8, "category": "medical_social", "title": "Exceptional medical or social needs that can only be met at the school", "description": "Must be supported by written evidence from a doctor, social worker, educational welfare officer or other appropriately qualified person.", "requiresQualification": true, "locator": "Page 4, 5.1.8", "conditions": { "medicalSocial": true } },
+        { "rank": 9, "category": "catchment_resident", "title": "Boys living in the catchment area", "description": "Living in the catchment area as at and continuously from 1 September of the year before entry.", "requiresQualification": true, "locator": "Page 4, 5.1.9", "conditions": { "inCatchment": true } },
+        { "rank": 10, "category": "other", "title": "All other boys", "requiresQualification": true, "locator": "Page 4, 5.1.10", "conditions": {} }
+      ]
+    }
+  ],
+  "schoolTestLinks": [
+    { "deni": null, "schoolName": "Methodist College, Belfast", "test": "seag-entrance-assessment", "entryYear": 2027, "source": "methody-form-1", "note": "The school's Form 1 admissions page links to a SEAG presentation (17 October 2026). Confirm in the school's published admissions criteria." }
+  ]
+}
