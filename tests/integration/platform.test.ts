@@ -11,6 +11,8 @@ import { tabIndexable } from "@/server/indexability";
 import { getAllocations, getResults } from "@/server/profile";
 import { measureRows } from "@/server/profile-view";
 import { runMaintenance } from "@/server/maintenance";
+import { runEditorial } from "@/etl/jobs/editorial";
+import { ensureSource } from "@/etl/sources";
 import { plannerEvents, toIcs } from "@/server/planner";
 import { clientIp, clientKey, rateLimit } from "@/server/rate-limit";
 import { parseDirectoryParams } from "@/server/search-params";
@@ -257,5 +259,34 @@ describe("maintenance", () => {
     expect(rows.find((r) => r.id === stale!.id)?.status).toBe("failed");
     expect(rows.find((r) => r.id === stale!.id)?.error).toMatch(/Did not finish/);
     expect(rows.find((r) => r.id === recent!.id)?.status).toBe("running");
+  });
+});
+
+describe("editorial import order", () => {
+  it("attaches a policy document ingested after editorial ran, without duplicating events or versions", async () => {
+    const title = "Aylesbury Grammar School Admissions Policy 2027 (determined 5 December 2025)";
+    const registration = "Secondary Transfer Test registration deadline (children not at Buckinghamshire state primary schools)";
+    // Give a fixture school the curated policy's URN so the policy has somewhere to land.
+    await db().insert(schema.schoolIdentifiers).values({ schoolId: f.gamma.id, scheme: "urn", value: "136884", isCurrent: true });
+
+    expect((await runEditorial("test")).status).not.toBe("failed");
+    const before = await db().select().from(schema.admissionPolicies).where(eq(schema.admissionPolicies.schoolId, f.gamma.id));
+    const curated = before.find((p) => p.publishedAdmissionNumber === 186)!;
+    expect(curated.sourceDocumentId).toBeNull();
+
+    // admissions_documents runs afterwards and records the PDF.
+    const sourceId = await ensureSource("school_admissions_documents");
+    const [doc] = await db().insert(schema.sourceDocuments).values({ sourceId, schoolId: f.gamma.id, title, url: "https://example.org/ags-2027.pdf" }).returning();
+
+    expect((await runEditorial("test")).status).not.toBe("failed");
+    const after = await db().select().from(schema.admissionPolicies).where(eq(schema.admissionPolicies.schoolId, f.gamma.id));
+    expect(after.length).toBe(before.length);
+    expect(after.find((p) => p.id === curated.id)?.sourceDocumentId).toBe(doc!.id);
+    const criteria = await db().select().from(schema.admissionCriteria).where(eq(schema.admissionCriteria.policyId, curated.id));
+    expect(criteria.length).toBeGreaterThan(0);
+    expect(criteria.every((c) => c.sourceDocumentId === doc!.id)).toBe(true);
+    const events = await db().select().from(schema.admissionEvents).where(eq(schema.admissionEvents.title, registration));
+    expect(events).toHaveLength(1);
+    expect(events[0]!.sourceDocumentId).toBe(doc!.id);
   });
 });

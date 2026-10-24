@@ -138,8 +138,10 @@ the cron jobs.
    **Redeploy**. The build applies migrations and creates the admin.
 6. **Load the data.** Sign in at `/admin/login` and use **Run** on the
    dashboard for each job, in this order: `gias`, `ni_schools`, `ofsted_mi`,
-   `ees_ks4`, `ees_1618`, `ees_apps_offers`, `editorial`,
-   `admissions_documents`. Alternatively, call
+   `ees_ks4`, `ees_1618`, `ees_apps_offers`, `admissions_documents`,
+   `editorial`. If `editorial` runs before `admissions_documents`, run it again
+   afterwards: it then attaches the downloaded policy documents as evidence,
+   without duplicating anything. Alternatively, call
    `/api/cron/<job>` with the bearer secret.
 7. **Check.** `/api/health` should return `{"ok":true}`, and the homepage
    should show the school counts.

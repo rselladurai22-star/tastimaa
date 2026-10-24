@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { runJob, type JobContext } from "../runner";
@@ -208,7 +208,13 @@ export async function importEditorial(ctx: JobContext) {
   if (editorialDocIds.length) await db().delete(schema.admissionEvents).where(inArray(schema.admissionEvents.sourceDocumentId, editorialDocIds));
   for (const e of data.events) {
     const sourceDocumentId = await docRef(e.source);
-    if (e.source.startsWith("@document:") && sourceDocumentId) await db().delete(schema.admissionEvents).where(and(eq(schema.admissionEvents.sourceDocumentId, sourceDocumentId), eq(schema.admissionEvents.title, e.title)));
+    if (e.source.startsWith("@document:")) {
+      // Replace this event, including a copy stored before its document was ingested (no source yet),
+      // so running editorial before admissions_documents never leaves duplicates.
+      const ev = schema.admissionEvents;
+      const sameSource = sourceDocumentId ? or(isNull(ev.sourceDocumentId), eq(ev.sourceDocumentId, sourceDocumentId)) : isNull(ev.sourceDocumentId);
+      await db().delete(ev).where(and(eq(ev.cycleId, cycleId(e.cycle)), eq(ev.title, e.title), sameSource));
+    }
     await db().insert(schema.admissionEvents).values({
       cycleId: cycleId(e.cycle),
       scope: e.scope,
@@ -242,7 +248,17 @@ export async function importEditorial(ctx: JobContext) {
       orderBy: (t, { desc }) => desc(t.version),
     });
     if (latest && latest.contentHash === fingerprintHash(fingerprint)) {
-      ctx.counters.rowsUnchanged++;
+      // Same content, but stored before its document was ingested: attach the evidence now.
+      if (!latest.sourceDocumentId && sourceDocumentId) {
+        await db().update(schema.admissionPolicies).set({ sourceDocumentId, updatedAt: now }).where(eq(schema.admissionPolicies.id, latest.id));
+        await db().update(schema.admissionCriteria).set({ sourceDocumentId }).where(and(eq(schema.admissionCriteria.policyId, latest.id), isNull(schema.admissionCriteria.sourceDocumentId)));
+        await db().update(schema.scoreRules).set({ sourceDocumentId }).where(and(eq(schema.scoreRules.policyId, latest.id), isNull(schema.scoreRules.sourceDocumentId)));
+        await db()
+          .update(schema.adminReviewTasks)
+          .set({ evidenceDocumentId: sourceDocumentId, updatedAt: now })
+          .where(and(eq(schema.adminReviewTasks.entityType, "admission_policy"), eq(schema.adminReviewTasks.entityId, latest.id), isNull(schema.adminReviewTasks.evidenceDocumentId)));
+        ctx.counters.rowsUpdated++;
+      } else ctx.counters.rowsUnchanged++;
       continue;
     }
     if (latest) await db().update(schema.admissionPolicies).set({ status: "superseded", updatedAt: now }).where(eq(schema.admissionPolicies.id, latest.id));
