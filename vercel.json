@@ -2,6 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "npm run vercel-build",
+  "regions": ["lhr1"],
   "crons": [
     { "path": "/api/cron/gias", "schedule": "0 4 * * 1" },
     { "path": "/api/cron/ni_schools", "schedule": "0 4 1 * *" },

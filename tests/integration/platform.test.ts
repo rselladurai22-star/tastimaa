@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { closeDb, db, schema } from "@/db";
 import { ask, RetrievalOnlyProvider, type AnswerProvider } from "@/ai/assistant";
 import { schoolsMentioned } from "@/ai/retrieval";
@@ -10,6 +10,7 @@ import { loadCheckerSchools, questionsFor, runChecker } from "@/server/eligibili
 import { tabIndexable } from "@/server/indexability";
 import { getAllocations, getResults } from "@/server/profile";
 import { measureRows } from "@/server/profile-view";
+import { runMaintenance } from "@/server/maintenance";
 import { plannerEvents, toIcs } from "@/server/planner";
 import { clientIp, clientKey, rateLimit } from "@/server/rate-limit";
 import { parseDirectoryParams } from "@/server/search-params";
@@ -243,5 +244,18 @@ describe("missing and incomplete data stay visibly missing", () => {
     expect(rows[0]!.statusCode).toBe("x");
     expect(rows[0]!.note).toMatch(/key stage 2/i);
     expect(await tabIndexable("gamma-grammar-school", "results")).toBe(false);
+  });
+});
+
+describe("maintenance", () => {
+  it("marks runs that never finished as failed after an hour, and leaves recent ones alone", async () => {
+    const [stale] = await db().insert(schema.ingestionRuns).values({ job: "test_killed_job", trigger: "cron", startedAt: new Date(Date.now() - 2 * 3_600_000) }).returning();
+    const [recent] = await db().insert(schema.ingestionRuns).values({ job: "test_running_job", trigger: "cron" }).returning();
+    const result = await runMaintenance();
+    expect(result.abandonedRuns).toBe(1);
+    const rows = await db().select().from(schema.ingestionRuns).where(inArray(schema.ingestionRuns.id, [stale!.id, recent!.id]));
+    expect(rows.find((r) => r.id === stale!.id)?.status).toBe("failed");
+    expect(rows.find((r) => r.id === stale!.id)?.error).toMatch(/Did not finish/);
+    expect(rows.find((r) => r.id === recent!.id)?.status).toBe("running");
   });
 });

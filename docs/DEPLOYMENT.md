@@ -144,8 +144,17 @@ the cron jobs.
 7. **Check.** `/api/health` should return `{"ok":true}`, and the homepage
    should show the school counts.
 
-To set the function region close to the database, use the project's
-**Settings → Functions → Function Region**.
+**Region.** `vercel.json` pins functions to London (`lhr1`), next to a Neon
+database in AWS eu-west-2. Keep the two together. Vercel's default region is
+Washington, D.C. (`iad1`), and from there each query to a London database
+costs about 80 ms. On the first deployment that made the GIAS import exceed
+the 300-second limit. If your database is elsewhere, change `regions` to match.
+Hobby allows one region.
+
+**Interrupted runs.** If a platform time limit stops an import, its run can't
+record an end time. The daily `maintenance` task marks runs still "running"
+after an hour as failed, and re-running the job is safe because imports are
+idempotent upserts.
 
 ## Schedules (UTC)
 

@@ -28,7 +28,7 @@ export default async function RunsPage() {
                   <td className="px-3 py-2 font-mono text-xs">{r.job}</td>
                   <td className="px-3 py-2 text-xs">{r.trigger}</td>
                   <td className="px-3 py-2 text-xs">{formatDate(r.startedAt)} {r.startedAt.toISOString().slice(11, 16)}</td>
-                  <td className="px-3 py-2 text-xs">{r.finishedAt ? `${Math.round((r.finishedAt.getTime() - r.startedAt.getTime()) / 1000)}s` : "running"}</td>
+                  <td className="px-3 py-2 text-xs">{r.finishedAt ? `${Math.round((r.finishedAt.getTime() - r.startedAt.getTime()) / 1000)}s` : r.status === "running" ? "running" : "did not finish"}</td>
                   <td className={r.status === "failed" ? "px-3 py-2 font-semibold text-bad" : r.status === "partial" ? "px-3 py-2 text-warn" : "px-3 py-2 text-ok"}>
                     {r.status}
                     {r.error ? <span className="block max-w-xs text-xs font-normal">{r.error}</span> : null}
