@@ -24,7 +24,7 @@ export function PageHead({ kicker, title, lede, meta, aside, className }: { kick
       <div className="max-w-[46rem]">
         {kicker ? <Kicker>{kicker}</Kicker> : null}
         <h1 className="mt-4 text-h1 [font-variation-settings:'opsz'_60]">{title}</h1>
-        {lede ? <p className="mt-5 text-lede leading-[1.5] text-ink-2">{lede}</p> : null}
+        {lede ? <p className="mt-5 text-lede leading-[1.5] text-ink">{lede}</p> : null}
         {meta ? <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-2">{meta}</div> : null}
       </div>
       {aside ? <div className="min-w-0">{aside}</div> : null}

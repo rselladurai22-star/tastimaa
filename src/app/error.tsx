@@ -8,7 +8,7 @@ export default function ErrorPage({ reset }: { error: Error & { digest?: string 
     <Page className="max-w-[44rem] pt-16 pb-24">
       <Kicker>Something went wrong</Kicker>
       <h1 className="mt-4 text-h1">This page couldn&apos;t be loaded</h1>
-      <p className="mt-4 text-lede leading-[1.5] text-ink-2">The problem has been logged. Please try again.</p>
+      <p className="mt-4 text-lede leading-[1.5] text-ink">The problem has been logged. Please try again.</p>
       <div className="mt-8 flex flex-wrap gap-3">
         <button type="button" onClick={reset} className="inline-flex min-h-11 items-center rounded-[5px] bg-green px-4 font-semibold text-paper hover:bg-green-deep">
           Try again

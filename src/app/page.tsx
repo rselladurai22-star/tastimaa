@@ -119,7 +119,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <SkyHeight mobile="44rem" desktop="50rem" />
+      <SkyHeight mobile="54rem" desktop="50rem" />
       {/* A — Editorial introduction */}
       <section aria-labelledby="hero-title">
         <Page className="grid gap-x-14 gap-y-10 pt-10 pb-14 sm:pt-16 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:pb-20">
@@ -128,7 +128,7 @@ export default async function HomePage() {
             <h1 id="hero-title" className="mt-5 text-display leading-[1.02] [font-variation-settings:'opsz'_72]">
               Find a grammar school, and understand <em className="text-green italic">exactly</em> how it chooses.
             </h1>
-            <p className="mt-6 max-w-[38rem] text-lede leading-[1.5] text-ink-2">
+            <p className="mt-6 max-w-[38rem] text-lede leading-[1.5] text-ink">
               Official records for every grammar school in England and Northern Ireland — entrance tests, admission rules, results, inspections and past demand — with each rule explained in plain English and every fact tied to its source.
             </p>
             <div className="mt-8 max-w-[40rem]">
@@ -194,7 +194,7 @@ export default async function HomePage() {
           <div className="max-w-[46rem]">
             <Kicker>Fig. 2 · How grammar school admission works</Kicker>
             <h2 id="journey-title" className="mt-4 text-h1 [font-variation-settings:'opsz'_60]">Qualifying is the first step, not the last.</h2>
-            <p className="mt-4 text-lede leading-[1.5] text-ink-2">Most confusion comes from treating a pass as a place. Follow seventy-two imaginary applicants through the three steps every grammar school uses.</p>
+            <p className="mt-4 text-lede leading-[1.5] text-ink">Most confusion comes from treating a pass as a place. Follow seventy-two imaginary applicants through the three steps every grammar school uses.</p>
           </div>
           <div className="mt-10">
             <AdmissionJourney />

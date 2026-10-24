@@ -33,7 +33,7 @@ export default async function AdmissionsHub() {
             <div>
               <Kicker>Understand admissions</Kicker>
               <h1 className="mt-4 text-h1 leading-[1.04] [font-variation-settings:'opsz'_72] sm:text-display">How grammar school admissions work</h1>
-              <p className="mt-5 max-w-[42rem] text-lede leading-[1.5] text-ink-2">
+              <p className="mt-5 max-w-[42rem] text-lede leading-[1.5] text-ink">
                 Grammar school admissions combine a test, published criteria and a national timetable. These guides explain each part in plain English, with links to the official rules.
               </p>
             </div>

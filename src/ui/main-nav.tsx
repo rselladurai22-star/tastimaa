@@ -381,7 +381,7 @@ export function MobileNav({ data }: { data: NavData }) {
 
   return (
     <div className="lg:hidden">
-      <button ref={btnRef} type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="inline-flex min-h-10 items-center gap-2 rounded-[5px] border border-rule-strong bg-card px-3 text-[0.95rem] font-semibold text-ink">
+      <button ref={btnRef} type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="inline-flex min-h-10 items-center gap-2 rounded-[6px] border border-transparent px-2.5 text-[0.95rem] font-semibold text-ink sm:border-rule-strong sm:bg-card sm:px-3">
         <IconMenu size={18} /> <span className="sr-only sm:not-sr-only">Menu</span>
       </button>
       {open ? (

@@ -30,7 +30,7 @@ export function ChapterIntro({ kicker, title, lede, aside }: { kicker: string; t
       <div className="max-w-[44rem]">
         <p className="label text-copper-ink">{kicker}</p>
         <h2 className="mt-2 text-h1 [font-variation-settings:'opsz'_60]">{title}</h2>
-        <p className="mt-3 text-lede leading-[1.5] text-ink-2">{lede}</p>
+        <p className="mt-3 text-lede leading-[1.5] text-ink">{lede}</p>
       </div>
       {aside ? <div>{aside}</div> : null}
     </header>

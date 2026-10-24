@@ -26,7 +26,7 @@ export default function PreparationPage() {
         <div className="mt-8 max-w-[48rem]">
           <Kicker>Explore 11+ exams</Kicker>
           <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">11+ preparation</h1>
-          <p className="mt-4 text-lede leading-[1.5] text-ink-2">A simple plan and free practice. Exact dates differ by area — use the planner for your schools&apos; verified dates.</p>
+          <p className="mt-4 text-lede leading-[1.5] text-ink">A simple plan and free practice. Exact dates differ by area — use the planner for your schools&apos; verified dates.</p>
         </div>
       </Page>
 

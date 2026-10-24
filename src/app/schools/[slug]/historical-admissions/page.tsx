@@ -54,7 +54,7 @@ export default async function HistoryPage({ params }: Props) {
         <>
           <RSection id="trend" mark="B" title="Demand over time">
             {first !== null && offers !== null ? (
-              <p className="mb-6 max-w-[60ch] text-lede leading-[1.5] text-ink-2">
+              <p className="mb-6 max-w-[60ch] text-lede leading-[1.5] text-ink">
                 For September {latest} entry, families named {core.school.name} as their first preference <strong className="font-semibold text-ink">{formatNumber(first)}</strong> times, and{" "}
                 <strong className="font-semibold text-ink">{formatNumber(offers)}</strong> offers were made on national offer day.
               </p>

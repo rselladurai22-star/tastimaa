@@ -24,7 +24,7 @@ export default async function ProvidersPage() {
         <div className="mt-8 max-w-[48rem]">
           <Kicker>Explore 11+ exams</Kicker>
           <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">Test providers and tests</h1>
-          <p className="mt-4 text-lede leading-[1.5] text-ink-2">Who produces and administers each entrance test we hold, with the schools linked to it.</p>
+          <p className="mt-4 text-lede leading-[1.5] text-ink">Who produces and administers each entrance test we hold, with the schools linked to it.</p>
         </div>
         <Note className="mt-8 max-w-[48rem]">We are adding test arrangements area by area as we verify them. If a test is missing, it means we haven&apos;t verified it yet — not that it doesn&apos;t exist.</Note>
       </Page>

@@ -42,7 +42,7 @@ export default async function DataSourcesPage() {
         <div className="mt-8 max-w-[48rem]">
           <Kicker>Dates &amp; data</Kicker>
           <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">Data sources and freshness</h1>
-          <p className="mt-4 text-lede leading-[1.5] text-ink-2">Live status of every import. If a refresh fails, the previous data stays in place and an administrator is alerted.</p>
+          <p className="mt-4 text-lede leading-[1.5] text-ink">Live status of every import. If a refresh fails, the previous data stays in place and an administrator is alerted.</p>
         </div>
       </Page>
       <Page className="pb-16">

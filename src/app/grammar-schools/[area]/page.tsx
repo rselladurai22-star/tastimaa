@@ -102,7 +102,7 @@ export default async function AreaPage({ params, searchParams }: Props) {
             <div className="min-w-0">
               <Kicker>Area profile{area.parent_name && area.parent_slug !== area.slug ? ` · ${area.parent_name}` : ""}</Kicker>
               <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">Grammar schools in {area.name}</h1>
-              <p className="mt-4 max-w-[46rem] text-lede leading-[1.5] text-ink-2">
+              <p className="mt-4 max-w-[46rem] text-lede leading-[1.5] text-ink">
                 {area.name} has {stats.total} {isNI ? "grammar" : "selective"} {stats.total === 1 ? "school" : "schools"}: {stats.boys} for boys, {stats.girls} for girls and {stats.mixed} co-educational
                 {stats.mixed + stats.boys + stats.girls < stats.total ? " (gender policy not recorded for the rest)" : ""}. {stats.sixth} {stats.sixth === 1 ? "has" : "have"} a sixth form.
                 {stats.partial ? ` ${stats.partial} ${stats.partial === 1 ? "is" : "are"} partially selective.` : ""}

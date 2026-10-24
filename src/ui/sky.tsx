@@ -20,7 +20,7 @@ export function Sky() {
   }, []);
   return (
     <div aria-hidden data-no-print className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[var(--sky-h)] overflow-hidden" style={{ background: "var(--sky)" }}>
-      <svg className="absolute inset-x-0 bottom-0 h-[11rem] w-full sm:h-[13rem]" viewBox="0 0 1440 200" preserveAspectRatio="none">
+      <svg className="absolute bottom-0 left-1/2 h-[7rem] w-[1100px] max-w-none -translate-x-1/2 sm:h-[10rem] sm:w-[1440px] lg:left-0 lg:h-[13rem] lg:w-full lg:translate-x-0" viewBox="0 0 1440 200" preserveAspectRatio="none">
         <path
           d="M0 120 C 90 70 210 70 290 105 C 350 40 520 30 600 95 C 690 50 820 60 860 110 C 930 30 1110 10 1190 85 C 1260 40 1380 55 1440 95 L1440 200 L0 200 Z"
           style={{ fill: "var(--sky-cloud)" }}

@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="max-w-[42rem]">
         <Kicker>404 · Off the map</Kicker>
         <h1 className="mt-4 text-h1 [font-variation-settings:'opsz'_72]">We can&apos;t find that page</h1>
-        <p className="mt-4 text-lede leading-[1.5] text-ink-2">The school may have changed its name or closed, or the link may be mistyped. Try searching:</p>
+        <p className="mt-4 text-lede leading-[1.5] text-ink">The school may have changed its name or closed, or the link may be mistyped. Try searching:</p>
         <div className="mt-6">
           <SearchField placeholder="School, town or postcode" />
         </div>

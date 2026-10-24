@@ -62,7 +62,7 @@ export default async function TestPage({ params }: Props) {
               {provider ? <span>Set by {provider.name}</span> : null}
               {test.administeredBy ? <span>Administered by {test.administeredBy}</span> : null}
             </div>
-            {test.summary ? <p className="mt-5 text-lede leading-[1.5] text-ink-2">{test.summary}</p> : null}
+            {test.summary ? <p className="mt-5 text-lede leading-[1.5] text-ink">{test.summary}</p> : null}
           </div>
         </Page>
       </div>

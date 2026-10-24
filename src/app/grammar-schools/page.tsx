@@ -5,6 +5,7 @@ import { areaIndex, selectiveA8 } from "@/server/insights";
 import { searchSchools, siteStats } from "@/server/schools";
 import { parseDirectoryParams } from "@/server/search-params";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
+import { SkyHeight } from "@/ui/sky-height";
 import { DirectoryDesk } from "@/ui/directory/directory";
 import { IconSearch } from "@/ui/icons";
 import { controlClass, Kicker, Page, SectionHead } from "@/ui/kit";
@@ -30,6 +31,7 @@ export default async function DirectoryPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
+      <SkyHeight mobile="48rem" desktop="31rem" />
       <div>
         <Page className="pt-6 pb-8 sm:pb-10">
           <Breadcrumbs items={[{ href: "/grammar-schools", label: "Grammar schools" }]} />
@@ -37,7 +39,7 @@ export default async function DirectoryPage({ searchParams }: { searchParams: Pr
             <div className="min-w-0">
               <Kicker>Directory · {stats.listed} schools</Kicker>
               <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">Grammar schools in the UK</h1>
-              <p className="mt-3 max-w-[44rem] text-lede leading-[1.5] text-ink-2">Every state grammar school in England and Northern Ireland, from official records. Search by name or town, then narrow by test, gender and admissions rules.</p>
+              <p className="mt-3 max-w-[44rem] text-lede leading-[1.5] text-ink">Every state grammar school in England and Northern Ireland, from official records. Search by name or town, then narrow by test, gender and admissions rules.</p>
               <form method="get" action="/grammar-schools" role="search" className="mt-6 flex max-w-[40rem] gap-2">
                 {p.view ? <input type="hidden" name="view" value={p.view} /> : null}
                 <label htmlFor="dir-q" className="sr-only">
