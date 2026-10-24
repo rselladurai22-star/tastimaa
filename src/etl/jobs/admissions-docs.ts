@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { and, eq } from "drizzle-orm";
 import { extractText, getDocumentProxy } from "unpdf";
 import { z } from "zod";
@@ -82,7 +83,7 @@ export async function processPolicyDocument(
 }
 
 export async function importAdmissionsDocuments(ctx: JobContext) {
-  const manifest = manifestSchema.parse(JSON.parse(await readFile("data/curated/admissions-documents.json", "utf8")));
+  const manifest = manifestSchema.parse(JSON.parse(await readFile(join(process.cwd(), "data", "curated", "admissions-documents.json"), "utf8")));
   const urns = await identifierMap("urn");
   for (const doc of manifest.documents) {
     ctx.counters.rowsRead++;

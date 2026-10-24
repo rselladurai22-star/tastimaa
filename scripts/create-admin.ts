@@ -1,7 +1,7 @@
 import "./_env";
 import { eq } from "drizzle-orm";
 import { closeDb, db, schema } from "@/db";
-import { hashPassword } from "@/server/auth";
+import { hashPassword } from "@/server/passwords";
 
 /**
  * Usage: npm run admin:create -- editor@example.org [admin|editor]

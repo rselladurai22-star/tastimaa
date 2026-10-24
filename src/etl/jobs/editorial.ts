@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { and, eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
@@ -92,8 +93,8 @@ export const editorialSchema = z.object({
 
 export type Editorial = z.infer<typeof editorialSchema>;
 
-export async function loadEditorial(path = "data/curated/editorial.json"): Promise<Editorial> {
-  return editorialSchema.parse(JSON.parse(await readFile(path, "utf8")));
+export async function loadEditorial(): Promise<Editorial> {
+  return editorialSchema.parse(JSON.parse(await readFile(join(process.cwd(), "data", "curated", "editorial.json"), "utf8")));
 }
 
 export async function importEditorial(ctx: JobContext) {

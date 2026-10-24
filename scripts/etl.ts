@@ -11,7 +11,7 @@ import { JOBS, JOB_ORDER } from "@/etl/jobs";
 async function main() {
   const args = process.argv.slice(2);
   if (!args.length || args[0] === "list") {
-    for (const name of JOB_ORDER) console.log(`${name.padEnd(18)} ${JOBS[name]!.schedule.padEnd(14)} ${JOBS[name]!.description}`);
+    for (const name of JOB_ORDER) console.log(`${name.padEnd(22)} ${JOBS[name]!.schedule.padEnd(14)} ${JOBS[name]!.description}`);
     return;
   }
   const names = args[0] === "all" ? JOB_ORDER : args;

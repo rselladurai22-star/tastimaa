@@ -2,10 +2,12 @@ import Link from "next/link";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { relativeAge } from "@/lib/format";
+import { requireRole } from "@/server/auth";
 
 const TYPES = ["extracted_policy", "extracted_rule", "user_correction", "missing_field", "ingestion_failure", "conflicting_sources", "stale_record", "change_detected"];
 
 export default async function ReviewQueue({ searchParams }: { searchParams: Promise<{ type?: string; status?: string }> }) {
+  await requireRole(["admin", "editor"]);
   const sp = await searchParams;
   const type = TYPES.includes(sp.type ?? "") ? sp.type! : null;
   const status = ["open", "approved", "rejected", "resolved"].includes(sp.status ?? "") ? sp.status! : "open";

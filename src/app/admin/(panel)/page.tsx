@@ -3,13 +3,14 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { JOBS } from "@/etl/jobs";
 import { formatDate, relativeAge } from "@/lib/format";
-import { currentUser } from "@/server/auth";
+import { requireRole } from "@/server/auth";
 import { dataFreshness } from "@/server/insights";
 import { runIngestionJob } from "@/app/admin/actions";
 import { Card } from "@/components/ui/primitives";
 
 export default async function AdminDashboard() {
-  const user = await currentUser();
+  // Checked per page as well as in the layout: layouts are not re-run on client navigation.
+  const user = await requireRole(["admin", "editor"]);
   const [freshness, [q], [coverage], changes] = await Promise.all([
     dataFreshness(),
     db().execute<{ open: number; policies: number; corrections: number; failures: number; uploads: number }>(sql`

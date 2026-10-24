@@ -8,6 +8,7 @@ export async function runMaintenance() {
     const sessions = await tx.execute(sql`DELETE FROM sessions WHERE expires_at < now()`);
     const tokens = await tx.execute(sql`DELETE FROM login_tokens WHERE expires_at < now() - interval '1 day'`);
     const rate = await tx.execute(sql`DELETE FROM rate_limits WHERE window_start < now() - interval '1 hour'`);
+    const postcodes = await tx.execute(sql`DELETE FROM postcode_cache WHERE fetched_at < now() - interval '30 days'`);
     const ai = await tx.execute(sql`DELETE FROM ai_queries WHERE created_at < now() - interval '12 months'`);
     const unconfirmed = await tx.execute(sql`DELETE FROM reminder_subscriptions WHERE confirmed_at IS NULL AND created_at < now() - interval '7 days'`);
     const corrections = await tx.execute(sql`UPDATE admin_review_tasks SET submitted_by_email = NULL WHERE submitted_by_email IS NOT NULL AND resolved_at < now() - interval '6 months'`);
@@ -17,7 +18,7 @@ export async function runMaintenance() {
       FROM schools s
       WHERE s.is_open AND s.last_checked_at < now() - interval '30 days'
         AND NOT EXISTS (SELECT 1 FROM admin_review_tasks t WHERE t.school_id = s.id AND t.type = 'stale_record' AND t.status = 'open')`);
-    return { sessions: sessions.count, tokens: tokens.count, rate: rate.count, ai: ai.count, unconfirmed: unconfirmed.count, corrections: corrections.count, staleFlagged: stale.count };
+    return { sessions: sessions.count, tokens: tokens.count, rate: rate.count, postcodes: postcodes.count, ai: ai.count, unconfirmed: unconfirmed.count, corrections: corrections.count, staleFlagged: stale.count };
   });
   return r;
 }

@@ -4,10 +4,12 @@ import { selectableEntryYears } from "@/lib/academic-year";
 import { formatDate } from "@/lib/format";
 import { uploadDocument } from "@/app/admin/actions";
 import { Card } from "@/components/ui/primitives";
+import { requireRole } from "@/server/auth";
 
 const ERRORS: Record<string, string> = { invalid: "Fill in every field and choose a file.", size: "Files must be under 30 MB.", pdf: "Only PDF files can be uploaded." };
 
 export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  await requireRole(["admin", "editor"]);
   const sp = await searchParams;
   const [docs, schools] = await Promise.all([
     db().select({ doc: schema.sourceDocuments, source: schema.sources.key }).from(schema.sourceDocuments).innerJoin(schema.sources, eq(schema.sources.id, schema.sourceDocuments.sourceId)).orderBy(desc(schema.sourceDocuments.retrievedAt)).limit(100),

@@ -4,6 +4,7 @@ import { formatMiles, relativeAge, titleCaseName } from "@/lib/format";
 import { isNorthernIrelandPostcode, normalisePostcode } from "@/lib/postcode";
 import { expandQuery, looksLikePostcode, normaliseQuery, toPrefixTsQuery } from "@/lib/search-terms";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { cronMatches, parseCron } from "@/lib/cron";
 import { formatMeasure, MEASURES, MEASURE_YEAR_NOTES } from "@/domain/measures";
 import { directoryQueryString, parseDirectoryParams } from "@/server/search-params";
 
@@ -120,5 +121,24 @@ describe("directory parameters", () => {
     expect(p.gender).toEqual([]);
     expect(p.radius).toBeUndefined();
     expect(p.nation).toBeUndefined();
+  });
+});
+
+describe("worker cron schedules", () => {
+  it("matches the ETL schedules in UTC", () => {
+    expect(cronMatches("0 4 * * 1", new Date("2026-10-26T04:00:00Z"))).toBe(true); // Monday
+    expect(cronMatches("0 4 * * 1", new Date("2026-10-27T04:00:00Z"))).toBe(false); // Tuesday
+    expect(cronMatches("0 5 15 * *", new Date("2026-11-15T05:00:00Z"))).toBe(true);
+    expect(cronMatches("*/15 * * * *", new Date("2026-11-15T05:45:00Z"))).toBe(true);
+    expect(cronMatches("*/15 * * * *", new Date("2026-11-15T05:44:00Z"))).toBe(false);
+    expect(cronMatches("0 9 1-7 * 1-5", new Date("2026-11-03T09:00:00Z"))).toBe(true);
+  });
+  it("treats restricted day-of-month and day-of-week as either/or, like cron", () => {
+    expect(cronMatches("0 0 1 * 0", new Date("2026-11-08T00:00:00Z"))).toBe(true); // a Sunday
+    expect(cronMatches("0 0 1 * 7", new Date("2026-11-08T00:00:00Z"))).toBe(true);
+    expect(cronMatches("0 0 1 * 0", new Date("2026-11-09T00:00:00Z"))).toBe(false);
+  });
+  it("rejects malformed expressions", () => {
+    for (const bad of ["manual", "* * * *", "60 * * * *", "* 24 * * *", "*/0 * * * *", "5-1 * * * *"]) expect(parseCron(bad)).toBeNull();
   });
 });

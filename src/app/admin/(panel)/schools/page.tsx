@@ -2,8 +2,10 @@ import { ilike } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { updateSchool } from "@/app/admin/actions";
 import { Card } from "@/components/ui/primitives";
+import { requireRole } from "@/server/auth";
 
 export default async function AdminSchools({ searchParams }: { searchParams: Promise<{ q?: string; saved?: string }> }) {
+  await requireRole(["admin", "editor"]);
   const sp = await searchParams;
   const q = (sp.q ?? "").slice(0, 80);
   const rows = q ? await db().select().from(schema.schools).where(ilike(schema.schools.name, `%${q.replace(/[%_]/g, "")}%`)).limit(10) : [];

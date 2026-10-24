@@ -66,6 +66,8 @@ export async function seed() {
     { schoolId: alpha.id, measure: "ks4_attainment8", academicYear: "2024/25", value: 70.1, dataVersion: "Final", verificationStatus: "officially_verified" },
     { schoolId: alpha.id, measure: "ks4_attainment8", academicYear: "2025/26", value: 71.2, dataVersion: "Provisional", verificationStatus: "officially_verified" },
     { schoolId: beta.id, measure: "ks4_attainment8", academicYear: "2025/26", value: 73.4, dataVersion: "Provisional", verificationStatus: "officially_verified" },
+    // Progress 8 was not published for this cohort: DfE status code, no value.
+    { schoolId: alpha.id, measure: "ks4_progress8", academicYear: "2024/25", value: null, statusCode: "x", dataVersion: "Final", verificationStatus: "officially_verified" },
   ]);
   await db().insert(schema.historicalAllocations).values([
     { schoolId: alpha.id, entryYear: 2026, metric: "offers_made", value: 180, verificationStatus: "officially_verified" },

@@ -6,8 +6,10 @@ import { formatDate } from "@/lib/format";
 import { approveTask, rejectTask, resolveTask } from "@/app/admin/actions";
 import { Card } from "@/components/ui/primitives";
 import { VerificationBadge } from "@/components/ui/verification";
+import { requireRole } from "@/server/auth";
 
 export default async function ReviewTask({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
+  await requireRole(["admin", "editor"]);
   const id = Number((await params).id);
   const sp = await searchParams;
   if (!Number.isInteger(id)) notFound();

@@ -4,7 +4,7 @@ import { and, eq, isNotNull, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { formatWeekdayDate } from "@/lib/format";
 import { SITE } from "@/lib/site";
-import { hashToken } from "./auth";
+import { hashToken } from "./tokens";
 import { sendEmail } from "./email";
 import { plannerEvents } from "./planner";
 

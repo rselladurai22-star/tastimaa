@@ -8,12 +8,14 @@ import { checkPoint } from "@/server/catchment";
 import { loadComparison, saveComparison, loadSavedComparison } from "@/server/compare";
 import { loadCheckerSchools, questionsFor, runChecker } from "@/server/eligibility";
 import { tabIndexable } from "@/server/indexability";
+import { getAllocations, getResults } from "@/server/profile";
+import { measureRows } from "@/server/profile-view";
 import { plannerEvents, toIcs } from "@/server/planner";
-import { rateLimit } from "@/server/rate-limit";
+import { clientIp, clientKey, rateLimit } from "@/server/rate-limit";
 import { parseDirectoryParams } from "@/server/search-params";
 import { searchSchools, suggest } from "@/server/schools";
 import { sitemapEntries } from "@/server/sitemaps";
-import type { JobContext } from "@/etl/runner";
+import { runJob, type JobContext } from "@/etl/runner";
 import { seed } from "./fixtures";
 
 let f: Awaited<ReturnType<typeof seed>>;
@@ -196,5 +198,50 @@ describe("rate limiting", () => {
     for (let i = 0; i < 3; i++) expect(await rateLimit(req, "test-bucket", 3, 60)).toBeNull();
     const limited = await rateLimit(req, "test-bucket", 3, 60);
     expect(limited?.status).toBe(429);
+  });
+  it("ignores client-supplied X-Forwarded-For entries", () => {
+    const spoofed = new Request("http://localhost/api/x", { headers: { "x-forwarded-for": "198.51.100.1, 203.0.113.9" } });
+    const other = new Request("http://localhost/api/x", { headers: { "x-forwarded-for": "198.51.100.77, 203.0.113.9" } });
+    expect(clientIp(spoofed)).toBe("203.0.113.9");
+    expect(clientKey(spoofed)).toBe(clientKey(other));
+  });
+});
+
+describe("ingestion failure review tasks", () => {
+  const openFailures = async () =>
+    (await db().select().from(schema.adminReviewTasks).where(eq(schema.adminReviewTasks.type, "ingestion_failure"))).filter((t) => t.payload?.job === "test_flaky_job");
+
+  it("keeps one open task per failing job and resolves it after a clean run", async () => {
+    const boom = async () => {
+      throw new Error("upstream returned 503");
+    };
+    expect((await runJob("test_flaky_job", "editorial", boom)).status).toBe("failed");
+    expect((await runJob("test_flaky_job", "editorial", boom)).status).toBe("failed");
+    let tasks = await openFailures();
+    expect(tasks).toHaveLength(1);
+    expect(tasks[0]!.status).toBe("open");
+
+    const ok = await runJob("test_flaky_job", "editorial", async () => {});
+    expect(ok.status).toBe("succeeded");
+    tasks = await openFailures();
+    expect(tasks[0]!.status).toBe("resolved");
+    expect(tasks[0]!.resolutionNote).toContain(`#${ok.runId}`);
+  });
+});
+
+describe("missing and incomplete data stay visibly missing", () => {
+  it("scenario 7: a school with no published admissions history has no rows and no indexable history tab", async () => {
+    expect(await getAllocations(f.gamma.id)).toEqual([]);
+    expect(await tabIndexable("gamma-grammar-school", "historical-admissions")).toBe(false);
+    expect((await getAllocations(f.alpha.id)).length).toBeGreaterThan(0);
+  });
+
+  it("scenario 10: unpublished measures keep their status code and explanation instead of becoming zero", async () => {
+    const rows = measureRows(await getResults(f.alpha.id), [], "ks4_progress8", null);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.value).toBeNull();
+    expect(rows[0]!.statusCode).toBe("x");
+    expect(rows[0]!.note).toMatch(/key stage 2/i);
+    expect(await tabIndexable("gamma-grammar-school", "results")).toBe(false);
   });
 });

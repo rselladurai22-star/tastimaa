@@ -1,0 +1,67 @@
+# Self-hosted stack: PostGIS, a one-off migration, the web app and the
+# scheduler worker. Secrets come from .env (see .env.example).
+#
+#   docker compose up -d --build
+#   docker compose run --rm web npm run etl -- all     # first data load
+#   docker compose run --rm -e ADMIN_EMAIL=you@example.com -e ADMIN_PASSWORD='…' web npm run admin:create
+x-app: &app
+  image: grammar-atlas:latest
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DATABASE_URL: postgres://gsi:${POSTGRES_PASSWORD:-gsi}@db:5432/gsi
+    STORAGE_DIR: /app/storage
+  volumes:
+    - storage:/app/storage
+  restart: unless-stopped
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: gsi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gsi}
+      POSTGRES_DB: gsi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gsi -d gsi"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    <<: *app
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-Grammar Atlas}
+    command: ["npm", "run", "db:migrate"]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    <<: *app
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    <<: *app
+    command: ["npm", "run", "worker"]
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
+  storage:

@@ -1,11 +1,11 @@
 import "server-only";
-import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { and, eq, gt, isNull } from "drizzle-orm";
-import { hash as argonHash, verify as argonVerify } from "@node-rs/argon2";
 import { db, schema } from "@/db";
 import { env } from "@/lib/env";
+import { hashPassword, verifyPassword } from "./passwords";
+import { hashToken, newToken } from "./tokens";
 
 /**
  * Session auth. The session token lives only in an HttpOnly cookie; the
@@ -23,20 +23,8 @@ export interface SessionUser {
   role: Role;
 }
 
-export const hashToken = (t: string) => createHash("sha256").update(t).digest("hex");
-const newToken = () => randomBytes(32).toString("base64url");
+export { hashPassword, hashToken, verifyPassword };
 
-export async function hashPassword(pw: string) {
-  return argonHash(pw, { memoryCost: 19456, timeCost: 2, parallelism: 1 });
-}
-
-export async function verifyPassword(hashValue: string, pw: string) {
-  try {
-    return await argonVerify(hashValue, pw);
-  } catch {
-    return false;
-  }
-}
 
 export async function createSession(userId: number) {
   const token = newToken();

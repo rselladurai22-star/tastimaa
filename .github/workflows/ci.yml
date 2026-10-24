@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  # Nightly end-to-end run against freshly imported official data.
+  schedule:
+    - cron: "17 2 * * *"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  checks:
+    name: Lint, typecheck, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+  integration:
+    name: Integration tests (PostGIS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: gsi
+          POSTGRES_PASSWORD: gsi
+          POSTGRES_DB: gsi_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U gsi -d gsi_test"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://gsi:gsi@localhost:5432/gsi_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
+      - name: CLI scripts run outside Next.js
+        env:
+          DATABASE_URL: postgres://gsi:gsi@localhost:5432/gsi_test
+          ADMIN_PASSWORD: ci-only-password-1234
+        run: |
+          npm run db:migrate
+          npm run admin:create -- ci-editor@example.org editor
+          npm run etl -- list
+
+  e2e:
+    name: End-to-end and accessibility (live data import)
+    # Imports from GOV.UK, Ofsted and DE NI, so it runs nightly and on demand
+    # rather than on every push, to stay polite to the publishers.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: gsi
+          POSTGRES_PASSWORD: gsi
+          POSTGRES_DB: gsi
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U gsi -d gsi"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgres://gsi:gsi@localhost:5432/gsi
+      SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      SESSION_SECRET: ci-only-session-secret-not-for-production
+      STORAGE_DIR: ./storage
+      E2E_BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - name: Import official data
+        run: npm run etl -- all
+      - run: npm run build
+      - name: Start the production server
+        run: |
+          npm run start > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/api/health && exit 0; sleep 2; done
+          cat server.log; exit 1
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7

@@ -1,8 +1,10 @@
 import { desc, inArray } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { formatDate } from "@/lib/format";
+import { requireRole } from "@/server/auth";
 
 export default async function RunsPage() {
+  await requireRole(["admin", "editor"]);
   const runs = await db().select().from(schema.ingestionRuns).orderBy(desc(schema.ingestionRuns.startedAt)).limit(50);
   const issues = runs.length ? await db().select().from(schema.ingestionIssues).where(inArray(schema.ingestionIssues.runId, runs.map((r) => r.id))) : [];
   return (

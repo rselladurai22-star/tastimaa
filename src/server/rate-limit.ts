@@ -4,9 +4,23 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 
-/** Client key: a salted hash of the IP so raw addresses are never stored. */
+/**
+ * Client key: a salted hash of the IP so raw addresses are never stored.
+ * The leftmost X-Forwarded-For entries are whatever the client sent, so we take
+ * the entry added by our own outermost proxy: TRUSTED_PROXY_HOPS from the right
+ * (default 1, i.e. one reverse proxy or platform edge in front of the app).
+ */
+export function clientIp(req: Request): string {
+  const hops = Math.max(1, Math.floor(Number(process.env.TRUSTED_PROXY_HOPS ?? 1)) || 1);
+  const chain = (req.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return chain[Math.max(0, chain.length - hops)] || req.headers.get("x-real-ip") || "unknown";
+}
+
 export function clientKey(req: Request): string {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+  const ip = clientIp(req);
   return createHash("sha256").update(`${process.env.SESSION_SECRET ?? "dev"}:${ip}`).digest("hex").slice(0, 24);
 }
 

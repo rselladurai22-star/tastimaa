@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { logger } from "@/lib/logger";
 import { putObject } from "./storage";
@@ -126,6 +126,13 @@ export async function runJob(
       .update(schema.ingestionRuns)
       .set({ status, finishedAt: new Date(), documentId: lastDocumentId ?? null, ...counters, stats })
       .where(eq(schema.ingestionRuns.id, runId));
+    if (status === "succeeded") {
+      // A clean run supersedes earlier failures of the same job.
+      await db()
+        .update(schema.adminReviewTasks)
+        .set({ status: "resolved", resolvedAt: new Date(), resolutionNote: `Superseded by successful run #${runId}`, updatedAt: new Date() })
+        .where(and(eq(schema.adminReviewTasks.type, "ingestion_failure"), inArray(schema.adminReviewTasks.status, ["open", "in_review"]), sql`${schema.adminReviewTasks.payload}->>'job' = ${job}`));
+    }
     logger.info("job finished", { job, runId, status, ms: Date.now() - started, ...counters });
     return { runId, status, counters };
   } catch (err) {
@@ -137,12 +144,15 @@ export async function runJob(
       .update(schema.ingestionRuns)
       .set({ status: "failed", finishedAt: new Date(), error: message.slice(0, 4000), documentId: lastDocumentId ?? null, ...counters, stats })
       .where(eq(schema.ingestionRuns.id, runId));
-    await db().insert(schema.adminReviewTasks).values({
-      type: "ingestion_failure",
-      title: `Ingestion job "${job}" failed`,
-      priority: 1,
-      payload: { job, runId, error: message.slice(0, 2000) },
-    });
+    // One open task per failing job: repeat failures update it rather than flooding the queue.
+    const payload = { job, runId, error: message.slice(0, 2000) };
+    const [existing] = await db()
+      .select({ id: schema.adminReviewTasks.id })
+      .from(schema.adminReviewTasks)
+      .where(and(eq(schema.adminReviewTasks.type, "ingestion_failure"), inArray(schema.adminReviewTasks.status, ["open", "in_review"]), sql`${schema.adminReviewTasks.payload}->>'job' = ${job}`))
+      .limit(1);
+    if (existing) await db().update(schema.adminReviewTasks).set({ payload, updatedAt: new Date() }).where(eq(schema.adminReviewTasks.id, existing.id));
+    else await db().insert(schema.adminReviewTasks).values({ type: "ingestion_failure", title: `Ingestion job "${job}" failed`, priority: 1, payload });
     logger.error("job failed", { job, runId, error: err });
     return { runId, status: "failed", counters, error: message };
   }
