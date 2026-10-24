@@ -44,7 +44,7 @@ export function KnowledgeMap({ nodes, edges }: { nodes: KNode[]; edges: [string,
 
   return (
     <div>
-      <div className="hidden overflow-hidden rounded-[8px] border border-rule bg-card md:block">
+      <div className="playground hidden overflow-hidden md:block">
         <svg viewBox="0 0 760 400" className="block h-auto w-full" role="group" aria-label="Map of guides, exam pages and tools, connected where they link to each other">
           {/* dotted grid, like squared notebook paper */}
           <pattern id="km-grid" width="20" height="20" patternUnits="userSpaceOnUse">

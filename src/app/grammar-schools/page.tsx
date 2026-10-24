@@ -30,7 +30,7 @@ export default async function DirectoryPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <div className="border-b border-rule bg-card/60">
+      <div>
         <Page className="pt-6 pb-8 sm:pb-10">
           <Breadcrumbs items={[{ href: "/grammar-schools", label: "Grammar schools" }]} />
           <div className="mt-6 grid gap-x-12 gap-y-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">

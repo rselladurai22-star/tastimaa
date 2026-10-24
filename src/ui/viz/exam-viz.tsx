@@ -109,7 +109,7 @@ export function TestStructure({ tests }: { tests: { slug: string; name: string; 
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const d = DOMAINS.find((x) => x.key === sel)!;
   return (
-    <div className="overflow-hidden rounded-[8px] border border-rule bg-card">
+    <div className="playground overflow-hidden">
       <div role="tablist" aria-label="What 11+ tests can include" className="grid grid-cols-2 border-b border-rule sm:grid-cols-4">
         {DOMAINS.map((x) => (
           <button
@@ -205,7 +205,7 @@ export function ApplicationJourney({ events, entryYear }: { events: JourneyEvent
   const stage = STAGES.find((s) => s.key === sel)!;
   const stageEvents = events.filter((e) => stage.types.includes(e.type));
   return (
-    <div className="overflow-hidden rounded-[8px] border border-rule bg-card">
+    <div className="playground overflow-hidden">
       <div className="relative flex overflow-x-auto border-b border-rule bg-paper [scrollbar-width:thin]" role="tablist" aria-label={`Application journey for September ${entryYear} entry`}>
         <span aria-hidden className="absolute top-[30px] right-6 left-6 h-px bg-rule-strong" />
         {STAGES.map((s, i) => {

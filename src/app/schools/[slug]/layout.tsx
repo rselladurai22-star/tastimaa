@@ -33,14 +33,7 @@ export default async function SchoolLayout({ children, params }: { children: Rea
 
   return (
     <>
-      <header className="relative overflow-hidden border-b border-rule bg-card/60">
-        {/* Contour lines: the atlas motif, drawn faintly behind the masthead. */}
-        <svg aria-hidden className="pointer-events-none absolute -top-10 right-[-6rem] hidden h-[30rem] w-[44rem] lg:block" viewBox="0 0 440 300" fill="none">
-          {[0, 1, 2, 3, 4, 5, 6].map((k) => (
-            <ellipse key={k} cx="300" cy="120" rx={40 + k * 26} ry={24 + k * 17} transform={`rotate(${-14 + k * 2} 300 120)`} style={{ stroke: "var(--sage-deep)" }} strokeWidth="1" />
-          ))}
-          <circle cx="300" cy="120" r="3.5" style={{ fill: "var(--copper)" }} />
-        </svg>
+      <header className="relative overflow-hidden">
         <Page className="relative pt-6 pb-8 sm:pb-10">
           <Breadcrumbs items={[{ href: "/grammar-schools", label: "Grammar schools" }, ...(areaCrumb ? [areaCrumb] : []), { href: `/schools/${slug}`, label: school.name }]} />
           <div className="mt-7 grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">

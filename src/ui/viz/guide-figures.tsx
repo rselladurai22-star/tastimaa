@@ -104,7 +104,7 @@ const FIGURES: Record<GuideFigure, { title: string; caption: string; node: () =>
 export function GuideFigureBlock({ figure, n }: { figure: GuideFigure; n: number }) {
   const f = FIGURES[figure];
   return (
-    <Figure n={n} title={f.title} caption={f.caption} className="my-10">
+    <Figure n={n} title={f.title} caption={f.caption} className="my-12" stage={figure !== "journey" && figure !== "catchment"}>
       {f.node()}
     </Figure>
   );

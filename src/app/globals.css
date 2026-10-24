@@ -1,8 +1,6 @@
 @import "tailwindcss";
-@import "@fontsource-variable/newsreader/opsz.css";
-@import "@fontsource-variable/newsreader/opsz-italic.css";
-@import "@fontsource-variable/source-sans-3/wght.css";
-@import "@fontsource-variable/source-sans-3/wght-italic.css";
+@import "@fontsource-variable/figtree/wght.css";
+@import "@fontsource-variable/figtree/wght-italic.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
@@ -62,13 +60,13 @@
   --chart-axis: #b9c4bb;
 
   /* Type scale — fluid between 360px and 1440px viewports */
-  --t-display: clamp(2.55rem, 1.7rem + 3.6vw, 4.75rem);
-  --t-h1: clamp(2.15rem, 1.6rem + 2.3vw, 3.4rem);
-  --t-h2: clamp(1.65rem, 1.35rem + 1.15vw, 2.3rem);
-  --t-h3: clamp(1.28rem, 1.18rem + 0.4vw, 1.5rem);
+  --t-display: clamp(2.3rem, 1.75rem + 2.4vw, 3.6rem);
+  --t-h1: clamp(2rem, 1.65rem + 1.5vw, 2.75rem);
+  --t-h2: clamp(1.6rem, 1.4rem + 0.85vw, 2.1rem);
+  --t-h3: clamp(1.25rem, 1.17rem + 0.35vw, 1.45rem);
   --t-h4: 1.125rem;
   --t-lede: clamp(1.18rem, 1.08rem + 0.45vw, 1.42rem);
-  --t-body: clamp(1.0625rem, 1.01rem + 0.22vw, 1.1875rem);
+  --t-body: clamp(1.0625rem, 1.02rem + 0.18vw, 1.15rem);
   --t-ui: 1rem;
   --t-small: 0.9375rem;
   --t-label: 0.8125rem;
@@ -77,12 +75,17 @@
   --measure: 68ch;
   --page: 78rem;
   --gutter: clamp(1rem, 0.6rem + 2.2vw, 2.5rem);
-  --header-h: 4.25rem;
+  --header-h: 4.5rem;
+
+  /* Sky band behind the top of every page */
+  --sky-h: 30rem;
+  --sky: #dbe9e0;
+  --sky-cloud: #e8f1eb;
 
   /* Radius: fine, never pill-shaped */
-  --r-1: 3px;
-  --r-2: 5px;
-  --r-3: 8px;
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -125,9 +128,11 @@
   --color-none: var(--none);
   --color-none-wash: var(--none-wash);
 
-  --font-display: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
-  --font-sans: "Source Sans 3 Variable", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-display: "Figtree Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Figtree Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  /* Figures and indices use the text face with tabular numerals; real code uses font-code. */
+  --font-mono: "Figtree Variable", "Avenir Next", system-ui, sans-serif;
+  --font-code: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 
   --text-display: var(--t-display);
   --text-h1: var(--t-h1);
@@ -162,10 +167,11 @@
     color: var(--ink);
     font-family: var(--font-sans);
     font-size: var(--t-ui);
-    line-height: 1.55;
+    line-height: 1.5;
     font-optical-sizing: auto;
     font-kerning: normal;
     font-variant-numeric: proportional-nums;
+    
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
@@ -174,19 +180,20 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 650;
     color: var(--ink);
     text-wrap: balance;
     font-optical-sizing: auto;
   }
 
   h1 {
-    letter-spacing: -0.018em;
-    line-height: 1.06;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
   }
   h2 {
-    letter-spacing: -0.012em;
-    line-height: 1.14;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    color: var(--green);
   }
   h3 {
     letter-spacing: -0.006em;
@@ -222,8 +229,17 @@
     border-top: 1px solid var(--rule);
   }
 
+  code,
   kbd {
-    font-family: var(--font-mono);
+    font-family: var(--font-code);
+  }
+  code {
+    font-size: 0.88em;
+    background: var(--green-wash);
+    border-radius: var(--r-1);
+    padding: 0.08em 0.35em;
+  }
+  kbd {
     font-size: 0.8em;
     border: 1px solid var(--rule-strong);
     border-bottom-width: 2px;
@@ -247,10 +263,10 @@
 @layer components {
   /* Mono label: section kickers, data labels, figure numbers. 13px minimum, full-contrast ink. */
   .label {
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-size: var(--t-label);
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--ink-2);
     font-variant-numeric: tabular-nums;
@@ -490,4 +506,54 @@
   border-radius: var(--r-2) !important;
   box-shadow: none !important;
   border: 1px solid var(--rule-strong);
+}
+
+/* Header: floats on the sky, turns solid once the page scrolls. */
+.site-header {
+  transition: background-color var(--d-2) var(--ease-out), box-shadow var(--d-2) var(--ease-out);
+}
+html[data-scrolled] .site-header {
+  background: rgb(248 247 242 / 0.94);
+  box-shadow: 0 1px 0 var(--rule), 0 8px 24px -18px rgb(23 35 31 / 0.35);
+  backdrop-filter: blur(10px);
+}
+
+/* Playground: interactive explainers sit on a dark stage, like a lab bench. */
+.playground {
+  --paper: #0d1714;
+  --card: #13201c;
+  --sage: #1a2a25;
+  --sage-deep: #263a33;
+  --green-wash: #183128;
+  --copper-wash: #33261a;
+  --ink: #f2f5f1;
+  --ink-2: #c3cec8;
+  --ink-3: #9fada6;
+  --green: #7fd3a8;
+  --green-deep: #a6e3c3;
+  --green-bright: #3fb37a;
+  --copper: #e3a15d;
+  --copper-ink: #f0b877;
+  --rule: #2b3c36;
+  --rule-strong: #3d524a;
+  --control: #6f8279;
+  --chart-grid: #22332d;
+  --chart-axis: #3d524a;
+  --series-1: #3fb37a;
+  --series-2: #e3a15d;
+  --series-3: #7ea6e0;
+  --ok: #7fd3a8;
+  --ok-wash: #183128;
+  --pend: #f0c06a;
+  --pend-wash: #33291a;
+  --none: #b7c3bd;
+  --none-wash: #1f2d28;
+  color: var(--ink);
+  background: var(--paper);
+  border-radius: var(--r-3);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -24px rgb(13 23 20 / 0.6);
+}
+.playground ::selection {
+  background: #2f5c49;
+  color: #fff;
 }

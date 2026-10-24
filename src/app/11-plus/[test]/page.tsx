@@ -51,7 +51,7 @@ export default async function TestPage({ params }: Props) {
 
   return (
     <>
-      <div className="border-b border-rule bg-card/60">
+      <div>
         <Page className="pt-6 pb-10">
           <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: `/11-plus/${test.slug}`, label: test.name }]} />
           <div className="mt-8 max-w-[52rem]">

@@ -95,7 +95,7 @@ export default async function AreaPage({ params, searchParams }: Props) {
 
   return (
     <>
-      <div className="border-b border-rule">
+      <div>
         <Page className="pt-6 pb-10">
           <Breadcrumbs items={crumbs} />
           <div className="mt-6 grid gap-x-14 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">

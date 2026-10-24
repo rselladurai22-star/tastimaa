@@ -26,7 +26,7 @@ export default async function AdmissionsHub() {
 
   return (
     <>
-      <div className="border-b border-rule">
+      <div>
         <Page className="pt-6 pb-12">
           <Breadcrumbs items={[{ href: "/admissions", label: "Admissions guide" }]} />
           <div className="mt-8 grid gap-x-16 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-end">
@@ -57,7 +57,7 @@ export default async function AdmissionsHub() {
         </Page>
       </div>
 
-      <section aria-labelledby="steps" className="border-b border-rule bg-card/60 py-16">
+      <section aria-labelledby="steps" className="py-16">
         <Page>
           <div className="max-w-[44rem]">
             <Kicker>The core idea</Kicker>

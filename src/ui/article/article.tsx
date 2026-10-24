@@ -10,14 +10,9 @@ import { ReadingProgress, Toc } from "./progress";
 /** Section heading with a deep link that appears on hover or focus. */
 export function DeepHeading({ id, children, n }: { id: string; children: ReactNode; n?: number }) {
   return (
-    <h2 id={id} className="group/dh relative mt-16 mb-5 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 first:mt-0">
-      {n !== undefined ? (
-        <span aria-hidden className="mb-2 block font-mono text-[0.8rem] font-normal tracking-[0.06em] text-copper-ink">
-          § {String(n).padStart(2, "0")}
-        </span>
-      ) : null}
+    <h2 id={id} data-n={n} className="group/dh relative mt-20 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-bold text-green first:mt-0">
       {children}
-      <a href={`#${id}`} className="ml-2 inline-block align-middle font-mono text-[0.9rem] text-ink-3 no-underline opacity-0 transition-opacity duration-[var(--d-1)] group-hover/dh:opacity-100 hover:text-green focus-visible:opacity-100">
+      <a href={`#${id}`} className="ml-2 inline-block align-middle text-[0.9em] text-ink-3 no-underline opacity-0 transition-opacity duration-[var(--d-1)] group-hover/dh:opacity-100 hover:text-green focus-visible:opacity-100">
         #<span className="sr-only">Link to this section</span>
       </a>
     </h2>
@@ -67,20 +62,15 @@ export function ArticleShell({
       <ReadingProgress target="article-body" />
       <div className="container-page pt-6 pb-20" id="top">
         <Breadcrumbs items={crumbs} />
-        <header className="mt-8 max-w-[52rem]">
-          <p className="label text-copper-ink">{kicker}</p>
-          <h1 className="mt-3 text-h1 leading-[1.05] [font-variation-settings:'opsz'_72] sm:text-display">{title}</h1>
-          <div className="mt-6 max-w-[44rem] text-lede leading-[1.55] text-ink-2 [&_strong]:font-semibold [&_strong]:text-ink">{lede}</div>
-          <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-rule pt-3 font-mono text-[0.8rem] text-ink-2">
-            <span>Reviewed {formatDate(updated)}</span>
-            <span aria-hidden>·</span>
-            <span>
-              {toc.length} {toc.length === 1 ? "section" : "sections"}
-            </span>
+        <header className="mt-10 mb-28 max-w-[52rem] sm:mb-32">
+          <h1 className="text-h1 font-semibold sm:text-[clamp(2.2rem,1.8rem+1.6vw,3rem)]">{title}</h1>
+          <p className="mt-5 text-[1.02rem] text-ink-2">
+            <em>Filed under</em> <span className="font-semibold text-ink">{kicker}</span> <em>· last reviewed</em> <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (
               <>
-                <span aria-hidden>·</span>
-                <a href="#sources" className="text-ink-2 hover:text-ink">
+                {" "}
+                <em>·</em>{" "}
+                <a href="#sources" className="font-semibold text-ink hover:text-green">
                   {sources.length} official {sources.length === 1 ? "source" : "sources"}
                 </a>
               </>
@@ -95,7 +85,10 @@ export function ArticleShell({
             </div>
           </div>
           <article id="article-body" className="min-w-0 xl:order-1">
-            <div className="prose-atlas max-w-[var(--measure)]">{children}</div>
+            <div className="prose-atlas max-w-[var(--measure)]">
+              <div className="text-lede leading-[1.55] [&_strong]:font-bold">{lede}</div>
+              {children}
+            </div>
 
             {next ? (
               <Link href={next.href} className="group/nx mt-16 flex max-w-[var(--measure)] items-center justify-between gap-6 rounded-[8px] border border-green bg-green px-6 py-5 text-paper no-underline transition-colors hover:bg-green-deep">

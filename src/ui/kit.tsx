@@ -12,14 +12,9 @@ export function Page({ children, className, as: As = "div" }: { children: ReactN
   return <As className={clsx("container-page", className)}>{children}</As>;
 }
 
-/** Mono kicker with the copper meridian tick. */
-export function Kicker({ children, className, plain = false }: { children: ReactNode; className?: string; plain?: boolean }) {
-  return (
-    <p className={clsx("label flex items-center gap-2.5", className)}>
-      {plain ? null : <span aria-hidden className="h-[2px] w-5 bg-copper" />}
-      {children}
-    </p>
-  );
+/** Small uppercase kicker above a heading. */
+export function Kicker({ children, className }: { children: ReactNode; className?: string; plain?: boolean }) {
+  return <p className={clsx("label text-green", className)}>{children}</p>;
 }
 
 /** Standard page header for index, tool and data pages: asymmetric, with an optional aside. */
@@ -63,7 +58,7 @@ const BUTTON = {
 } as const;
 
 const buttonBase =
-  "group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-[5px] px-4 text-[0.98rem] font-semibold no-underline transition-[background-color,border-color,color,transform] duration-[var(--d-1)] ease-[var(--ease-out)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
+  "group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-[6px] px-4 text-[0.98rem] font-semibold no-underline transition-[background-color,border-color,color,transform] duration-[var(--d-1)] ease-[var(--ease-out)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 export function Button({ variant = "primary", className, ...props }: ComponentProps<"button"> & { variant?: keyof typeof BUTTON }) {
   return <button {...props} className={clsx(buttonBase, BUTTON[variant], className)} />;
@@ -101,7 +96,7 @@ export function ExternalLink({ href, children, className }: { href: string; chil
 /* ───────────────────────── Forms ───────────────────────── */
 
 export const controlClass =
-  "w-full min-h-11 rounded-[5px] border border-control bg-card px-3 text-[1rem] text-ink placeholder:text-ink-3 transition-[border-color,box-shadow] duration-[var(--d-1)] hover:border-ink focus:border-green focus:outline-none focus-visible:outline-none focus:shadow-[0_0_0_3px_rgb(28_80_64/0.22)]";
+  "w-full min-h-11 rounded-[6px] border border-control bg-card px-3 text-[1rem] text-ink placeholder:text-ink-3 transition-[border-color,box-shadow] duration-[var(--d-1)] hover:border-ink focus:border-green focus:outline-none focus-visible:outline-none focus:shadow-[0_0_0_3px_rgb(28_80_64/0.22)]";
 
 export function Field({ id, label, hint, error, children, className }: { id: string; label: ReactNode; hint?: ReactNode; error?: string | null; children: ReactNode; className?: string }) {
   return (
@@ -192,10 +187,10 @@ export function Source({ source, locator, status, checkedAt, className, label = 
 }
 
 const NOTE = {
-  note: { box: "border-l-[3px] border-l-green bg-green-wash/70", icon: IconInfo, iconTone: "text-green" },
-  caution: { box: "border-l-[3px] border-l-pend bg-pend-wash", icon: IconWarning, iconTone: "text-pend" },
-  warning: { box: "border-l-[3px] border-l-bad bg-bad-wash", icon: IconWarning, iconTone: "text-bad" },
-  plain: { box: "border border-rule bg-card", icon: IconInfo, iconTone: "text-ink-2" },
+  note: { box: "border-l-green bg-green-wash", icon: IconInfo, iconTone: "text-green" },
+  caution: { box: "border-l-copper bg-pend-wash", icon: IconWarning, iconTone: "text-pend" },
+  warning: { box: "border-l-bad bg-bad-wash", icon: IconWarning, iconTone: "text-bad" },
+  plain: { box: "border-l-rule-strong bg-sage/60", icon: IconInfo, iconTone: "text-ink-2" },
 } as const;
 
 /** Explanatory callout. Tone carries meaning; the title states it in words. */
@@ -203,11 +198,15 @@ export function Note({ tone = "note", title, children, className, icon = true }:
   const t = NOTE[tone];
   const Icon = t.icon;
   return (
-    <aside className={clsx("flex gap-3 rounded-r-[5px] px-4 py-3.5 text-[1rem] leading-relaxed text-ink", t.box, className)}>
-      {icon ? <Icon size={18} className={clsx("mt-[3px] shrink-0", t.iconTone)} /> : null}
-      <div className="min-w-0 [&_a]:text-green [&_a]:underline [&_a]:underline-offset-2">
-        {title ? <p className="font-semibold">{title}</p> : null}
-        <div className={title ? "mt-1 text-ink-2" : "text-ink-2"}>{children}</div>
+    <aside className={clsx("relative rounded-r-[6px] border-l-[3px] py-4 pr-5 pl-6 text-[1.02rem] leading-relaxed text-ink", icon && "mt-4", t.box, className)}>
+      {icon ? (
+        <span aria-hidden className={clsx("absolute -top-4 -left-[17px] grid size-8 place-items-center rounded-full bg-paper", t.iconTone)}>
+          <Icon size={22} />
+        </span>
+      ) : null}
+      <div className="min-w-0 [&_a]:font-semibold [&_a]:text-green [&_a]:underline [&_a]:underline-offset-2">
+        {title ? <p className="font-bold text-ink">{title}</p> : null}
+        <div className={title ? "mt-1 text-ink" : "text-ink"}>{children}</div>
       </div>
     </aside>
   );
@@ -216,7 +215,7 @@ export function Note({ tone = "note", title, children, className, icon = true }:
 /** Missing data, drawn as a hatched band so a gap never looks like a zero. */
 export function Gap({ title, children, className }: { title: ReactNode; children?: ReactNode; className?: string }) {
   return (
-    <div className={clsx("flex overflow-hidden rounded-[5px] border border-rule bg-card", className)}>
+    <div className={clsx("flex overflow-hidden rounded-[6px] border border-rule bg-card", className)}>
       <span aria-hidden className="w-3 shrink-0 bg-[repeating-linear-gradient(-45deg,var(--rule-strong)_0_1px,transparent_1px_6px)]" />
       <div className="px-4 py-3.5">
         <p className="font-semibold text-ink">{title}</p>
@@ -279,7 +278,7 @@ export function Tag({ children, tone = "plain", className }: { children: ReactNo
 }
 
 /** Numbered figure with title, caption, period and source — every chart and diagram sits in one. */
-export function Figure({ n, title, caption, period, source, children, className, id }: { n?: string | number; title: ReactNode; caption?: ReactNode; period?: ReactNode; source?: ReactNode; children: ReactNode; className?: string; id?: string }) {
+export function Figure({ n, title, caption, period, source, children, className, id, stage = false }: { n?: string | number; title: ReactNode; caption?: ReactNode; period?: ReactNode; source?: ReactNode; children: ReactNode; className?: string; id?: string; stage?: boolean }) {
   return (
     <figure id={id} className={clsx("not-prose min-w-0", className)}>
       <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -287,7 +286,7 @@ export function Figure({ n, title, caption, period, source, children, className,
         <p className="font-display text-[1.28rem] leading-snug text-ink [font-variation-settings:'opsz'_30]">{title}</p>
         {period ? <span className="text-small text-ink-2">· {period}</span> : null}
       </div>
-      {children}
+      {stage ? <div className="playground p-4 sm:p-6 lg:-mx-8">{children}</div> : children}
       {caption || source ? (
         <figcaption className="mt-3 max-w-[64ch] text-small leading-relaxed text-ink-2">
           {caption}
@@ -314,7 +313,7 @@ export function Disclosure({ summary, children, open, className }: { summary: Re
 /** Scrollable data table frame with a caption. */
 export function TableFrame({ caption, children, className, minWidth = 640 }: { caption: string; children: ReactNode; className?: string; minWidth?: number }) {
   return (
-    <div className={clsx("overflow-x-auto rounded-[5px] border border-rule bg-card", className)} role="region" aria-label={caption} tabIndex={0}>
+    <div className={clsx("overflow-x-auto rounded-[6px] border border-rule bg-card", className)} role="region" aria-label={caption} tabIndex={0}>
       <table className="w-full border-collapse text-left text-[0.98rem]" style={{ minWidth }}>
         <caption className="sr-only">{caption}</caption>
         {children}

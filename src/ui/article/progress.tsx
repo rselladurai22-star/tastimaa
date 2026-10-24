@@ -54,19 +54,15 @@ export function Toc({ items }: { items: { id: string; label: string }[] }) {
     return () => io.disconnect();
   }, [items]);
   const list = (
-    <ol className="grid gap-0.5">
-      {items.map((i, n) => (
+    <ol className="grid gap-1">
+      {items.map((i) => (
         <li key={i.id}>
           <a
             href={`#${i.id}`}
             aria-current={i.id === active ? "location" : undefined}
-            className={clsx(
-              "grid grid-cols-[1.75rem_minmax(0,1fr)] gap-1 rounded-[3px] py-1.5 text-[0.95rem] leading-snug no-underline transition-colors duration-[var(--d-1)]",
-              i.id === active ? "font-semibold text-ink" : "text-ink-2 hover:text-ink",
-            )}
+            className={clsx("block py-1.5 text-[1rem] leading-snug no-underline transition-colors duration-[var(--d-2)]", i.id === active ? "font-semibold text-green" : "text-ink-2 hover:text-ink")}
           >
-            <span className={clsx("font-mono text-[0.75rem] leading-[1.6rem]", i.id === active ? "text-copper-ink" : "text-ink-3")}>{String(n + 1).padStart(2, "0")}</span>
-            <span>{i.label}</span>
+            {i.label}
           </a>
         </li>
       ))}
@@ -74,19 +70,19 @@ export function Toc({ items }: { items: { id: string; label: string }[] }) {
   );
   return (
     <>
-      <details className="group/toc rounded-[6px] border border-rule bg-card xl:hidden">
+      <details className="group/toc rounded-[10px] bg-sage/70 xl:hidden">
         <summary className="flex min-h-12 list-none items-center justify-between px-4 font-semibold text-ink">
-          Contents
+          Table of contents
           <IconChevron size={18} className="text-ink-2 transition-transform duration-[var(--d-2)] group-open/toc:rotate-180" />
         </summary>
-        <nav aria-label="Contents" className="border-t border-rule px-4 pt-2 pb-3">
+        <nav aria-label="Contents" className="px-4 pb-3">
           {list}
         </nav>
       </details>
       <nav aria-label="On this page" className="hidden xl:block">
-        <p className="label mb-3">On this page</p>
+        <p className="label mb-4 text-[0.95rem] text-ink">Table of contents</p>
         {list}
-        <a href="#top" className="mt-4 inline-block text-small text-ink-2 no-underline hover:text-ink">
+        <a href="#top" className="mt-5 inline-block text-small font-semibold text-ink-2 no-underline hover:text-green">
           ↑ Back to top
         </a>
       </nav>

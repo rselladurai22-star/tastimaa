@@ -33,7 +33,7 @@ export function RegionExplorer({ regions }: { regions: RegionProfile[] }) {
   ].filter((p) => p.v > 0);
 
   return (
-    <div className="grid overflow-hidden rounded-[8px] border border-rule bg-card lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
+    <div className="playground grid overflow-hidden lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
       <div role="tablist" aria-label="Regions" aria-orientation="vertical" className="border-b border-rule bg-paper p-2 lg:border-r lg:border-b-0">
         {regions.map((x, i) => (
           <button

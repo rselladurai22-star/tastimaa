@@ -75,7 +75,7 @@ export function CatchmentModes({ highlight, highlightLabel, initial }: { highlig
   const current = MODES.find((m) => m.key === mode)!;
 
   return (
-    <div className="overflow-hidden rounded-[8px] border border-rule bg-card">
+    <div className="playground overflow-hidden">
       <div role="tablist" aria-label="Ways a school can use where you live" className="flex flex-wrap gap-1 border-b border-rule bg-paper p-1.5">
         {MODES.map((m) => (
           <button

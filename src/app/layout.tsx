@@ -4,6 +4,7 @@ import { SITE } from "@/lib/site";
 import { JsonLd } from "@/ui/json-ld";
 import { SiteFooter } from "@/ui/site-footer";
 import { SiteHeader } from "@/ui/site-header";
+import { Sky } from "@/ui/sky";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -25,15 +26,16 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB">
-      <body className="min-h-screen">
+      <body className="relative min-h-screen">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[90] focus:rounded-[5px] focus:bg-green focus:px-4 focus:py-3 focus:font-semibold focus:text-paper"
         >
           Skip to main content
         </a>
+        <Sky />
         <SiteHeader />
-        <main id="main" tabIndex={-1} className="outline-none">
+        <main id="main" tabIndex={-1} className="relative z-[1] outline-none">
           {children}
         </main>
         <SiteFooter />

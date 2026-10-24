@@ -14,6 +14,7 @@ import { siteStats } from "@/server/schools";
 import { IconArrow, IconPin } from "@/ui/icons";
 import { ArrowLink, ButtonLink, Kicker, Page, SectionHead, Source, Tag } from "@/ui/kit";
 import { SearchField } from "@/ui/search";
+import { SkyHeight } from "@/ui/sky-height";
 import { Status } from "@/ui/status";
 import { AdmissionJourney } from "@/ui/viz/admission-journey";
 import { DateLine } from "@/ui/viz/admissions-viz";
@@ -118,8 +119,9 @@ export default async function HomePage() {
 
   return (
     <>
+      <SkyHeight mobile="44rem" desktop="50rem" />
       {/* A — Editorial introduction */}
-      <section aria-labelledby="hero-title" className="border-b border-rule">
+      <section aria-labelledby="hero-title">
         <Page className="grid gap-x-14 gap-y-10 pt-10 pb-14 sm:pt-16 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:pb-20">
           <div className="anim-rise">
             <Kicker>An atlas of UK grammar schools</Kicker>
@@ -187,7 +189,7 @@ export default async function HomePage() {
       </section>
 
       {/* C — How admission works */}
-      <section id="how-admission-works" aria-labelledby="journey-title" className="mt-20 border-y border-rule bg-card/70 py-16 sm:mt-24 sm:py-20">
+      <section id="how-admission-works" aria-labelledby="journey-title" className="pt-20 sm:pt-28">
         <Page>
           <div className="max-w-[46rem]">
             <Kicker>Fig. 2 · How grammar school admission works</Kicker>
@@ -351,7 +353,7 @@ export default async function HomePage() {
       </section>
 
       {/* G — Dates and research */}
-      <section aria-labelledby="dates" className="mt-20 border-y border-rule bg-sage/50 py-16 sm:mt-24 sm:py-20">
+      <section aria-labelledby="dates" className="pt-20 sm:pt-28">
         <Page className="grid gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div>
             <Kicker>Dates</Kicker>
