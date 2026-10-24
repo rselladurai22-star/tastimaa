@@ -7,7 +7,7 @@ import { Callout, Card, Pill } from "@/components/ui/primitives";
 import { SourceNote } from "@/components/ui/source-note";
 import { VerificationBadge } from "@/components/ui/verification";
 
-export function YearPicker({ years, selected, basePath }: { years: number[]; selected: number; basePath: string }) {
+export function YearPicker({ years, selected, basePath, extraQuery }: { years: number[]; selected: number; basePath: string; extraQuery?: string }) {
   return (
     <nav aria-label="Admission year" className="flex flex-wrap items-center gap-2 text-sm">
       <span className="text-ink-3">Entry in September</span>
@@ -15,7 +15,7 @@ export function YearPicker({ years, selected, basePath }: { years: number[]; sel
         {years.map((y) => (
           <li key={y}>
             <Link
-              href={`${basePath}?year=${y}`}
+              href={`${basePath}?${extraQuery ? `${extraQuery}&` : ""}year=${y}`}
               aria-current={y === selected ? "true" : undefined}
               className={y === selected ? "block rounded-md bg-accent-soft px-3 py-1.5 font-semibold text-accent-ink" : "block rounded-md px-3 py-1.5 text-ink-2 hover:text-ink"}
             >
