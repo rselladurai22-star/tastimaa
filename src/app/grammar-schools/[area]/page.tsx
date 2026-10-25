@@ -133,11 +133,11 @@ export default async function AreaPage({ params, searchParams }: Props) {
             </figure>
           }
         >
-          <dl className="mt-8 grid grid-cols-2 gap-y-5 border-t border-white/15 pt-5 sm:grid-cols-4">
+          <dl className="mt-8 grid grid-cols-2 gap-y-5 border-t border-rule pt-5 sm:grid-cols-4">
             {figures.map(([k, v, m]) => (
               <div key={k} className="pr-4">
                 <dt className="text-[0.875rem] text-ink-3">{k}</dt>
-                <dd className="mt-0.5 text-[1.6rem] leading-tight font-semibold text-white num">{v}</dd>
+                <dd className="mt-0.5 text-[1.6rem] leading-tight font-semibold text-ink num">{v}</dd>
                 {m ? <dd className="text-[0.8125rem] text-ink-3">{m}</dd> : null}
               </div>
             ))}

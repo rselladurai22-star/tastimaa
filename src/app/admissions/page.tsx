@@ -34,13 +34,13 @@ export default async function AdmissionsHub() {
           title="How grammar school admissions work"
           lede="A test, published criteria and a national timetable. These guides explain each part in plain English, with links to the official rules."
           aside={
-            <nav aria-label="Reading paths" className="lg:border-l lg:border-white/15 lg:pl-6">
+            <nav aria-label="Reading paths" className="lg:border-l lg:border-rule lg:pl-6">
               {paths.map((k) => {
                 const list = ADMISSIONS_GUIDES.filter((g) => g.path === k);
                 return (
-                  <a key={k} href={`#path-${k}`} className="group/rp flex items-baseline justify-between gap-4 border-b border-white/15 py-3 no-underline first:pt-0">
+                  <a key={k} href={`#path-${k}`} className="group/rp flex items-baseline justify-between gap-4 border-b border-rule py-3 no-underline first:pt-0">
                     <span>
-                      <span className="block font-semibold text-white group-hover/rp:underline">{READING_PATHS[k].title}</span>
+                      <span className="block font-semibold text-ink group-hover/rp:underline">{READING_PATHS[k].title}</span>
                       <span className="text-small text-ink-3">{READING_PATHS[k].text}</span>
                     </span>
                     <span className="font-mono text-[0.85rem] whitespace-nowrap text-ink-3">

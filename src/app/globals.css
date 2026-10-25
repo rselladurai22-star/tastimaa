@@ -18,30 +18,32 @@
 .on-light {
   color-scheme: light;
 
-  /* Surfaces — measured from the reference site */
-  --paper: #ffffff;
+  /* Surfaces — warm off-white page, white and sand cards (measured from the reference) */
+  --paper: #fcfcfa;
   --card: #ffffff;
-  --sage: #f2f4f8; /* subtle surface */
-  --sage-deep: #e3e6e8;
-  --green-wash: #e8f1fc; /* tint of the primary (info callouts, code) */
-  --copper-wash: #fde8f1;
+  --sage: #f8f5ee; /* sand surface for feature cards */
+  --sage-deep: #ece6d9;
+  --green-wash: #fff0e8; /* tint of the primary (callouts, code) */
+  --copper-wash: #fde7f1;
 
-  /* Ink */
-  --ink: #0a0c10;
-  --ink-2: #262d40;
-  --ink-3: #5a6072;
+  /* Ink: near-black, with softer greys for supporting text */
+  --ink: #1f1f1f;
+  --ink-2: #555555;
+  --ink-3: #6b6b6b;
 
-  /* Brand (token names kept; values follow the reference palette) */
-  --green: #4242fa; /* primary */
-  --green-deep: #2c0b8e; /* tertiary — section headings */
-  --green-bright: #4242fa; /* charts and diagrams */
-  --copper: #e60067; /* secondary accent */
-  --copper-ink: #c20058;
+  /* Brand (token names kept): orange primary, magenta secondary.
+     Orange carrying text is darkened to #c43700 to keep 4.5:1 with white;
+     the bright #ff4800 is used for underlines, rules and charts. */
+  --green: #c43700;
+  --green-deep: #9f2c00;
+  --green-bright: #ff4800;
+  --copper: #d20688;
+  --copper-ink: #b0056f;
 
   /* Lines */
-  --rule: #e3e6e8;
-  --rule-strong: #c8cad0;
-  --control: #75808a; /* form control borders: ≥ 3:1 on white */
+  --rule: rgb(0 0 0 / 0.11);
+  --rule-strong: rgb(0 0 0 / 0.2);
+  --control: #7a7a7a; /* form control borders: ≥ 3:1 on white */
 
   /* Semantic status (always paired with an icon and a label) */
   --ok: #00752f;
@@ -57,11 +59,11 @@
   --warn-edge: #ff9d00;
 
   /* Data visualisation: distinct hues plus dashes and markers for colour-blind readers */
-  --series-1: #4242fa;
-  --series-2: #e60067;
-  --series-3: #c77700;
-  --chart-grid: #e6e8f0;
-  --chart-axis: #c8cad0;
+  --series-1: #ff4800;
+  --series-2: #213343;
+  --series-3: #d20688;
+  --chart-grid: #ebe7df;
+  --chart-axis: #c9c3b6;
 
   /* Type scale — fixed sizes, as on the reference site */
   --t-display: clamp(2.25rem, 1.8rem + 1.6vw, 3rem);
@@ -77,7 +79,7 @@
 
   /* Measure and layout */
   --measure: 686px;
-  --page: 1036px;
+  --page: 1220px;
   --gutter: 1rem;
   --header-h: 5rem; /* 48px bar with 16px above and below */
 
@@ -179,26 +181,26 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: 300;
     color: var(--ink);
     text-wrap: balance;
     font-optical-sizing: auto;
   }
 
   h1 {
-    font-weight: 500;
-    letter-spacing: -0.015em;
-    line-height: 1.12;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
   }
   h2 {
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
     line-height: 1.2;
-    color: var(--green-deep);
+    color: var(--ink);
   }
   h3 {
     letter-spacing: 0;
     line-height: 1.3;
-    color: var(--ink-2);
+    color: var(--ink);
   }
 
   p,
@@ -215,8 +217,8 @@
   }
 
   ::selection {
-    background: #1f1ab3;
-    color: #fff;
+    background: #ffd9c7;
+    color: #1f1f1f;
   }
 
   :focus-visible {
@@ -266,8 +268,8 @@
   .label {
     font-family: var(--font-sans);
     font-size: var(--t-label);
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-weight: 600;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ink-2);
     font-variant-numeric: tabular-nums;
@@ -279,10 +281,11 @@
 
   /* Inline text link: evergreen, underlined, thickens on hover. */
   .a {
-    color: var(--green);
+    color: var(--ink);
+    font-weight: 500;
     text-decoration-line: underline;
-    text-decoration-color: color-mix(in srgb, var(--green) 45%, transparent);
-    text-decoration-thickness: 1px;
+    text-decoration-color: var(--green-bright);
+    text-decoration-thickness: 2px;
     text-underline-offset: 0.22em;
     transition: text-decoration-color var(--d-1) var(--ease-out), color var(--d-1) var(--ease-out);
   }
@@ -322,15 +325,15 @@
     font-weight: 600;
   }
   .prose-atlas a:not(:where(.not-prose, .not-prose *)) {
-    color: var(--green);
+    color: var(--ink);
     font-weight: 500;
     text-decoration-line: underline;
-    text-decoration-color: color-mix(in srgb, var(--green) 50%, transparent);
+    text-decoration-color: var(--green-bright);
     text-decoration-thickness: 2px;
-    text-underline-offset: 0.22em;
+    text-underline-offset: 0.25em;
   }
   .prose-atlas a:not(:where(.not-prose, .not-prose *)):hover {
-    text-decoration-color: currentColor;
+    color: var(--green);
   }
   .prose-atlas ul:not(:where(.not-prose, .not-prose *)),
   .prose-atlas ol:not(:where(.not-prose, .not-prose *)) {
@@ -559,62 +562,53 @@
   border: 1px solid var(--rule-strong);
 }
 
-/* Light surfaces placed on the navy band (search boxes, finder cards, menus) keep the light tokens. */
+/* Section eyebrows: magenta gradient text. */
+.eyebrow {
+  background: linear-gradient(114deg, #fc0849 10.79%, #d20688 98.02%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: #d20688;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Dark surfaces (the footer): warm light type on near-black. */
+.on-dark {
+  --paper: #1f1f1f;
+  --card: #2a2a2a;
+  --sage: #2a2a2a;
+  --ink: #f8f5ee;
+  --ink-2: #d8d3c8;
+  --ink-3: #bdb7aa;
+  --green: #ff8a5c;
+  --green-deep: #ffb08f;
+  --green-wash: rgb(255 138 92 / 0.14);
+  --copper-ink: #ff9fd0;
+  --rule: rgb(255 255 255 / 0.14);
+  --rule-strong: rgb(255 255 255 / 0.28);
+  color: var(--ink);
+}
+
+/* Light surfaces placed on the top band keep the page tokens. */
 .on-light {
   color: var(--ink);
 }
 
 /*
- * The navy band at the top of a page (see <Hero>). Inside it, and in the header
- * while it floats over the band, the tokens switch to light-on-navy so headings,
- * labels, tags, status chips and buttons stay readable without per-page styling.
- * Every pair is at least 4.5:1 on the darkest and lightest part of the gradient.
+ * The top band of a page (see <Hero>): a soft peach-to-pink glow on the warm
+ * page, with the standard dark-on-light tokens.
  */
-[data-hero],
-html:not([data-scrolled]) body:has([data-hero]) .site-header {
-  --paper: #0b1033;
-  --card: rgb(255 255 255 / 0.07);
-  --sage: rgb(255 255 255 / 0.08);
-  --sage-deep: rgb(255 255 255 / 0.16);
-  --ink: #ffffff;
-  --ink-2: #d6dbf3;
-  --ink-3: #b3bbe0;
-  --green: #a9bcff;
-  --green-deep: #c9d4ff;
-  --green-bright: #a9bcff;
-  --green-wash: rgb(169 188 255 / 0.14);
-  --copper: #ff7aaa;
-  --copper-ink: #ffb8d2;
-  --copper-wash: rgb(255 122 170 / 0.14);
-  --rule: rgb(255 255 255 / 0.16);
-  --rule-strong: rgb(255 255 255 / 0.32);
-  --control: rgb(255 255 255 / 0.5);
-  --ok: #6fe3a8;
-  --ok-wash: rgb(111 227 168 / 0.14);
-  --pend: #ffd58a;
-  --pend-wash: rgb(255 213 138 / 0.14);
-  --info: #a9bcff;
-  --info-wash: rgb(169 188 255 / 0.14);
-  --bad: #ff9fb4;
-  --bad-wash: rgb(255 159 180 / 0.14);
-  --none: #c4cae6;
-  --none-wash: rgb(255 255 255 / 0.08);
+[data-hero] {
   color: var(--ink);
 }
 
-/* On the band the wordmark and the current menu item read in white. */
-html:not([data-scrolled]) body:has([data-hero]) .site-header {
-  --green: #ffffff;
-}
-
-/* Header: floats over the top of the page, turns solid once the page scrolls. */
+/* Header: white, with a soft shadow, at all times. */
 .site-header {
-  transition: background-color var(--d-2) var(--ease-out), box-shadow var(--d-2) var(--ease-out);
+  background: #ffffff;
+  box-shadow: 0 2px 4px 0 rgb(33 51 67 / 0.12);
+  transition: box-shadow var(--d-2) var(--ease-out);
 }
 html[data-scrolled] .site-header {
-  background: rgb(255 255 255 / 0.94);
-  box-shadow: 0 1px 0 var(--rule), 0 8px 24px -18px rgb(23 35 31 / 0.35);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px 0 rgb(33 51 67 / 0.12), 0 10px 24px -18px rgb(33 51 67 / 0.4);
 }
 
 /* Playground: interactive explainers sit on a dark stage, like a lab bench. */

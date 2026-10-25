@@ -14,7 +14,7 @@ export function Page({ children, className, as: As = "div" }: { children: ReactN
 
 /** Small uppercase kicker above a heading. */
 export function Kicker({ children, className }: { children: ReactNode; className?: string; plain?: boolean }) {
-  return <p className={clsx("label text-green", className)}>{children}</p>;
+  return <p className={clsx("label eyebrow", className)}>{children}</p>;
 }
 
 /** Standard page header for index, tool and data pages: asymmetric, with an optional aside. */
@@ -38,7 +38,7 @@ export function SectionHead({ id, kicker, title, lede, action, className, size =
   return (
     <div className={clsx("flex flex-wrap items-end justify-between gap-x-8 gap-y-3", className)}>
       <div className="max-w-[44rem] min-w-0">
-        {kicker ? <p className="label mb-3 text-green">{kicker}</p> : null}
+        {kicker ? <p className="label eyebrow mb-3">{kicker}</p> : null}
         <H id={id} className={size === "h2" ? "text-h2" : "text-h3"}>
           {title}
         </H>
@@ -53,12 +53,12 @@ export function SectionHead({ id, kicker, title, lede, action, className, size =
 
 const BUTTON = {
   primary: "bg-green text-paper hover:bg-green-deep border border-green hover:border-green-deep",
-  secondary: "border border-control bg-card text-ink hover:border-ink hover:bg-paper",
+  secondary: "border-2 border-rule bg-paper text-ink hover:border-ink",
   quiet: "border border-transparent text-green hover:bg-green-wash",
 } as const;
 
 const buttonBase =
-  "group/btn inline-flex min-h-11 items-center justify-center gap-2 rounded-[6px] px-4 text-[0.98rem] font-semibold no-underline transition-[background-color,border-color,color,transform] duration-[var(--d-1)] ease-[var(--ease-out)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
+  "group/btn inline-flex min-h-12 items-center justify-center gap-2 rounded-[8px] px-6 text-[1rem] font-medium no-underline transition-[background-color,border-color,color,transform] duration-[var(--d-1)] ease-[var(--ease-out)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 export function Button({ variant = "primary", className, ...props }: ComponentProps<"button"> & { variant?: keyof typeof BUTTON }) {
   return <button {...props} className={clsx(buttonBase, BUTTON[variant], className)} />;
@@ -76,8 +76,8 @@ export function ButtonLink({ variant = "primary", className, arrow = false, chil
 /** Text link with a travelling arrow — for "read more" style routes. */
 export function ArrowLink({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   return (
-    <Link href={href} className={clsx("group/al inline-flex items-center gap-1.5 font-semibold text-green no-underline hover:text-green-deep", className)}>
-      <span className="underline decoration-green/40 decoration-1 underline-offset-[0.22em] group-hover/al:decoration-current group-hover/al:decoration-2">{children}</span>
+    <Link href={href} className={clsx("group/al inline-flex items-center gap-1.5 font-medium text-ink no-underline hover:text-green", className)}>
+      <span className="underline decoration-green-bright decoration-2 underline-offset-[0.25em]">{children}</span>
       <IconArrow size={16} className="shrink-0 transition-transform duration-[var(--d-2)] ease-[var(--ease-out)] group-hover/al:translate-x-1" />
     </Link>
   );

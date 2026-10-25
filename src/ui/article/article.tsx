@@ -11,7 +11,7 @@ import { ReadingProgress, Toc } from "./progress";
 /** Section heading with a deep link that appears on hover or focus. */
 export function DeepHeading({ id, children, n }: { id: string; children: ReactNode; n?: number }) {
   return (
-    <h2 id={id} data-n={n} className="group/dh relative mt-20 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-bold text-green-deep first:mt-0">
+    <h2 id={id} data-n={n} className="group/dh relative mt-20 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-light text-ink first:mt-0">
       {children}
       <a href={`#${id}`} className="ml-2 inline-block align-middle text-[0.9em] text-ink-3 no-underline opacity-0 transition-opacity duration-[var(--d-1)] group-hover/dh:opacity-100 hover:text-green focus-visible:opacity-100">
         #<span className="sr-only">Link to this section</span>
@@ -66,8 +66,8 @@ export function ArticleShell({
           <Breadcrumbs items={crumbs} />
         </div>
         <header className="anim-rise mt-8 max-w-[44rem] sm:mt-10">
-          <p className="label text-[#a9bcff]">{kicker}</p>
-          <h1 className="mt-3 text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-medium tracking-[-0.015em] text-white">{title}</h1>
+          <p className="label eyebrow">{kicker}</p>
+          <h1 className="mt-3 text-[clamp(2.25rem,1.6rem+2.4vw,3rem)] leading-[1.15] font-light tracking-[-0.01em] text-ink">{title}</h1>
           <p className="mt-4 text-[1rem] text-ink-2">
             Last reviewed <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (
@@ -99,7 +99,7 @@ export function ArticleShell({
             {next ? (
               <Link href={next.href} className="group/nx mt-16 flex max-w-[var(--measure)] items-center justify-between gap-6 rounded-[8px] border border-green bg-green px-6 py-5 text-paper no-underline transition-colors hover:bg-green-deep">
                 <span>
-                  <span className="label block text-[0.75rem] text-paper/80">{next.kicker ?? "Next"}</span>
+                  <span className="label block text-[0.75rem] text-paper">{next.kicker ?? "Next"}</span>
                   <span className="mt-1 block font-display text-[1.35rem] leading-snug">{next.title}</span>
                 </span>
                 <IconArrow size={22} className="shrink-0 transition-transform duration-[var(--d-2)] group-hover/nx:translate-x-1" />

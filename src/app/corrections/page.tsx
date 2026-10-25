@@ -20,7 +20,7 @@ export default async function CorrectionsPage({ searchParams }: { searchParams: 
         title="Report a correction"
         lede="Schools and parents help keep this accurate. A link to the official document lets us fix things fastest."
         aside={
-          <ol className="grid gap-3 lg:border-l lg:border-white/15 lg:pl-6">
+          <ol className="grid gap-3 lg:border-l lg:border-rule lg:pl-6">
             {["You tell us what's wrong, ideally with the official link.", "It joins the same review queue as automated extractions.", "An editor checks it against the source and records the outcome."].map((t, i) => (
               <li key={t} className="grid grid-cols-[2rem_minmax(0,1fr)] text-[0.98rem] text-ink-2">
                 <span className="font-mono text-[0.8rem] text-copper-ink">{String(i + 1).padStart(2, "0")}</span>

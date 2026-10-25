@@ -14,10 +14,10 @@ export function HomeFinder() {
     { key: "postcode", label: "Near a postcode" },
   ] as const;
   return (
-    <div className="rounded-[4px] border-t-[3px] border-[#141a4d] bg-card p-5 text-ink shadow-[0_0_0_1px_var(--rule),0_12px_24px_-12px_rgb(11_16_51/0.25),0_40px_80px_-40px_rgb(11_16_51/0.45)] sm:p-7">
+    <div className="rounded-[16px] border border-rule bg-card p-5 text-ink shadow-[0_24px_48px_-32px_rgb(33_51_67/0.35)] sm:p-7">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <div>
-          <p className="label text-green">School finder</p>
+          <p className="label eyebrow">School finder</p>
           <h2 className="mt-1 font-sans text-[1.375rem] leading-snug font-semibold text-ink">Where would you like to start?</h2>
         </div>
         <p className="inline-flex items-center gap-2 text-small text-ink-2">
@@ -67,7 +67,7 @@ export function HomeFinder() {
                 ))}
               </select>
             </label>
-            <button type="submit" className="min-h-12 self-end rounded-[8px] bg-green px-6 text-[1rem] font-semibold text-white shadow-[0_6px_14px_-8px_var(--green)] hover:bg-green-deep">
+            <button type="submit" className="min-h-12 self-end rounded-[8px] bg-green px-6 text-[1rem] font-medium text-white hover:bg-green-deep">
               Find schools
             </button>
             <p className="text-small text-ink-2 sm:col-span-3">Straight-line distance from the postcode&apos;s centre. Schools measure from your home address, by their own method.</p>

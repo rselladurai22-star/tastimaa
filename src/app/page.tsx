@@ -89,42 +89,42 @@ export default async function HomePage() {
       <Hero className="pt-6 sm:pt-10">
         <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.75rem] font-bold tracking-[0.12em] text-ink-3 uppercase">
           <span className="inline-flex items-center gap-2">
-            <span aria-hidden className="size-2 rotate-45 bg-copper" />
+            <span aria-hidden className="size-2 rotate-45 bg-green-bright" />
             The UK grammar school research atlas
           </span>
-          <span aria-hidden className="hidden h-px w-10 bg-white/25 sm:block" />
+          <span aria-hidden className="hidden h-px w-10 bg-rule-strong sm:block" />
           <span>Independent · source-led</span>
         </p>
         <div className="mt-8 grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="anim-rise max-w-[40rem]">
-            <h1 id="hero-title" className="text-[clamp(2.5rem,1.6rem+3.6vw,4rem)] leading-[1.04] font-normal tracking-[-0.025em] text-white">
-              A clearer way to <em className="text-[#a9bcff]">choose</em> a grammar school.
+            <h1 id="hero-title" className="text-[clamp(2.5rem,1.6rem+3.6vw,4rem)] leading-[1.04] font-normal tracking-[-0.025em] text-ink">
+              A clearer way to <em className="text-green">choose</em> a grammar school.
             </h1>
             <p className="mt-6 max-w-[36rem] text-[1.1875rem] leading-[1.55] text-ink-2">Explore schools, understand the rules, compare your options and plan the next step — all in one research workspace.</p>
             <p className="mt-7 flex flex-wrap gap-x-7 gap-y-3 text-[1rem]">
-              <Link href="/compare" className={`${TEXT_LINK} border-white/40 text-white hover:border-white`}>
+              <Link href="/compare" className={`${TEXT_LINK} border-rule-strong text-ink hover:border-ink`}>
                 Compare schools <Out />
               </Link>
-              <Link href="/admissions" className={`${TEXT_LINK} border-white/40 text-white hover:border-white`}>
+              <Link href="/admissions" className={`${TEXT_LINK} border-rule-strong text-ink hover:border-ink`}>
                 Understand admissions <Out />
               </Link>
             </p>
           </div>
-          <div className="border-l-2 border-copper pl-6">
-            <p className="text-[0.75rem] font-bold tracking-[0.12em] text-[#a9bcff] uppercase">The atlas / coverage</p>
+          <div className="border-l-2 border-green-bright pl-6">
+            <p className="text-[0.75rem] font-bold tracking-[0.12em] text-green uppercase">The atlas / coverage</p>
             <dl className="mt-3">
               {[
                 [stats.listed, "schools in the directory"],
                 [stats.england, "fully selective in England"],
                 [stats.ni, "schools in Northern Ireland"],
               ].map(([v, l]) => (
-                <div key={l as string} className="flex items-baseline gap-3 border-b border-white/15 py-2.5">
-                  <dd className="w-14 font-display text-[1.75rem] leading-none text-white num">{v}</dd>
+                <div key={l as string} className="flex items-baseline gap-3 border-b border-rule py-2.5">
+                  <dd className="w-14 font-display text-[1.75rem] leading-none text-ink num">{v}</dd>
                   <dt className="text-[0.9375rem] text-ink-2">{l}</dt>
                 </div>
               ))}
             </dl>
-            <Link href="/data-sources" className="mt-3 inline-flex items-center gap-1.5 text-[0.9375rem] font-semibold text-white no-underline hover:underline">
+            <Link href="/data-sources" className="mt-3 inline-flex items-center gap-1.5 text-[0.9375rem] font-semibold text-ink no-underline hover:underline">
               Where our data comes from <Out />
             </Link>
             {refreshed ? <p className="mt-1 text-[0.8125rem] text-ink-3">Records refreshed {relativeAge(refreshed)}</p> : null}
@@ -133,7 +133,7 @@ export default async function HomePage() {
       </Hero>
 
       {/* 2 — One place to start, then a region */}
-      <section aria-label="Find a school" className="relative z-[2] -mt-14 sm:-mt-20">
+      <section aria-label="Find a school" className="relative z-[2] -mt-10 sm:-mt-12">
         <Page>
           <HomeFinder />
           <nav aria-label="Explore by region" className="mt-6 flex flex-wrap items-center gap-2">
@@ -157,9 +157,9 @@ export default async function HomePage() {
       <section aria-labelledby="tasks" className="mt-24 border-t border-rule pt-20 sm:mt-28">
         <Page>
           <Head id="tasks" kicker="Your research, organised" title="Everything you need to make sense of your choices." lede="Start with a school, an admissions question or a postcode. Move from finding options to making an informed decision." />
-          <ul className="mt-12 grid overflow-hidden rounded-[4px] border border-rule-strong sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-12 grid overflow-hidden rounded-[16px] border border-rule sm:grid-cols-2 lg:grid-cols-4">
             {tasks.map((t, i) => (
-              <li key={t.n} className={`border-rule-strong ${i > 0 ? "border-t sm:border-t-0" : ""} ${i % 2 === 1 ? "sm:border-l" : ""} ${i >= 2 ? "sm:border-t lg:border-t-0" : ""} ${i > 0 ? "lg:border-l" : ""}`}>
+              <li key={t.n} className={`border-rule ${i > 0 ? "border-t sm:border-t-0" : ""} ${i % 2 === 1 ? "sm:border-l" : ""} ${i >= 2 ? "sm:border-t lg:border-t-0" : ""} ${i > 0 ? "lg:border-l" : ""}`}>
                 <Link href={t.href} className="group/t flex h-full flex-col bg-card p-6 no-underline transition-colors hover:bg-sage/70">
                   <span className="flex items-center justify-between text-[0.75rem] font-bold tracking-[0.1em] text-ink-2 uppercase">
                     {t.n} / {t.tag}
@@ -179,7 +179,7 @@ export default async function HomePage() {
 
       {/* 4 — What a record holds, with real schools */}
       {featured.length ? (
-        <section aria-labelledby="records" className="mt-24 border-y border-rule bg-[#f3f5fb] py-20 sm:mt-28 sm:py-24">
+        <section aria-labelledby="records" className="mt-24 bg-sage py-20 sm:mt-28 sm:py-24">
           <Page className="grid gap-x-16 gap-y-12 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:items-start">
             <div>
               <Kicker>A research tool, not just a directory</Kicker>
@@ -196,7 +196,7 @@ export default async function HomePage() {
                 <IconInfo size={18} className="mt-0.5 shrink-0 text-copper-ink" />A qualifying 11+ result is not a guaranteed place. Oversubscription rules decide the order if more eligible children apply than places exist.
               </p>
             </div>
-            <div className="overflow-hidden rounded-[4px] bg-card shadow-[0_0_0_1px_var(--rule-strong),0_20px_40px_-28px_rgb(11_16_51/0.45)]">
+            <div className="overflow-hidden rounded-[16px] border border-rule bg-card">
               <p className="flex items-center justify-between border-b border-rule px-5 py-3 text-[0.75rem] font-bold tracking-[0.1em] text-ink-2 uppercase">
                 School directory / example records <span className="hidden sm:inline">Research view</span>
               </p>
@@ -242,7 +242,7 @@ export default async function HomePage() {
                     </li>,
                   ]
                 : []),
-              <li key={s.n} className="flex flex-col rounded-[4px] border border-rule-strong border-t-[3px] border-t-[#141a4d] bg-card p-6">
+              <li key={s.n} className="flex flex-col rounded-[16px] border border-rule bg-card p-6">
                 <p className="font-mono text-[0.8125rem] font-semibold text-copper-ink">{s.n}</p>
                 <h3 className="mt-3 font-display text-[1.375rem] text-ink">{s.title}</h3>
                 <p className="mt-2 flex-1 text-[0.9375rem] leading-relaxed text-ink-2">{s.text}</p>
@@ -256,24 +256,24 @@ export default async function HomePage() {
       </section>
 
       {/* 6 — Keep moving forward: dates, on navy */}
-      <section aria-labelledby="dates" className="mt-24 bg-[linear-gradient(165deg,#0b1033_0%,#141a4d_45%,#1f2a78_100%)] py-20 text-white sm:mt-28">
+      <section aria-labelledby="dates" className="mt-24 bg-[radial-gradient(70%_120%_at_10%_100%,#fbddd5_0%,#fce4ec_35%,#fcfcfa_75%)] py-20 sm:mt-28">
         <Page className="grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center">
           <div>
-            <p className="label text-[#a9bcff]">Keep moving forward</p>
-            <h2 id="dates" className="mt-3 text-[clamp(1.9rem,1.5rem+1.4vw,2.5rem)] text-white">
+            <p className="label eyebrow">Keep moving forward</p>
+            <h2 id="dates" className="mt-3 text-[clamp(1.9rem,1.5rem+1.4vw,2.5rem)] text-ink">
               A plan that&apos;s easier to follow.
             </h2>
-            <p className="mt-4 max-w-[30rem] text-[1.0625rem] leading-relaxed text-white/80">Important dates, admissions policies and school research — connected instead of scattered across bookmarks.</p>
+            <p className="mt-4 max-w-[30rem] text-[1.0625rem] leading-relaxed text-ink-2">Important dates, admissions policies and school research — connected instead of scattered across bookmarks.</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/calendar" className="inline-flex min-h-11 items-center gap-2 rounded-[4px] bg-white px-5 font-semibold text-[#141a4d] no-underline hover:bg-[#e8ecff]">
+              <Link href="/calendar" className="inline-flex min-h-12 items-center gap-2 rounded-[8px] bg-green px-6 font-medium text-white no-underline hover:bg-green-deep">
                 Explore admissions dates <Out />
               </Link>
-              <Link href="/tools/planner" className="inline-flex min-h-11 items-center rounded-[4px] px-5 font-semibold text-white no-underline shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.7)] hover:bg-white/10">
+              <Link href="/tools/planner" className="inline-flex min-h-12 items-center rounded-[8px] border-2 border-rule bg-paper px-6 font-medium text-ink no-underline hover:border-ink">
                 Open your planner
               </Link>
             </div>
           </div>
-          <div className="overflow-hidden rounded-[4px] border-t-[3px] border-copper bg-card text-ink shadow-[0_30px_60px_-30px_rgb(0_0_0/0.6)]">
+          <div className="overflow-hidden rounded-[16px] border border-rule bg-card text-ink shadow-[0_24px_48px_-32px_rgb(33_51_67/0.4)]">
             <p className="flex items-center justify-between border-b border-rule px-5 py-3 text-[0.75rem] font-bold tracking-[0.1em] text-ink-2 uppercase">
               Admissions calendar
               <Link href="/calendar" className="inline-flex items-center gap-1 text-[0.8125rem] tracking-normal text-ink normal-case no-underline hover:text-green">

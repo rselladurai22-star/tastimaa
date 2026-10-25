@@ -12,7 +12,7 @@ const COLUMNS: [string, [string, string][]][] = [
 
 export function SiteFooter() {
   return (
-    <footer data-site-footer className="mt-24 border-t border-rule bg-sage/60">
+    <footer data-site-footer className="on-dark mt-24 bg-[#1f1f1f]">
       <div className="container-page grid gap-12 pt-14 pb-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <div>
           <AtlasMark size={40} />
