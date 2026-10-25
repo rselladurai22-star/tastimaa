@@ -63,8 +63,46 @@ function useWidth<T extends HTMLElement>() {
   return [ref, w] as const;
 }
 
+const GRAD = [
+  { a: "var(--series-1)", b: "color-mix(in srgb, var(--series-1) 62%, #0a0c10)" },
+  { a: "var(--series-2)", b: "color-mix(in srgb, var(--series-2) 66%, #0a0c10)" },
+  { a: "var(--series-3)", b: "color-mix(in srgb, var(--series-3) 66%, #0a0c10)" },
+];
+
+/** Depth styling shared by every chart: one light source above-left, layered soft shadows, top-lit fills. */
+function DepthDefs({ id }: { id: string }) {
+  return (
+    <defs>
+      {GRAD.map((g, i) => (
+        <linearGradient key={i} id={`${id}-g${i}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" style={{ stopColor: g.a }} />
+          <stop offset="1" style={{ stopColor: g.b }} />
+        </linearGradient>
+      ))}
+      {GRAD.map((g, i) => (
+        <linearGradient key={`a${i}`} id={`${id}-a${i}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" style={{ stopColor: g.a, stopOpacity: 0.22 }} />
+          <stop offset="1" style={{ stopColor: g.a, stopOpacity: 0 }} />
+        </linearGradient>
+      ))}
+      <linearGradient id={`${id}-sheen`} x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stopColor="#fff" stopOpacity="0.3" />
+        <stop offset="0.5" stopColor="#fff" stopOpacity="0" />
+      </linearGradient>
+      <filter id={`${id}-sh`} x="-30%" y="-20%" width="160%" height="150%">
+        <feDropShadow dx="0.5" dy="1" stdDeviation="0.6" floodColor="#0a0c10" floodOpacity="0.16" />
+        <feDropShadow dx="1.5" dy="3" stdDeviation="2" floodColor="#0a0c10" floodOpacity="0.12" />
+        <feDropShadow dx="3" dy="7" stdDeviation="5" floodColor="#2c0b8e" floodOpacity="0.12" />
+      </filter>
+      <filter id={`${id}-line`} x="-5%" y="-30%" width="110%" height="160%">
+        <feDropShadow dx="0" dy="3" stdDeviation="2.5" floodColor="#2c0b8e" floodOpacity="0.22" />
+      </filter>
+    </defs>
+  );
+}
+
 function Marker({ kind, x, y, color, filled = true, size = 4 }: { kind: "circle" | "square" | "diamond"; x: number; y: number; color: string; filled?: boolean; size?: number }) {
-  const style = { fill: filled ? color : "var(--card)", stroke: color, strokeWidth: 1.6 };
+  const style = { fill: filled ? color : "var(--card)", stroke: filled ? "var(--card)" : color, strokeWidth: filled ? 2 : 1.6, filter: "drop-shadow(0 1px 1.5px rgb(10 12 16 / 0.3))" };
   if (kind === "square") return <rect x={x - size} y={y - size} width={size * 2} height={size * 2} style={style} />;
   if (kind === "diamond") return <path d={`M${x} ${y - size - 1}L${x + size + 1} ${y}L${x} ${y + size + 1}L${x - size - 1} ${y}Z`} style={style} />;
   return <circle cx={x} cy={y} r={size} style={style} />;
@@ -138,7 +176,7 @@ export function ChartTable({ xs, series, unit, decimals, caption, xLabel = "Year
 export function LineChart({ xs, series, unit, decimals, label, height = 260, zero = false, table = true }: { xs: string[]; series: ChartSeries[]; unit: Unit; decimals: number; label: string; height?: number; zero?: boolean; table?: boolean }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
-  const id = useId();
+  const id = useId().replace(/[^a-zA-Z0-9-]/g, "");
   const wide = width >= 560;
   const m = { t: 16, r: wide ? 150 : 14, b: 30, l: 46 };
   const values = series.flatMap((s) => s.points.map((p) => p.y)).filter((v): v is number => v !== null);
@@ -200,9 +238,10 @@ export function LineChart({ xs, series, unit, decimals, label, height = 260, zer
         </p>
         {width ? (
           <svg width={width} height={height} className="block overflow-visible" aria-hidden>
+            <DepthDefs id={id} />
             {ticks.map((t) => (
               <g key={t}>
-                <line x1={m.l} x2={m.l + iw} y1={Y(t)} y2={Y(t)} style={{ stroke: t === 0 && y0 < 0 ? "var(--chart-axis)" : "var(--chart-grid)" }} />
+                <line x1={m.l} x2={m.l + iw} y1={Y(t)} y2={Y(t)} strokeDasharray={t === y0 || (t === 0 && y0 < 0) ? undefined : "2 4"} style={{ stroke: t === 0 && y0 < 0 ? "var(--chart-axis)" : "var(--chart-grid)" }} />
                 <text x={m.l - 8} y={Y(t) + 4} textAnchor="end" className="fill-[var(--ink-2)] font-mono text-[12px]">
                   {formatValue(t, unit, unit === "count" ? 0 : Math.min(decimals, 1))}
                 </text>
@@ -215,12 +254,24 @@ export function LineChart({ xs, series, unit, decimals, label, height = 260, zer
             ) : null))}
             {active !== null ? <line x1={X(active)} x2={X(active)} y1={m.t} y2={m.t + ih} strokeWidth="1" style={{ stroke: "var(--ink-3)" }} /> : null}
             {series.map((s, si) =>
+              s.tone === "school"
+                ? paths[si]!.map((d, k) => {
+                    const pts = [...d.matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map((mm) => [mm[1], mm[2]]);
+                    if (pts.length < 2) return null;
+                    const area = `${d}L${pts.at(-1)![0]} ${m.t + ih}L${pts[0]![0]} ${m.t + ih}Z`;
+                    return <path key={`${s.key}-area-${k}`} d={area} fill={`url(#${id}-a0)`} style={{ animation: "fade var(--d-4) var(--ease-out) both" }} />;
+                  })
+                : null,
+            )}
+            {series.map((s, si) =>
               paths[si]!.map((d, k) => (
                 <path
                   key={`${s.key}-${k}`}
                   d={d}
+                  filter={`url(#${id}-line)`}
+                  strokeLinecap="round"
                   fill="none"
-                  strokeWidth={s.tone === "school" ? 2.5 : 2}
+                  strokeWidth={s.tone === "school" ? 3 : 2}
                   strokeDasharray={TONE[s.tone].dash}
                   strokeLinejoin="round"
                   pathLength={TONE[s.tone].dash ? undefined : 1}
@@ -291,7 +342,7 @@ export function LineChart({ xs, series, unit, decimals, label, height = 260, zer
 export function GroupedBars({ xs, series, label, height = 260, unit = "count" }: { xs: string[]; series: ChartSeries[]; label: string; height?: number; unit?: Unit }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
-  const id = useId();
+  const id = useId().replace(/[^a-zA-Z0-9-]/g, "");
   const m = { t: 14, r: 8, b: 30, l: 52 };
   const values = series.flatMap((s) => s.points.map((p) => p.y)).filter((v): v is number => v !== null);
   const ticks = niceTicks(0, Math.max(1, ...values));
@@ -300,20 +351,15 @@ export function GroupedBars({ xs, series, label, height = 260, unit = "count" }:
   const ih = height - m.t - m.b;
   const band = iw / xs.length;
   const gap = Math.min(10, band * 0.2);
-  const bw = Math.max(2, (band - gap * 2) / series.length - 1);
+  const bw = Math.max(2, (band - gap * 2) / series.length - 2);
   const Y = (v: number) => m.t + ih - (v / top) * ih;
-  const styles = [
-    { fill: "color-mix(in srgb, var(--series-1) 18%, var(--card))", stroke: "var(--series-1)" },
-    { fill: "var(--series-2)", stroke: "var(--copper-ink)" },
-    { fill: "var(--series-3)", stroke: "var(--series-3)" },
-  ];
 
   return (
     <div className="min-w-0">
       <ul className="flex flex-wrap gap-x-5 gap-y-1.5 text-small text-ink-2">
         {series.map((s, i) => (
           <li key={s.key} className="inline-flex items-center gap-2">
-            <span aria-hidden className="inline-block h-3 w-4 rounded-[1px] border-[1.5px]" style={{ background: styles[i]!.fill, borderColor: styles[i]!.stroke }} />
+            <span aria-hidden className="inline-block size-3 rounded-[3px] shadow-[0_1px_2px_rgb(10_12_16/0.25)]" style={{ background: `linear-gradient(${GRAD[i]!.a}, ${GRAD[i]!.b})` }} />
             {s.label}
           </li>
         ))}
@@ -337,10 +383,11 @@ export function GroupedBars({ xs, series, label, height = 260, unit = "count" }:
           {label}. Values are listed in the table below the chart.
         </p>
         {width ? (
-          <svg width={width} height={height} className="block" aria-hidden onPointerLeave={() => setActive(null)}>
+          <svg width={width} height={height} className="block overflow-visible" aria-hidden onPointerLeave={() => setActive(null)}>
+            <DepthDefs id={id} />
             {ticks.map((t) => (
               <g key={t}>
-                <line x1={m.l} x2={m.l + iw} y1={Y(t)} y2={Y(t)} style={{ stroke: t === 0 ? "var(--chart-axis)" : "var(--chart-grid)" }} />
+                <line x1={m.l} x2={m.l + iw} y1={Y(t)} y2={Y(t)} strokeDasharray={t === 0 ? undefined : "2 4"} style={{ stroke: t === 0 ? "var(--chart-axis)" : "var(--chart-grid)" }} />
                 <text x={m.l - 8} y={Y(t) + 4} textAnchor="end" className="fill-[var(--ink-2)] font-mono text-[12px]">
                   {formatValue(t, unit, 0)}
                 </text>
@@ -351,24 +398,24 @@ export function GroupedBars({ xs, series, label, height = 260, unit = "count" }:
               return (
                 <g key={x} onPointerEnter={() => setActive(i)}>
                   <rect x={m.l + i * band} y={m.t} width={band} height={ih} fill="transparent" />
-                  {active === i ? <rect x={m.l + i * band + 1} y={m.t} width={band - 2} height={ih} style={{ fill: "var(--sage)", opacity: 0.6 }} /> : null}
-                  {series.map((s, si) => {
-                    const v = s.points.find((p) => p.x === x)?.y;
-                    if (v === null || v === undefined) return null;
-                    const y = Y(v);
-                    return (
-                      <rect
-                        key={s.key}
-                        x={bx + si * (bw + 1)}
-                        y={y}
-                        width={bw}
-                        height={Math.max(0, m.t + ih - y)}
-                        rx={Math.min(2, bw / 4)}
-                        strokeWidth={1.2}
-                        style={{ ...styles[si], transformOrigin: `0 ${m.t + ih}px`, animation: `rise var(--d-4) var(--ease-out) ${i * 25}ms both` }}
-                      />
-                    );
-                  })}
+                  {active === i ? <rect x={m.l + i * band + 1} y={m.t} width={band - 2} height={ih} rx={6} style={{ fill: "var(--sage)", opacity: 0.7 }} /> : null}
+                  <g style={{ transform: active === i ? "translateY(-3px)" : undefined, transition: "transform var(--d-2) var(--ease-out)" }}>
+                    {series.map((s, si) => {
+                      const v = s.points.find((p) => p.x === x)?.y;
+                      if (v === null || v === undefined) return null;
+                      const y = Y(v);
+                      const x0 = bx + si * (bw + 2);
+                      const base = m.t + ih;
+                      const rr = Math.min(4, bw / 2, base - y);
+                      const d = `M${x0},${base}V${y + rr}Q${x0},${y} ${x0 + rr},${y}H${x0 + bw - rr}Q${x0 + bw},${y} ${x0 + bw},${y + rr}V${base}Z`;
+                      return (
+                        <g key={s.key} style={{ transformOrigin: `0 ${base}px`, animation: `rise var(--d-4) var(--ease-out) ${i * 25}ms both` }}>
+                          <path d={d} fill={`url(#${id}-g${si})`} filter={`url(#${id}-sh)`} />
+                          <path d={d} fill={`url(#${id}-sheen)`} />
+                        </g>
+                      );
+                    })}
+                  </g>
                   {xs.length <= 10 || i % 2 === 0 || i === xs.length - 1 ? (
                     <text x={m.l + i * band + band / 2} y={height - 8} textAnchor="middle" className="fill-[var(--ink-2)] font-mono text-[12px]">
                       {x}
@@ -409,10 +456,20 @@ export function Sparkline({ values, width = 120, height = 34, className }: { val
   const Y = (v: number) => height - 4 - ((v - min) / (max - min || 1)) * (height - 8);
   const d = pts.map((p, k) => `${k ? "L" : "M"}${X(p.i).toFixed(1)} ${Y(p.v).toFixed(1)}`).join("");
   const last = pts.at(-1)!;
+  const first = pts[0]!;
+  const gid = `spark-${width}-${height}`;
   return (
     <svg width={width} height={height} aria-hidden className={clsx("overflow-visible", className)}>
-      <path d={d} fill="none" strokeWidth="1.8" style={{ stroke: "var(--series-1)" }} />
-      <circle cx={X(last.i)} cy={Y(last.v)} r="3" style={{ fill: "var(--series-1)" }} />
+      <defs>
+        <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" style={{ stopColor: "var(--series-1)", stopOpacity: 0.25 }} />
+          <stop offset="1" style={{ stopColor: "var(--series-1)", stopOpacity: 0 }} />
+        </linearGradient>
+      </defs>
+      <path d={`${d}L${X(last.i).toFixed(1)} ${height}L${X(first.i).toFixed(1)} ${height}Z`} fill={`url(#${gid})`} />
+      <path d={d} fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ stroke: "var(--series-1)", filter: "drop-shadow(0 2px 2px rgb(44 11 142 / 0.25))" }} />
+      <circle cx={X(last.i)} cy={Y(last.v)} r="6" style={{ fill: "var(--series-1)", opacity: 0.18 }} />
+      <circle cx={X(last.i)} cy={Y(last.v)} r="3.2" strokeWidth="1.5" style={{ fill: "var(--series-1)", stroke: "var(--card)" }} />
     </svg>
   );
 }

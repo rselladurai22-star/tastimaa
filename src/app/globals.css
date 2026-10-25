@@ -407,24 +407,35 @@
     transform: none;
   }
 }
-/* Sample-page motion (/lab/depth) */
-@keyframes lab-rise {
+/* Atlas towers settle onto the map */
+@keyframes atlas-rise {
   from {
-    transform: scaleY(0);
+    opacity: 0;
+    transform: translateY(-12px);
   }
 }
-.lab-rise {
-  transform-box: view-box;
-  animation: lab-rise 800ms var(--ease-out) both;
+.atlas-rise {
+  animation: atlas-rise 700ms var(--ease-out) both;
 }
-@keyframes lab-drop {
+
+/* Isometric buildings drop into place; depth-styled bars grow from the axis */
+@keyframes iso-drop {
   from {
     opacity: 0;
     transform: translateY(-14px);
   }
 }
-.lab-drop {
-  animation: lab-drop 600ms var(--ease-out) both;
+.iso-drop {
+  animation: iso-drop 600ms var(--ease-out) both;
+}
+@keyframes bar-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+.bar-rise {
+  transform-box: view-box;
+  animation: bar-rise 800ms var(--ease-out) both;
 }
 
 @keyframes fade {

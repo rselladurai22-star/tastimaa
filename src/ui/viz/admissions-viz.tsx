@@ -84,7 +84,7 @@ export function ReportCardScale({ grade }: { grade: string }) {
       <span aria-hidden className="flex gap-[3px]">
         {[...REPORT_CARD_SCALE].reverse().map((g, i) => {
           const filled = idx >= 0 && REPORT_CARD_SCALE.length - 1 - i >= idx;
-          return <span key={g} className={clsx("h-3 w-4 rounded-[1px]", filled ? "bg-green-bright" : "border border-rule-strong bg-card")} />;
+          return <span key={g} className={clsx("h-3.5 w-4 rounded-[3px]", filled ? "bg-[linear-gradient(var(--green),var(--green-deep))] shadow-[0_1px_1px_rgb(10_12_16/0.18),0_2px_4px_-1px_rgb(44_11_142/0.3)]" : "bg-sage-deep shadow-[inset_0_1px_2px_rgb(10_12_16/0.12)]")} />;
         })}
       </span>
       <span className="font-semibold text-ink">{grade}</span>

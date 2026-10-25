@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { clsx } from "clsx";
 import { ADMISSIONS_GUIDES, READING_PATHS } from "@/content/guides";
 import { KNOWLEDGE_EDGES, KNOWLEDGE_NODES } from "@/content/knowledge";
 import { CATCHMENT_LABEL, GENDER_LABEL, SELECTIVITY_SHORT } from "@/domain/labels";
@@ -119,45 +120,55 @@ export default async function HomePage() {
 
   return (
     <>
-      <SkyHeight mobile="54rem" desktop="50rem" />
-      {/* A — Editorial introduction */}
+      <SkyHeight mobile="62rem" desktop="44rem" />
+      {/* A — Introduction: one promise, one search, one picture */}
       <section aria-labelledby="hero-title">
-        <Page className="grid gap-x-14 gap-y-10 pt-10 pb-14 sm:pt-16 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-center lg:pb-20">
-          <div className="anim-rise">
-            <Kicker>An atlas of UK grammar schools</Kicker>
-            <h1 id="hero-title" className="mt-5 text-display leading-[1.02] [font-variation-settings:'opsz'_72]">
-              Find a grammar school, and understand <em className="text-green italic">exactly</em> how it chooses.
-            </h1>
-            <p className="mt-6 max-w-[38rem] text-lede leading-[1.5] text-ink">
-              Official records for every grammar school in England and Northern Ireland — entrance tests, admission rules, results, inspections and past demand — with each rule explained in plain English and every fact tied to its source.
+        <Page className="grid items-center gap-x-10 gap-y-6 pt-8 sm:pt-14 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1fr)] lg:pt-10">
+          <div className="anim-rise max-w-[38rem]">
+            <p className="inline-flex items-center gap-2 rounded-full bg-paper/70 px-3 py-1 text-[0.875rem] font-medium text-ink-2 shadow-[0_1px_2px_rgb(44_11_142/0.08)]">
+              <span aria-hidden className="size-2 rounded-full bg-[var(--ok)]" />
+              Official data · England &amp; Northern Ireland
             </p>
-            <div className="mt-8 max-w-[40rem]">
+            <h1 id="hero-title" className="mt-5 text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.1] font-semibold tracking-[-0.025em]">
+              Find a grammar school.
+              <span className="block text-green">See how it chooses.</span>
+            </h1>
+            <p className="mt-5 text-[1.1875rem] leading-[1.55] text-ink-2">
+              Entrance tests, admission rules and past offers for all {stats.listed} grammar schools — in plain English, each fact linked to its official source.
+            </p>
+            <div className="mt-7">
               <SearchField size="lg" placeholder="School, town or postcode" />
             </div>
-            <p className="mt-5">
-              <ArrowLink href="#how-admission-works">New to this? See how admission works in three steps</ArrowLink>
-            </p>
-            <dl className="mt-10 grid max-w-[40rem] grid-cols-2 gap-x-6 gap-y-4 border-t border-rule pt-5 sm:grid-cols-4">
-              {[
-                [stats.listed, "schools listed"],
-                [stats.england, "grammar schools, England"],
-                [stats.partial, "partially selective"],
-                [stats.ni, "Northern Ireland"],
-              ].map(([v, l]) => (
-                <div key={l as string} className="flex flex-col">
-                  <dt className="order-2 mt-1.5 text-small text-ink-2">{l}</dt>
-                  <dd className="order-1 font-display text-[2rem] leading-none text-ink num [font-variation-settings:'opsz'_48]">{v}</dd>
-                </div>
+            <ul className="mt-4 flex flex-wrap items-center gap-2 text-[0.9375rem]" aria-label="Popular areas">
+              <li className="mr-1 text-ink-3">Popular:</li>
+              {groups.slice(0, 3).map((g) => (
+                <li key={g.slug}>
+                  <Link href={`/grammar-schools/${g.slug}`} className="inline-flex min-h-9 items-center rounded-full bg-paper/80 px-3.5 font-medium text-ink no-underline shadow-[0_1px_2px_rgb(44_11_142/0.08)] transition-colors hover:bg-paper hover:text-green">
+                    {g.name}
+                  </Link>
+                </li>
               ))}
-            </dl>
+            </ul>
           </div>
-          <figure className="min-w-0">
+          <figure className="relative min-w-0 lg:-mr-6">
             <AtlasMap points={points} groups={groups} legend={false} />
-            <figcaption className="mt-3 text-small leading-relaxed text-ink-2">
-              <span className="label mr-2 text-copper-ink">Fig. 1</span>
-              Each dot is a school, placed by its official coordinates. No coastline is drawn — the shape is the schools themselves.
-            </figcaption>
+            <figcaption className="sr-only">Every grammar school, placed from its official coordinates. Towers rise where schools cluster.</figcaption>
           </figure>
+        </Page>
+        <Page className="pt-6 pb-6 lg:pt-2">
+          <dl className="grid grid-cols-2 overflow-hidden rounded-[12px] bg-paper shadow-[0_1px_1px_rgb(44_11_142/0.05),0_6px_12px_-4px_rgb(44_11_142/0.08),0_20px_40px_-16px_rgb(44_11_142/0.16)] sm:grid-cols-4">
+            {[
+              [stats.listed, "schools listed"],
+              [stats.england, "grammar schools in England"],
+              [stats.partial, "partially selective"],
+              [stats.ni, "in Northern Ireland"],
+            ].map(([v, l], i) => (
+              <div key={l as string} className={clsx("flex flex-col px-5 py-5 sm:px-7", i % 2 === 1 && "border-l border-rule", i >= 2 && "border-t border-rule sm:border-t-0", i === 2 && "sm:border-l")}>
+                <dt className="order-2 mt-1 text-[0.9375rem] text-ink-2">{l}</dt>
+                <dd className="order-1 text-[2rem] leading-none font-semibold tracking-[-0.02em] text-ink num">{v}</dd>
+              </div>
+            ))}
+          </dl>
         </Page>
       </section>
 

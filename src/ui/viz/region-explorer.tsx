@@ -62,8 +62,8 @@ export function RegionExplorer({ regions }: { regions: RegionProfile[] }) {
             )}
           >
             <span className="truncate">{x.name}</span>
-            <span aria-hidden className="h-1.5 rounded-full bg-sage-deep">
-              <span className="block h-full rounded-full bg-green-bright transition-[width] duration-[var(--d-4)] ease-[var(--ease-out)]" style={{ width: `${(x.n / max) * 100}%` }} />
+            <span aria-hidden className="h-2 rounded-full bg-sage-deep shadow-[inset_0_1px_2px_rgb(0_0_0/0.25)]">
+              <span className="block h-full rounded-full bg-[linear-gradient(90deg,var(--green),var(--green-bright))] shadow-[0_1px_2px_rgb(0_0_0/0.3),0_0_10px_-2px_var(--green-bright)] transition-[width] duration-[var(--d-4)] ease-[var(--ease-out)]" style={{ width: `${(x.n / max) * 100}%` }} />
             </span>
             <span className="text-right font-mono text-[0.85rem]">{x.n}</span>
           </button>
@@ -80,9 +80,9 @@ export function RegionExplorer({ regions }: { regions: RegionProfile[] }) {
 
           <div className="mt-6">
             <p className="label mb-2">Who they admit</p>
-            <div className="flex h-3 w-full overflow-hidden rounded-[2px]" aria-hidden>
+            <div className="flex h-4 w-full overflow-hidden rounded-[6px] shadow-[0_1px_1px_rgb(0_0_0/0.3),0_6px_14px_-6px_rgb(0_0_0/0.6)]" aria-hidden>
               {parts.map((p) => (
-                <span key={p.k} className="h-full border-r-2 border-card last:border-r-0" style={{ width: `${(p.v / r.n) * 100}%`, background: p.c }} />
+                <span key={p.k} className="h-full border-r-2 border-card last:border-r-0" style={{ width: `${(p.v / r.n) * 100}%`, background: `linear-gradient(color-mix(in srgb, ${p.c} 80%, #fff), color-mix(in srgb, ${p.c} 80%, #000))` }} />
               ))}
             </div>
             <ul className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-small text-ink-2">

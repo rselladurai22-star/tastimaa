@@ -24,6 +24,24 @@ function esc(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
+/** A small isometric school: white walls, a pitched roof in the given colour and a flag. */
+function schoolIcon(roof: string, scale = 2) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${30 * scale}" height="${34 * scale}" viewBox="0 0 30 34">
+<ellipse cx="15" cy="30.5" rx="11" ry="3.2" fill="#0a0c10" opacity=".18"/>
+<path d="M3 17 L15 23 L15 31 L3 25Z" fill="#ffffff" stroke="#c8cdd8" stroke-width=".6"/>
+<path d="M15 23 L27 17 L27 25 L15 31Z" fill="#dfe3ec" stroke="#c8cdd8" stroke-width=".6"/>
+<path d="M2 17.5 L9 9 L21 15 L15 23.5Z" fill="${roof}"/>
+<path d="M9 9 L21 15 L28 17.5 L16 11.5Z" fill="${roof}" opacity=".72"/>
+<path d="M15 23.5 L21 15 L28 17.5 L27 17 Z" fill="${roof}" opacity=".55"/>
+<rect x="6.5" y="21" width="3" height="3.6" fill="#9fd6f5" transform="skewY(26.5)" transform-origin="6.5 21"/>
+<line x1="20" y1="13.5" x2="20" y2="3" stroke="#3c4550" stroke-width="1"/>
+<path d="M20 3 L25.5 4.6 L20 6.4Z" fill="${roof}"/>
+</svg>`;
+  const img = new Image(30 * scale, 34 * scale);
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  return img.decode().then(() => img);
+}
+
 const token = (name: string, fallback: string) => (typeof window === "undefined" ? fallback : getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
 
 /**
@@ -69,18 +87,44 @@ export function SchoolMap({
           style: STYLE,
           center: center ? [center.lng, center.lat] : [-2.5, 53.6],
           zoom: center?.zoom ?? 5.2,
+          // A tilted, turned view so streets and buildings read as an isometric drawing.
+          pitch: 52,
+          bearing: -18,
+          maxPitch: 65,
           attributionControl: { compact: true },
           cooperativeGestures: true,
         });
         mapRef.current = map;
-        map.addControl(new maplibre.NavigationControl({ showCompass: false }), "top-right");
+        map.addControl(new maplibre.NavigationControl({ showCompass: true, visualizePitch: true }), "top-right");
         map.on("error", (e: { error?: { message?: string } }) => {
           if (String(e?.error?.message ?? "").includes("style")) setFailed(true);
         });
-        map.on("load", () => {
-          const green = token("--green-bright", "#23805a");
-          const deep = token("--green", "#1c5040");
-          const copper = token("--copper", "#b8773b");
+        map.on("load", async () => {
+          // Extrude buildings from the vector tiles where the style provides them.
+          const style = map.getStyle();
+          const vector = Object.entries(style.sources ?? {}).find(([, src]) => (src as { type?: string }).type === "vector")?.[0];
+          const firstLabel = style.layers?.find((l) => l.type === "symbol")?.id;
+          if (vector) {
+            map.addLayer(
+              {
+                id: "buildings-3d",
+                type: "fill-extrusion",
+                source: vector,
+                "source-layer": "building",
+                minzoom: 13,
+                paint: {
+                  "fill-extrusion-color": ["interpolate", ["linear"], ["coalesce", ["get", "render_height"], 6], 0, "#eef1f7", 40, "#d9dfeb"],
+                  "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 13, 0, 14.5, ["coalesce", ["get", "render_height"], 6]],
+                  "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
+                  "fill-extrusion-opacity": 0.9,
+                },
+              },
+              firstLabel,
+            );
+          }
+          const green = token("--green-bright", "#4242fa");
+          const deep = token("--green", "#4242fa");
+          const copper = token("--copper", "#e60067");
           const card = token("--card", "#fffefa");
           polygons.forEach((p, i) => {
             map.addSource(`poly-${i}`, { type: "geojson", data: { type: "Feature", properties: { name: p.name }, geometry: p.geojson } });
@@ -91,22 +135,26 @@ export function SchoolMap({
             type: "geojson",
             data: {
               type: "FeatureCollection",
-              features: points.map((p) => ({ type: "Feature", properties: { slug: p.slug, name: p.name, sub: p.sub ?? "" }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })),
+              features: points.map((p) => ({ type: "Feature", properties: { slug: p.slug, name: p.name, sub: p.sub ?? "", lat: p.lat }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })),
             },
           });
-          map.addLayer({
-            id: "schools",
-            type: "circle",
-            source: "schools",
-            paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4.5, 11, 8], "circle-color": green, "circle-stroke-width": 2, "circle-stroke-color": card },
-          });
-          map.addLayer({
-            id: "schools-hl",
-            type: "circle",
-            source: "schools",
-            filter: ["==", ["get", "slug"], ""],
-            paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 8, 11, 12], "circle-color": copper, "circle-stroke-width": 3, "circle-stroke-color": card },
-          });
+          let icons = false;
+          try {
+            const [base, lit] = await Promise.all([schoolIcon(deep), schoolIcon(copper)]);
+            if (!map.hasImage("iso-school")) map.addImage("iso-school", base, { pixelRatio: 2 });
+            if (!map.hasImage("iso-school-hl")) map.addImage("iso-school-hl", lit, { pixelRatio: 2 });
+            icons = true;
+          } catch {
+            // Fall back to plain dots below.
+          }
+          if (icons) {
+            const size = ["interpolate", ["linear"], ["zoom"], 5, 0.55, 9, 0.8, 13, 1.1] as unknown as number;
+            map.addLayer({ id: "schools", type: "symbol", source: "schools", layout: { "icon-image": "iso-school", "icon-size": size, "icon-anchor": "bottom", "icon-allow-overlap": true, "symbol-sort-key": ["-", 0, ["get", "lat"]] as unknown as number } });
+            map.addLayer({ id: "schools-hl", type: "symbol", source: "schools", filter: ["==", ["get", "slug"], ""], layout: { "icon-image": "iso-school-hl", "icon-size": ["interpolate", ["linear"], ["zoom"], 5, 0.8, 13, 1.35] as unknown as number, "icon-anchor": "bottom", "icon-allow-overlap": true } });
+          } else {
+            map.addLayer({ id: "schools", type: "circle", source: "schools", paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4.5, 11, 8], "circle-color": green, "circle-stroke-width": 2, "circle-stroke-color": card } });
+            map.addLayer({ id: "schools-hl", type: "circle", source: "schools", filter: ["==", ["get", "slug"], ""], paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 8, 11, 12], "circle-color": copper, "circle-stroke-width": 3, "circle-stroke-color": card } });
+          }
           if (origin) {
             const el = document.createElement("div");
             el.className = "atlas-origin";
