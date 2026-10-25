@@ -243,7 +243,7 @@ export default async function SchoolOverview({ params }: Props) {
                 <p className="label text-[0.72rem]">{MEASURES[m].label}</p>
                 {latest ? (
                   <>
-                    <p className="mt-2 font-display text-[2.3rem] leading-none text-ink num [font-variation-settings:'opsz'_60]">
+                    <p className="mt-2 font-display text-[2.3rem] leading-none text-ink num">
                       {formatMeasure(MEASURES[m], latest.value)}
                       {latest.valueText ? <span className="ml-2 font-sans text-[1rem] font-semibold text-ink-2">{latest.valueText}</span> : null}
                     </p>

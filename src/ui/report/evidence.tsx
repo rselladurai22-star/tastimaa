@@ -36,7 +36,7 @@ export function MeasureFigure({ measure, rows, laName, sources, n }: { measure: 
         <p className="mt-2 text-[0.98rem] leading-relaxed text-ink-2">{def.description}</p>
         {latest ? (
           <div className="mt-5">
-            <p className="font-display text-[2.6rem] leading-none text-ink num [font-variation-settings:'opsz'_72]">
+            <p className="font-display text-[2.6rem] leading-none text-ink num">
               {formatMeasure(def, latest.value)}
               {latest.valueText ? <span className="ml-2 font-sans text-[1.1rem] font-semibold text-ink-2">{latest.valueText}</span> : null}
             </p>

@@ -97,7 +97,7 @@ export default async function HomePage() {
         </p>
         <div className="mt-8 grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="anim-rise max-w-[40rem]">
-            <h1 id="hero-title" className="text-[clamp(2.5rem,1.6rem+3.6vw,4rem)] leading-[1.04] font-normal tracking-[-0.025em] text-ink">
+            <h1 id="hero-title" className="text-[clamp(2.5rem,1.6rem+3.6vw,4rem)] leading-[1.04] font-semibold tracking-[-0.03em] text-ink">
               A clearer way to <em className="text-green">choose</em> a grammar school.
             </h1>
             <p className="mt-6 max-w-[36rem] text-[1.1875rem] leading-[1.55] text-ink-2">Explore schools, understand the rules, compare your options and plan the next step — all in one research workspace.</p>

@@ -254,7 +254,7 @@ export function ApplicationJourney({ events, entryYear }: { events: JourneyEvent
       <div id="aj-panel" role="tabpanel" aria-labelledby={`aj-tab-${sel}`} className="grid gap-5 p-6 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <div key={sel} className="anim-rise">
           <p className="label text-copper-ink">{stage.when}</p>
-          <p className="mt-1 font-display text-[1.45rem] text-ink [font-variation-settings:'opsz'_36]">{stage.title}</p>
+          <p className="mt-1 font-display text-[1.45rem] text-ink">{stage.title}</p>
           <p className="mt-2 text-[1.05rem] leading-relaxed text-ink-2">{stage.text}</p>
         </div>
         <div>

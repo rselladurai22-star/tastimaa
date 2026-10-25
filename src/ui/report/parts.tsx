@@ -29,7 +29,7 @@ export function ChapterIntro({ kicker, title, lede, aside }: { kicker: string; t
     <header className="grid gap-6 border-b border-rule pb-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
       <div className="max-w-[44rem]">
         <p className="label text-copper-ink">{kicker}</p>
-        <h2 className="mt-2 text-h1 [font-variation-settings:'opsz'_60]">{title}</h2>
+        <h2 className="mt-2 text-h1">{title}</h2>
         <p className="mt-3 text-lede leading-[1.5] text-ink">{lede}</p>
       </div>
       {aside ? <div>{aside}</div> : null}
@@ -128,7 +128,7 @@ export function AdmissionsGlance({ policy, sources, testName, testSlug }: { poli
         {cells.map((c) => (
           <div key={c.k} className="border-r border-b border-rule px-5 py-4 even:border-r-0 lg:border-b-0 lg:even:border-r lg:last:border-r-0">
             <dt className="label">{c.k}</dt>
-            <dd className="mt-2 font-display text-[2.1rem] leading-none text-ink num [font-variation-settings:'opsz'_60]">{c.v}</dd>
+            <dd className="mt-2 font-display text-[2.1rem] leading-none text-ink num">{c.v}</dd>
             {c.sub ? <dd className="mt-1.5 text-small text-ink-2">{c.sub}</dd> : null}
           </div>
         ))}

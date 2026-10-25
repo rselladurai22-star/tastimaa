@@ -20,7 +20,7 @@ export function HeroHead({ kicker, title, lede, meta, aside, children }: { kicke
     <div className="mt-8 grid gap-x-16 gap-y-8 sm:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
       <div className="anim-rise max-w-[44rem] min-w-0">
         {kicker ? <p className="label eyebrow">{kicker}</p> : null}
-        <h1 className="mt-3 text-[clamp(2.25rem,1.6rem+2.4vw,3rem)] leading-[1.15] font-light tracking-[-0.01em] text-ink">{title}</h1>
+        <h1 className="mt-3 text-[clamp(2.25rem,1.6rem+2.4vw,3rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{title}</h1>
         {lede ? <p className="mt-4 text-[1.125rem] leading-[1.55] text-ink-2">{lede}</p> : null}
         {meta ? <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-3">{meta}</div> : null}
         {children}
@@ -38,7 +38,7 @@ export function HeroFigures({ items, footer }: { items: [ReactNode, ReactNode][]
         {items.map(([v, l], i) => (
           <div key={i} className="flex flex-col lg:border-b lg:border-rule lg:py-3 lg:first:pt-0">
             <dt className="order-2 text-[0.875rem] text-ink-3">{l}</dt>
-            <dd className="order-1 font-display text-[2rem] leading-tight font-light text-ink num">{v}</dd>
+            <dd className="order-1 font-display text-[2rem] leading-tight font-semibold text-ink num">{v}</dd>
           </div>
         ))}
       </dl>

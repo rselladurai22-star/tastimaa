@@ -85,7 +85,7 @@ export function CompareView({ data, groups, diffOnly, years, savedSlug }: { data
                           <span aria-hidden className="mb-1.5 grid size-6 place-items-center rounded-[3px] bg-ink font-mono text-[0.75rem] font-medium text-paper">
                             {MARKS[i]}
                           </span>
-                          <Link href={`/schools/${s.slug}`} className="block font-display text-[1.12rem] leading-snug font-normal text-ink no-underline hover:text-green hover:underline">
+                          <Link href={`/schools/${s.slug}`} className="block font-display text-[1.12rem] leading-snug font-semibold text-ink no-underline hover:text-green hover:underline">
                             {s.name}
                           </Link>
                           <span className="block text-small font-normal text-ink-2">{[s.town, s.la].filter(Boolean).join(", ")}</span>

@@ -21,7 +21,7 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
     <Link href="/" className="group inline-flex items-center gap-2.5 rounded-[3px] text-ink no-underline" aria-label={`${SITE.name} — home`}>
       <AtlasMark size={compact ? 24 : 28} className="shrink-0 transition-transform duration-[var(--d-3)] ease-[var(--ease-out)] group-hover:-rotate-3" />
-      <span className="font-display text-[1.5rem] leading-none font-normal tracking-[-1px] whitespace-nowrap text-green">
+      <span className="font-display text-[1.375rem] leading-none font-bold tracking-[-0.5px] sm:text-[1.5rem] whitespace-nowrap text-green">
         Grammar Atlas
       </span>
     </Link>

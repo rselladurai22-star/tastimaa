@@ -23,7 +23,7 @@ export function PageHead({ kicker, title, lede, meta, aside, className }: { kick
     <header className={clsx("grid gap-x-16 gap-y-8 pt-8 pb-10 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-end", className)}>
       <div className="max-w-[46rem]">
         {kicker ? <Kicker>{kicker}</Kicker> : null}
-        <h1 className="mt-4 text-h1 [font-variation-settings:'opsz'_60]">{title}</h1>
+        <h1 className="mt-4 text-h1">{title}</h1>
         {lede ? <p className="mt-5 text-lede leading-[1.5] text-ink">{lede}</p> : null}
         {meta ? <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-2">{meta}</div> : null}
       </div>
@@ -249,7 +249,7 @@ export function Stat({ label, value, unit, period, benchmark, className, size = 
   return (
     <div className={clsx("min-w-0", className)}>
       <p className="label">{label}</p>
-      <p className={clsx("mt-1.5 font-display leading-none text-ink num [font-variation-settings:'opsz'_72]", size === "lg" ? "text-[2.6rem]" : "text-[2rem]")}>
+      <p className={clsx("mt-1.5 font-display leading-none text-ink num", size === "lg" ? "text-[2.6rem]" : "text-[2rem]")}>
         {value}
         {unit ? <span className="ml-1.5 font-sans text-[1rem] font-semibold text-ink-2">{unit}</span> : null}
       </p>
@@ -283,7 +283,7 @@ export function Figure({ n, title, caption, period, source, children, className,
     <figure id={id} className={clsx("not-prose min-w-0", className)}>
       <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         {n !== undefined ? <span className="label text-copper-ink">Fig. {n}</span> : null}
-        <p className="font-display text-[1.28rem] leading-snug text-ink [font-variation-settings:'opsz'_30]">{title}</p>
+        <p className="font-display text-[1.28rem] leading-snug text-ink">{title}</p>
         {period ? <span className="text-small text-ink-2">· {period}</span> : null}
       </div>
       {stage ? <div className="playground p-4 sm:p-6 lg:-mx-8">{children}</div> : children}

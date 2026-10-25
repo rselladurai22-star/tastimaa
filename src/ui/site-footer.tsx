@@ -16,7 +16,7 @@ export function SiteFooter() {
       <div className="container-page grid gap-12 pt-14 pb-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <div>
           <AtlasMark size={40} />
-          <p className="mt-5 font-display text-[1.6rem] leading-[1.2] text-ink [font-variation-settings:'opsz'_48]">Every fact here carries its source. If one is wrong, we want to know.</p>
+          <p className="mt-5 font-display text-[1.6rem] leading-[1.2] text-ink">Every fact here carries its source. If one is wrong, we want to know.</p>
           <div className="mt-5 flex flex-col items-start gap-2">
             <ArrowLink href="/corrections">Report a correction</ArrowLink>
             <ArrowLink href="/methodology">How we verify information</ArrowLink>

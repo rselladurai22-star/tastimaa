@@ -312,7 +312,7 @@ export function MainNav({ data }: { data: NavData }) {
         >
           <div className="container-page grid grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] gap-10 py-8">
             <div>
-              <p className="font-display text-[1.6rem] leading-tight text-ink [font-variation-settings:'opsz'_48]">{group.label}</p>
+              <p className="font-display text-[1.6rem] leading-tight text-ink">{group.label}</p>
               <p className="mt-3 text-[1rem] leading-relaxed text-ink-2">{group.intro}</p>
             </div>
             <ul className={clsx("grid content-start gap-x-6 gap-y-1", group.links.length > 4 && "grid-cols-2")}>
@@ -397,7 +397,7 @@ export function MobileNav({ data }: { data: NavData }) {
             <nav aria-label="Main" className="px-5 pb-10">
               {GROUPS.map((g) => (
                 <details key={g.key} className="group/mg border-b border-rule" open={g.match(pathname)}>
-                  <summary className="flex min-h-14 list-none items-center justify-between font-display text-[1.35rem] text-ink [font-variation-settings:'opsz'_36]">
+                  <summary className="flex min-h-14 list-none items-center justify-between font-display text-[1.35rem] text-ink">
                     {g.label}
                     <IconChevron size={18} className="text-ink-2 transition-transform duration-[var(--d-2)] group-open/mg:rotate-180" />
                   </summary>

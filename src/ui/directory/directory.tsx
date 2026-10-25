@@ -47,7 +47,7 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
         <li key={s.id} className="group/row relative grid grid-cols-[2.25rem_minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-b border-rule py-5 transition-colors duration-[var(--d-1)] hover:bg-card/70 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] lg:grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_8rem_auto] lg:items-start">
           <span className="pt-1.5 font-mono text-[0.82rem] text-ink-2">{String(offset + i + 1).padStart(2, "0")}</span>
           <div className="min-w-0">
-            <h3 className="text-[1.3rem] leading-snug [font-variation-settings:'opsz'_30]">
+            <h3 className="text-[1.3rem] leading-snug">
               <Link href={`/schools/${s.slug}`} className="text-ink no-underline after:absolute after:inset-0 group-hover/row:text-green hover:underline">
                 {s.name}
               </Link>

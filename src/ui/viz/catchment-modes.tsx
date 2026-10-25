@@ -193,7 +193,7 @@ export function CatchmentModes({ highlight, highlightLabel, initial }: { highlig
         <IsoNeighbourhood mode={mode} homes={homes} maxD={maxD} label={`Diagram: ${current.title}. ${current.text}`} />
         <div className="flex flex-col justify-between gap-4 p-5">
           <div key={mode} className="anim-rise">
-            <p className="font-display text-[1.35rem] leading-snug text-ink [font-variation-settings:'opsz'_30]">{current.title}</p>
+            <p className="font-display text-[1.35rem] leading-snug text-ink">{current.title}</p>
             <p className="mt-2 text-[1.02rem] leading-relaxed text-ink-2">{current.text}</p>
           </div>
           <ul className="grid gap-2 text-small text-ink-2" aria-label="Legend">

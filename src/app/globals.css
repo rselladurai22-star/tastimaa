@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource-variable/figtree/wght.css";
 @import "@fontsource-variable/figtree/wght-italic.css";
-@import "@fontsource-variable/source-serif-4/opsz.css";
-@import "@fontsource-variable/source-serif-4/opsz-italic.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
@@ -129,7 +127,8 @@
   --color-none: var(--none);
   --color-none-wash: var(--none-wash);
 
-  --font-display: "Source Serif 4 Variable", "Source Serif Pro", Georgia, serif;
+  /* One typeface across the site: headings, figures and text all use Figtree. */
+  --font-display: "Figtree Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --font-sans: "Figtree Variable", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   /* Figures and indices use the text face with tabular numerals; real code uses font-code. */
   --font-mono: "Figtree Variable", "Avenir Next", system-ui, sans-serif;
@@ -181,19 +180,22 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 300;
+    font-weight: 600;
     color: var(--ink);
     text-wrap: balance;
-    font-optical-sizing: auto;
+  }
+
+  /* Display-sized figures and titles share the heading weight; explicit weight utilities still win. */
+  .font-display {
+    font-weight: 600;
   }
 
   h1 {
-    font-weight: 300;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     line-height: 1.15;
   }
   h2 {
-    letter-spacing: -0.005em;
+    letter-spacing: -0.015em;
     line-height: 1.2;
     color: var(--ink);
   }
@@ -232,8 +234,9 @@
     border-top: 1px solid var(--rule);
   }
 
+  /* Only raw code (admin payloads) uses a monospace; key hints stay in the site face. */
   code,
-  kbd {
+  pre {
     font-family: var(--font-code);
   }
   code {
