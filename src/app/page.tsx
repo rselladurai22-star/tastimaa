@@ -15,7 +15,7 @@ import { siteStats } from "@/server/schools";
 import { IconArrow, IconPin } from "@/ui/icons";
 import { ArrowLink, ButtonLink, Kicker, Page, SectionHead, Source, Tag } from "@/ui/kit";
 import { SearchField } from "@/ui/search";
-import { SkyHeight } from "@/ui/sky-height";
+import { NightSky, SkyHeight } from "@/ui/sky-height";
 import { Status } from "@/ui/status";
 import { AdmissionJourney } from "@/ui/viz/admission-journey";
 import { DateLine } from "@/ui/viz/admissions-viz";
@@ -120,42 +120,46 @@ export default async function HomePage() {
 
   return (
     <>
-      <SkyHeight mobile="62rem" desktop="44rem" />
+      <SkyHeight mobile="60rem" desktop="40rem" />
+      <NightSky />
       {/* A — Introduction: one promise, one search, one picture */}
       <section aria-labelledby="hero-title">
-        <Page className="grid items-center gap-x-10 gap-y-6 pt-8 sm:pt-14 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1fr)] lg:pt-10">
+        <Page className="pt-8 sm:pt-12 lg:pt-6">
+        {/* On the navy band: the promise on the left, the drawn atlas on the right */}
+        <div className="grid items-center gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <div className="anim-rise max-w-[38rem]">
-            <p className="inline-flex items-center gap-2 rounded-full bg-paper/70 px-3 py-1 text-[0.875rem] font-medium text-ink-2 shadow-[0_1px_2px_rgb(44_11_142/0.08)]">
-              <span aria-hidden className="size-2 rounded-full bg-[var(--ok)]" />
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[0.875rem] font-medium text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.18)]">
+              <span aria-hidden className="size-2 rounded-full bg-[#3ddc97] shadow-[0_0_8px_#3ddc97]" />
               Official data · England &amp; Northern Ireland
             </p>
-            <h1 id="hero-title" className="mt-5 text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.1] font-semibold tracking-[-0.025em]">
+            <h1 id="hero-title" className="mt-5 text-[clamp(2.1rem,1.5rem+2.4vw,2.9rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-white">
               Find a grammar school.
-              <span className="block text-green">See how it chooses.</span>
+              <span className="block text-[#9fb6ff]">See how it chooses.</span>
             </h1>
-            <p className="mt-5 text-[1.1875rem] leading-[1.55] text-ink-2">
+            <p className="mt-5 text-[1.1875rem] leading-[1.55] text-white/85">
               Entrance tests, admission rules and past offers for all {stats.listed} grammar schools — in plain English, each fact linked to its official source.
             </p>
             <div className="mt-7">
               <SearchField size="lg" placeholder="School, town or postcode" />
             </div>
             <ul className="mt-4 flex flex-wrap items-center gap-2 text-[0.9375rem]" aria-label="Popular areas">
-              <li className="mr-1 text-ink-3">Popular:</li>
+              <li className="mr-1 text-white/75">Popular:</li>
               {groups.slice(0, 3).map((g) => (
                 <li key={g.slug}>
-                  <Link href={`/grammar-schools/${g.slug}`} className="inline-flex min-h-9 items-center rounded-full bg-paper/80 px-3.5 font-medium text-ink no-underline shadow-[0_1px_2px_rgb(44_11_142/0.08)] transition-colors hover:bg-paper hover:text-green">
+                  <Link href={`/grammar-schools/${g.slug}`} className="inline-flex min-h-9 items-center rounded-full bg-white/10 px-3.5 font-medium text-white no-underline shadow-[inset_0_0_0_1px_rgb(255_255_255/0.2)] transition-colors hover:bg-white hover:text-green">
                     {g.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-          <figure className="relative min-w-0 lg:-mr-6">
+          <figure className="relative min-w-0">
             <AtlasMap points={points} groups={groups} legend={false} />
-            <figcaption className="sr-only">Every grammar school, placed from its official coordinates. Towers rise where schools cluster.</figcaption>
+            <figcaption className="sr-only">Every grammar school, drawn as small school buildings grouped by neighbourhood; bigger buildings mean more schools.</figcaption>
           </figure>
+        </div>
         </Page>
-        <Page className="pt-6 pb-6 lg:pt-2">
+        <Page className="pt-6 pb-6">
           <dl className="grid grid-cols-2 overflow-hidden rounded-[12px] bg-paper shadow-[0_1px_1px_rgb(44_11_142/0.05),0_6px_12px_-4px_rgb(44_11_142/0.08),0_20px_40px_-16px_rgb(44_11_142/0.16)] sm:grid-cols-4">
             {[
               [stats.listed, "schools listed"],

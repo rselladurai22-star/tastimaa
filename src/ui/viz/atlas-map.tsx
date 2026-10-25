@@ -58,18 +58,31 @@ export function AtlasMap({
   label?: string;
 }) {
   const [focus, setFocus] = useState<string | null>(null);
-  const [hover, setHover] = useState<AtlasPoint | null>(null);
+  const [hover, setHover] = useState<string | null>(null);
   const lit = spotlight ? new Set(spotlight) : null;
 
-  const towers = useMemo(() => {
-    const out = points.map((p) => {
-      const near = points.filter((q) => Math.hypot((q.lat - p.lat) * 1.6, q.lng - p.lng) < 0.34).length;
-      const [gx, gy] = ground(p.lat, p.lng);
-      return { p, gx, gy, h: 5 + Math.sqrt(near) * 7.5 };
-    });
-    return out.sort((a, b) => a.gx + a.gy - (b.gx + b.gy));
+  // Schools are grouped into neighbourhoods (cells about 45 km across) and drawn
+  // as one small isometric campus each: a bigger campus means more schools.
+  const campuses = useMemo(() => {
+    const cells = new Map<string, AtlasPoint[]>();
+    for (const p of points) {
+      const key = `${Math.round(p.lat / 0.42)}:${Math.round(p.lng / 0.62)}`;
+      cells.set(key, [...(cells.get(key) ?? []), p]);
+    }
+    return [...cells.entries()]
+      .map(([key, list]) => {
+        const lat = list.reduce((t, p) => t + p.lat, 0) / list.length;
+        const lng = list.reduce((t, p) => t + p.lng, 0) / list.length;
+        const [gx, gy] = ground(lat, lng);
+        const counts = new Map<string, number>();
+        list.forEach((p) => counts.set(p.group, (counts.get(p.group) ?? 0) + 1));
+        const group = [...counts.entries()].sort((x, y) => y[1] - x[1])[0]![0];
+        const k = Math.sqrt(list.length);
+        return { key, list, gx, gy, group, w: 8 + k * 3.4, h: 6 + k * 2.2 };
+      })
+      .sort((a, b) => a.gx + a.gy - (b.gx + b.gy));
   }, [points]);
-  const maxH = Math.max(...towers.map((t) => t.h));
+  const hovered = campuses.find((c) => c.key === hover) ?? null;
 
   const box = useMemo(() => {
     const xs: number[] = [];
@@ -85,14 +98,14 @@ export function AtlasMap({
     return { x0, y0, w: Math.max(...xs) + 12 - x0, h: Math.max(...ys) + SLAB + 26 - y0 };
   }, []);
 
-  const labelled = lit ? [] : focus ? [focus] : groups.slice(0, 4).map((g) => g.slug);
+  const labelled = lit ? [] : focus ? [focus] : [];
   const callouts = (() => {
     const placed: { slug: string; name: string; n: number; ax: number; ay: number; x: number; y: number; w: number }[] = [];
     for (const slug of labelled) {
       const g = groups.find((x) => x.slug === slug);
-      const tall = towers.filter((t) => t.p.group === slug).sort((a, b) => b.h - a.h)[0];
+      const tall = campuses.filter((t) => t.group === slug).sort((a, b) => b.list.length - a.list.length)[0];
       if (!g || !tall) continue;
-      const [ax, ay] = iso(tall.gx, tall.gy, tall.h);
+      const [ax, ay] = iso(tall.gx, tall.gy, tall.h + tall.w * 0.6 + 4);
       const w = (g.name.length + String(g.n).length + 1) * 7.9 + 26;
       let y = ay - 30;
       const x = Math.min(Math.max(ax, box.x0 + w / 2 + 4), box.x0 + box.w - w / 2 - 4);
@@ -102,7 +115,7 @@ export function AtlasMap({
     return placed;
   })();
 
-  const description = label ?? `Isometric map of ${points.length} grammar schools, each placed from its official coordinates. Most are in ${groups.slice(0, 3).map((g) => g.name).join(", ")}.`;
+  const description = label ?? `Isometric map of ${points.length} grammar schools, drawn as small school buildings grouped by neighbourhood from their official coordinates. Most are in ${groups.slice(0, 3).map((g) => g.name).join(", ")}.`;
 
   return (
     <div className={clsx("grid gap-6", legend && "md:grid-cols-[minmax(0,1fr)_14rem] md:items-start", className)}>
@@ -119,29 +132,52 @@ export function AtlasMap({
           <path d={LAND.ie} style={{ fill: "#eef1f7" }} />
           <path d={LAND.ukSlab} style={{ fill: "#b9c6de" }} />
           <path d={LAND.uk} strokeWidth="0.8" style={{ fill: "#ffffff", stroke: "#d8e0ee" }} />
-          {towers.map((t, i) => {
-            const on = lit ? lit.has(t.p.slug) : focus === t.p.group || hover === t.p;
-            const dim = lit ? !on : !!focus && focus !== t.p.group;
-            const k = Math.round((t.h / maxH) * 100);
-            const hue = on && (lit || hover === t.p) ? "var(--copper)" : `color-mix(in srgb, var(--green-deep) ${Math.max(0, k - 45)}%, var(--green))`;
-            const tone = dim ? "#c9cfdb" : hue;
-            const b = on ? 3 : 2.3;
-            const h = t.h * (hover === t.p ? 1.12 : 1);
-            const P = (x: number, y: number, z: number) => iso(t.gx + x, t.gy + y, z).map((n) => n.toFixed(1)).join(",");
+          {campuses.map((c, i) => {
+            const litHere = lit ? c.list.some((p) => lit.has(p.slug)) : false;
+            const dim = lit ? !litHere : !!focus && focus !== c.group;
+            const hot = hover === c.key || litHere || (focus === c.group && !lit);
+            const roof = dim ? "#c2c8d4" : hot ? "var(--copper)" : "var(--green)";
+            const W2 = c.w / 2;
+            const D2 = c.w * 0.4;
+            const h = c.h;
+            const ridge = c.w * 0.55;
+            const P = (x: number, y: number, z: number) => iso(c.gx + x, c.gy + y, z).map((n) => n.toFixed(1)).join(",");
             return (
-              <g
-                key={t.p.slug}
-                className="atlas-rise"
-                style={{ animationDelay: `${Math.round((i / towers.length) * 800)}ms` }}
-                onPointerEnter={() => setHover(t.p)}
-                onPointerLeave={() => setHover(null)}
-              >
-                <polygon points={`${P(-b, b, 0)} ${P(b, b, 0)} ${P(b, b, h)} ${P(-b, b, h)}`} style={{ fill: tone }} />
-                <polygon points={`${P(b, b, 0)} ${P(b, -b, 0)} ${P(b, -b, h)} ${P(b, b, h)}`} style={{ fill: `color-mix(in srgb, ${tone} 72%, #0a0c10)` }} />
-                <polygon points={`${P(-b, -b, h)} ${P(b, -b, h)} ${P(b, b, h)} ${P(-b, b, h)}`} style={{ fill: `color-mix(in srgb, ${tone} 55%, #ffffff)` }} />
+              <g key={c.key} className="atlas-rise cursor-default" style={{ animationDelay: `${Math.round((i / campuses.length) * 800)}ms` }} onPointerEnter={() => setHover(c.key)} onPointerLeave={() => setHover(null)}>
+                {/* contact shadow */}
+                <polygon points={`${P(-W2 + 1, -D2 + 2, 0)} ${P(W2 + 4, -D2 + 2, 0)} ${P(W2 + 4, D2 + 4, 0)} ${P(-W2 + 1, D2 + 4, 0)}`} style={{ fill: "#2c0b8e", opacity: 0.16 }} />
+                {/* back roof slope */}
+                <polygon points={`${P(-W2, -D2, h)} ${P(W2, -D2, h)} ${P(W2, 0, h + ridge)} ${P(-W2, 0, h + ridge)}`} style={{ fill: `color-mix(in srgb, ${roof} 70%, #000)` }} />
+                {/* front-left wall */}
+                <polygon points={`${P(-W2, D2, 0)} ${P(W2, D2, 0)} ${P(W2, D2, h)} ${P(-W2, D2, h)}`} style={{ fill: dim ? "#eef0f4" : "#ffffff" }} />
+                {/* front-right wall with gable */}
+                <polygon points={`${P(W2, D2, 0)} ${P(W2, -D2, 0)} ${P(W2, -D2, h)} ${P(W2, 0, h + ridge)} ${P(W2, D2, h)}`} style={{ fill: dim ? "#d9dde5" : "#dfe4ee" }} />
+                {/* front roof slope */}
+                <polygon points={`${P(-W2, 0, h + ridge)} ${P(W2, 0, h + ridge)} ${P(W2, D2 + 0.6, h - 0.4)} ${P(-W2 - 0.6, D2 + 0.6, h - 0.4)}`} style={{ fill: roof }} />
               </g>
             );
           })}
+          {/* Count badges on their own layer, biggest first; a badge that would collide is left out */}
+          {(() => {
+            const shown: { x: number; y: number }[] = [];
+            return [...campuses]
+              .filter((c) => c.list.length >= 2 && !(lit ? !c.list.some((p) => lit.has(p.slug)) : !!focus && focus !== c.group))
+              .sort((a, b) => b.list.length - a.list.length)
+              .map((c) => {
+                const [x, y] = iso(c.gx, c.gy, c.h + c.w * 0.55 + 8);
+                if (shown.some((o) => Math.hypot(o.x - x, o.y - y) < 19)) return null;
+                shown.push({ x, y });
+                const hot = hover === c.key;
+                return (
+                  <g key={`b-${c.key}`} className="anim-fade pointer-events-none">
+                    <circle cx={x} cy={y} r={c.list.length >= 10 ? 9.5 : 8} style={{ fill: "#ffffff", stroke: hot ? "var(--copper)" : "var(--green)", strokeWidth: 1.4, filter: "drop-shadow(0 2px 3px rgb(44 11 142 / 0.3))" }} />
+                    <text x={x} y={y + 3.6} textAnchor="middle" className="text-[10.5px] font-bold" style={{ fill: hot ? "var(--copper-ink)" : "var(--green-deep)" }}>
+                      {c.list.length}
+                    </text>
+                  </g>
+                );
+              });
+          })()}
           {callouts.map((c) => (
             <g key={c.slug} className="anim-fade pointer-events-none">
               <line x1={c.ax} y1={c.ay - 2} x2={c.x} y2={c.y + 11} strokeWidth="1" style={{ stroke: "var(--ink-3)" }} />
@@ -153,10 +189,19 @@ export function AtlasMap({
             </g>
           ))}
         </svg>
-        {hover ? (
-          <p className="pointer-events-none absolute top-2 left-2 rounded-[6px] border border-rule bg-card px-3 py-2 text-small shadow-[0_8px_24px_-12px_rgb(44_11_142/0.35)]">
-            <span className="block font-semibold text-ink">{hover.name}</span>
-            <span className="text-ink-2">{[hover.town, hover.groupName].filter(Boolean).join(" · ")}</span>
+        {hovered ? (
+          <p className="pointer-events-none absolute top-2 left-2 max-w-[18rem] rounded-[8px] border border-rule bg-card px-3 py-2 text-small shadow-[0_8px_24px_-12px_rgb(44_11_142/0.35)]">
+            <span className="block font-semibold text-ink">
+              {hovered.list.length === 1 ? hovered.list[0]!.name : `${hovered.list.length} schools near ${hovered.list.find((p) => p.town)?.town ?? hovered.list[0]!.groupName}`}
+            </span>
+            <span className="text-ink-2">
+              {hovered.list.length === 1
+                ? [hovered.list[0]!.town, hovered.list[0]!.groupName].filter(Boolean).join(" · ")
+                : `${hovered.list
+                    .slice(0, 3)
+                    .map((p) => p.name)
+                    .join(", ")}${hovered.list.length > 3 ? "…" : ""}`}
+            </span>
           </p>
         ) : null}
       </div>

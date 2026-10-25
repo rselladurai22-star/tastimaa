@@ -306,6 +306,7 @@ export function MainNav({ data }: { data: NavData }) {
         <div
           id={`mega-${group.key}`}
           key={group.key}
+          data-nav-panel
           className="anim-rise absolute inset-x-0 top-full border-y border-rule bg-paper shadow-[0_24px_40px_-28px_rgb(23_35_31/0.35)]"
           onPointerEnter={cancel}
         >
@@ -386,7 +387,7 @@ export function MobileNav({ data }: { data: NavData }) {
       {open ? (
         <div className="fixed inset-0 z-[70]" role="presentation">
           <div className="anim-fade absolute inset-0 bg-ink/35" onClick={() => setOpen(false)} aria-hidden />
-          <div ref={sheetRef} role="dialog" aria-modal="true" aria-label="Menu" className="absolute inset-y-0 right-0 flex w-full max-w-[26rem] animate-[rise_var(--d-3)_var(--ease-out)_both] flex-col overflow-y-auto bg-paper">
+          <div ref={sheetRef} data-nav-panel role="dialog" aria-modal="true" aria-label="Menu" className="absolute inset-y-0 right-0 flex w-full max-w-[26rem] animate-[rise_var(--d-3)_var(--ease-out)_both] flex-col overflow-y-auto bg-paper">
             <div className="flex h-[var(--header-h)] shrink-0 items-center justify-between border-b border-rule px-5">
               <p className="label">Menu</p>
               <button type="button" onClick={() => setOpen(false)} className="grid size-11 place-items-center rounded-[4px] text-ink hover:bg-sage" aria-label="Close menu">
