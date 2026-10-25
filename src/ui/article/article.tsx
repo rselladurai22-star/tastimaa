@@ -67,7 +67,7 @@ export function ArticleShell({
         </div>
         <header className="anim-rise mt-8 max-w-[44rem] sm:mt-10">
           <p className="label text-[#a9bcff]">{kicker}</p>
-          <h1 className="mt-3 text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-white">{title}</h1>
+          <h1 className="mt-3 text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-medium tracking-[-0.015em] text-white">{title}</h1>
           <p className="mt-4 text-[1rem] text-ink-2">
             Last reviewed <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (

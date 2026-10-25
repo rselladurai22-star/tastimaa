@@ -59,7 +59,7 @@ export default async function SchoolLayout({ children, params }: { children: Rea
               {urn ? <span className="text-ink-3"> · URN {urn}</span> : null}
               {deni ? <span className="text-ink-3"> · DENI {deni}</span> : null}
             </p>
-            <h1 className="mt-3 max-w-[24ch] text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-white">{school.name}</h1>
+            <h1 className="mt-3 max-w-[24ch] text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-medium tracking-[-0.015em] text-white">{school.name}</h1>
             <p className="mt-4 flex items-start gap-2 text-[1.0625rem] text-ink-2">
               <IconPin size={18} className="mt-1 shrink-0 text-copper" />
               {place}

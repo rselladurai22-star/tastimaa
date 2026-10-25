@@ -28,7 +28,7 @@ export function HeroHead({ kicker, title, lede, meta, aside, children }: { kicke
     <div className="mt-8 grid gap-x-16 gap-y-8 sm:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
       <div className="anim-rise max-w-[44rem] min-w-0">
         {kicker ? <p className="label text-[#a9bcff]">{kicker}</p> : null}
-        <h1 className="mt-3 text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-white">{title}</h1>
+        <h1 className="mt-3 text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-medium tracking-[-0.015em] text-white">{title}</h1>
         {lede ? <p className="mt-4 text-[1.125rem] leading-[1.55] text-ink-2">{lede}</p> : null}
         {meta ? <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-3">{meta}</div> : null}
         {children}
