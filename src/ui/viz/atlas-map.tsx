@@ -1,8 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { clsx } from "clsx";
+import type { Column } from "./three/atlas-3d";
+import { useWebGL } from "./three/support";
+
+const Atlas3D = dynamic(() => import("./three/atlas-3d"), { ssr: false });
 
 export interface AtlasPoint {
   slug: string;
@@ -36,6 +41,7 @@ export function AtlasMap({
 }) {
   const [focus, setFocus] = useState<string | null>(null);
   const [hover, setHover] = useState<AtlasPoint | null>(null);
+  const webgl = useWebGL();
 
   const geo = useMemo(() => {
     const lats = points.map((p) => p.lat);
@@ -122,10 +128,36 @@ export function AtlasMap({
     return out;
   })();
 
+  // The same projection, laid flat on a 3D board: column height is how many
+  // listed schools lie within roughly 25 km, so clusters rise as skylines.
+  const world = useMemo(() => {
+    const s = 10 / geo.W;
+    const depth = geo.H * s;
+    const wx = (x: number) => x * s - 5;
+    const wz = (y: number) => y * s - depth / 2;
+    const near = points.map((p) => points.filter((q) => Math.hypot((q.lat - p.lat) * 1.6, q.lng - p.lng) < 0.38).length);
+    const cols: Column[] = points.map((p, i) => ({ x: wx(geo.X(p.lng)), z: wz(geo.Y(p.lat)), h: 0.14 + Math.sqrt(near[i]!) * 0.36, group: p.group }));
+    const lines: [number, number, number, number][] = [
+      ...geo.meridians.map((l): [number, number, number, number] => [wx(geo.X(l)), -depth / 2, wx(geo.X(l)), depth / 2]),
+      ...geo.parallels.map((l): [number, number, number, number] => [-5, wz(geo.Y(l)), 5, wz(geo.Y(l))]),
+    ];
+    return { cols, depth, wx, wz, lines };
+  }, [points, geo]);
+  const cols3d = lit ? world.cols.map((c, i) => ({ ...c, lit: lit.has(points[i]!.slug) })) : world.cols;
+  const labels3d = placed.map((l) => ({
+    key: l.slug,
+    name: l.name,
+    n: l.n,
+    x: world.wx(l.cx),
+    z: world.wz(l.cy),
+    h: Math.max(0, ...world.cols.filter((c) => c.group === l.slug).map((c) => c.h)),
+  }));
+  const hoverIndex = hover ? points.indexOf(hover) : null;
+
   return (
     <div className={clsx("grid gap-6", legend && "md:grid-cols-[minmax(0,1fr)_14rem] md:items-start", className)}>
       <div className="relative">
-        <svg viewBox={`-40 -16 ${geo.W + 56} ${geo.H + 40}`} className="block h-auto w-full" role="img" aria-label={label ?? `Map of ${points.length} grammar schools plotted from their official coordinates. Most are in ${groups.slice(0, 3).map((g) => g.name).join(", ")}.`}>
+        <svg viewBox={`-40 -16 ${geo.W + 56} ${geo.H + 40}`} className={clsx("block h-auto w-full", webgl && "invisible")} role="img" aria-label={label ?? `Map of ${points.length} grammar schools plotted from their official coordinates. Most are in ${groups.slice(0, 3).map((g) => g.name).join(", ")}.`}>
           {/* Graticule: real meridians and parallels */}
           {geo.meridians.map((l) => (
             <g key={`m${l}`}>
@@ -175,6 +207,12 @@ export function AtlasMap({
             </g>
           ))}
         </svg>
+        {webgl ? (
+          <>
+            <p className="sr-only">{label ?? `Map of ${points.length} grammar schools plotted from their official coordinates. Most are in ${groups.slice(0, 3).map((g) => g.name).join(", ")}.`}</p>
+            <Atlas3D cols={cols3d} width={10} depth={world.depth} lines={world.lines} labels={labels3d} focus={focus} hover={hoverIndex !== null && hoverIndex >= 0 ? hoverIndex : null} onHover={(i) => setHover(i === null ? null : (points[i] ?? null))} />
+          </>
+        ) : null}
         {hover ? (
           <p className="pointer-events-none absolute top-2 left-2 rounded-[4px] border border-rule bg-card px-2.5 py-1.5 text-small shadow-lift">
             <span className="block font-semibold text-ink">{hover.name}</span>

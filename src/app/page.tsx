@@ -155,7 +155,7 @@ export default async function HomePage() {
             <AtlasMap points={points} groups={groups} legend={false} />
             <figcaption className="mt-3 text-small leading-relaxed text-ink-2">
               <span className="label mr-2 text-copper-ink">Fig. 1</span>
-              Each dot is a school, placed by its official coordinates. No coastline is drawn — the shape is the schools themselves.
+              Each column is a school, placed by its official coordinates; columns rise where more grammar schools sit close together. No coastline is drawn — the shape is the schools themselves.
             </figcaption>
           </figure>
         </Page>
