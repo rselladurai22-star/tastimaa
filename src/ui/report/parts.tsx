@@ -12,13 +12,13 @@ import { ContentsRail } from "./chrome";
 /** Chapter page frame: an "in this chapter" rail beside the report text. */
 export function ReportBody({ contents, children }: { contents: { id: string; label: string }[]; children: ReactNode }) {
   return (
-    <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-x-10 pt-8 pb-12 lg:grid-cols-[12.5rem_minmax(0,1fr)]">
+    <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-x-10 pt-5 pb-10 sm:pt-8 sm:pb-12 lg:grid-cols-[12.5rem_minmax(0,1fr)]">
       <aside className="hidden lg:block" data-no-print>
         <div className="sticky top-[calc(var(--header-h)+4.5rem)]">
           <ContentsRail items={contents} />
         </div>
       </aside>
-      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-12">{children}</div>
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-9 sm:gap-12">{children}</div>
     </div>
   );
 }
@@ -26,7 +26,7 @@ export function ReportBody({ contents, children }: { contents: { id: string; lab
 /** Opening of a chapter: what it covers, and any controls (such as the year). */
 export function ChapterIntro({ kicker, title, lede, aside }: { kicker: string; title: string; lede: ReactNode; aside?: ReactNode }) {
   return (
-    <header className="grid gap-6 border-b border-rule pb-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
+    <header className="grid gap-4 border-b border-rule pb-6 sm:gap-6 sm:pb-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
       <div className="max-w-[44rem]">
         <p className="label text-copper-ink">{kicker}</p>
         <h2 className="mt-2 text-h1">{title}</h2>
@@ -41,19 +41,18 @@ export function ChapterIntro({ kicker, title, lede, aside }: { kicker: string; t
 export function RSection({ id, mark, title, lede, action, children, className }: { id: string; mark?: string; title: ReactNode; lede?: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section aria-labelledby={id} className={clsx("scroll-mt-[calc(var(--header-h)+4rem)]", className)}>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-t border-rule pt-5">
-        <div className="flex max-w-[46rem] min-w-0 gap-4">
-          {mark ? (
-            <span aria-hidden className="mt-1 grid size-7 shrink-0 place-items-center rounded-full bg-green-wash font-mono text-[0.8rem] font-medium text-green">
-              {mark}
-            </span>
-          ) : null}
-          <div className="min-w-0">
-            <h2 id={id} className="text-h3">
-              {title}
-            </h2>
-            {lede ? <p className="mt-1.5 text-[1.02rem] leading-relaxed text-ink-2">{lede}</p> : null}
-          </div>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t border-rule pt-4 sm:mb-6 sm:gap-y-3 sm:pt-5">
+        <div className="max-w-[46rem] min-w-0">
+          <h2 id={id} className="flex items-start gap-3 text-h3 sm:gap-4">
+            {mark ? (
+              <span aria-hidden className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-green-wash font-mono text-[0.8rem] font-medium text-green">
+                {mark}
+              </span>
+            ) : null}
+            <span className="min-w-0">{title}</span>
+          </h2>
+          {/* On phones the lede runs full width; from sm it aligns with the title. */}
+          {lede ? <p className={clsx("mt-1.5 text-[1.02rem] leading-relaxed text-ink-2", mark && "sm:pl-11")}>{lede}</p> : null}
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>

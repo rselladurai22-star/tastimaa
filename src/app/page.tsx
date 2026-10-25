@@ -35,7 +35,7 @@ function Head({ id, kicker, title, lede }: { id: string; kicker: string; title: 
     <div className="grid gap-x-12 gap-y-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-end">
       <div>
         <Kicker>{kicker}</Kicker>
-        <h2 id={id} className="mt-3 max-w-[26ch] text-[clamp(1.9rem,1.5rem+1.4vw,2.5rem)] text-ink">
+        <h2 id={id} className="mt-3 max-w-[26ch] text-[clamp(1.625rem,1.25rem+1.6vw,2.5rem)] text-ink">
           {title}
         </h2>
       </div>
@@ -95,13 +95,13 @@ export default async function HomePage() {
           <span aria-hidden className="hidden h-px w-10 bg-rule-strong sm:block" />
           <span>Independent · source-led</span>
         </p>
-        <div className="mt-8 grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
+        <div className="mt-5 grid gap-x-12 gap-y-6 sm:mt-8 sm:gap-y-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
           <div className="anim-rise max-w-[40rem]">
             <h1 id="hero-title" className="text-[clamp(2.125rem,1.5rem+2.6vw,3.25rem)] leading-[1.04] font-semibold tracking-[-0.03em] text-ink">
               A clearer way to <em className="text-green">choose</em> a grammar school.
             </h1>
-            <p className="mt-6 max-w-[36rem] text-[1.1875rem] leading-[1.55] text-ink-2">Explore schools, understand the rules, compare your options and plan the next step — all in one research workspace.</p>
-            <p className="mt-7 flex flex-wrap gap-x-7 gap-y-3 text-[1rem]">
+            <p className="mt-4 max-w-[36rem] text-[1.0625rem] leading-[1.55] text-ink-2 sm:mt-6 sm:text-[1.1875rem]">Explore schools, understand the rules, compare your options and plan the next step — all in one research workspace.</p>
+            <p className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-[1rem] sm:mt-7 sm:gap-x-7">
               <Link href="/compare" className={`${TEXT_LINK} border-rule-strong text-ink hover:border-ink`}>
                 Compare schools <Out />
               </Link>
@@ -110,17 +110,17 @@ export default async function HomePage() {
               </Link>
             </p>
           </div>
-          <div className="border-l-2 border-green-bright pl-6">
+          <div className="border-l-2 border-green-bright pl-4 sm:pl-6">
             <p className="text-[0.75rem] font-bold tracking-[0.12em] text-green uppercase">The atlas / coverage</p>
-            <dl className="mt-3">
+            <dl className="mt-2 grid grid-cols-3 gap-3 sm:mt-3 lg:block">
               {[
                 [stats.listed, "schools in the directory"],
                 [stats.england, "fully selective in England"],
                 [stats.ni, "schools in Northern Ireland"],
               ].map(([v, l]) => (
-                <div key={l as string} className="flex items-baseline gap-3 border-b border-rule py-2.5">
-                  <dd className="w-14 font-display text-[1.75rem] leading-none text-ink num">{v}</dd>
-                  <dt className="text-[0.9375rem] text-ink-2">{l}</dt>
+                <div key={l as string} className="flex flex-col-reverse border-rule lg:flex-row-reverse lg:items-baseline lg:justify-end lg:gap-3 lg:border-b lg:py-2.5">
+                  <dd className="font-display text-[1.5rem] leading-none text-ink num lg:w-14 lg:text-[1.75rem]">{v}</dd>
+                  <dt className="mt-1 text-[0.8125rem] leading-snug text-ink-2 lg:mt-0 lg:text-[0.9375rem]">{l}</dt>
                 </div>
               ))}
             </dl>
@@ -136,7 +136,7 @@ export default async function HomePage() {
       <section aria-label="Find a school" className="relative z-[2] -mt-8 sm:-mt-9">
         <Page>
           <HomeFinder />
-          <nav aria-label="Explore by region" className="mt-6 flex flex-wrap items-center gap-2">
+          <nav aria-label="Explore by region" className="mt-4 flex sm:mt-6 flex-wrap items-center gap-2">
             <span className="mr-3 text-[0.75rem] font-bold tracking-[0.12em] text-ink-2 uppercase">Explore by region</span>
             {councils.map((c) => (
               <Link key={c.slug} href={`/grammar-schools/${c.slug}`} className="inline-flex min-h-9 items-center rounded-[6px] bg-card px-3 text-[0.9375rem] font-medium text-ink no-underline shadow-[0_0_0_1px_var(--rule-strong)] transition-colors hover:text-green hover:shadow-[0_0_0_1px_var(--green)]">
@@ -154,22 +154,22 @@ export default async function HomePage() {
       </section>
 
       {/* 3 — The four jobs, as one connected grid */}
-      <section aria-labelledby="tasks" className="mt-16 border-t border-rule pt-14 sm:mt-20">
+      <section aria-labelledby="tasks" className="mt-10 border-t border-rule pt-9 sm:mt-20 sm:pt-14">
         <Page>
           <Head id="tasks" kicker="Your research, organised" title="Everything you need to make sense of your choices." lede="Start with a school, an admissions question or a postcode. Move from finding options to making an informed decision." />
-          <ul className="mt-9 grid overflow-hidden rounded-[16px] border border-rule sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-6 grid overflow-hidden sm:mt-9 rounded-[16px] border border-rule sm:grid-cols-2 lg:grid-cols-4">
             {tasks.map((t, i) => (
               <li key={t.n} className={`border-rule ${i > 0 ? "border-t sm:border-t-0" : ""} ${i % 2 === 1 ? "sm:border-l" : ""} ${i >= 2 ? "sm:border-t lg:border-t-0" : ""} ${i > 0 ? "lg:border-l" : ""}`}>
-                <Link href={t.href} className="group/t flex h-full flex-col bg-card p-6 no-underline transition-colors hover:bg-sage/70">
-                  <span className="flex items-center justify-between text-[0.75rem] font-bold tracking-[0.1em] text-ink-2 uppercase">
+                <Link href={t.href} className="group/t grid h-full grid-cols-[2.75rem_minmax(0,1fr)] gap-x-4 bg-card p-4 no-underline transition-colors hover:bg-sage/70 sm:flex sm:flex-col sm:p-6">
+                  <span className="col-start-2 flex items-center justify-between text-[0.75rem] font-bold tracking-[0.1em] text-ink-2 uppercase">
                     {t.n} / {t.tag}
                     <Out className="text-ink transition-transform group-hover/t:translate-x-0.5 group-hover/t:-translate-y-0.5 group-hover/t:text-green" />
                   </span>
-                  <span className="mt-6 grid size-11 place-items-center rounded-[6px] bg-sage shadow-[0_0_0_1px_var(--rule)] [&_svg]:size-7">
+                  <span className="col-start-1 row-span-3 row-start-1 grid size-11 place-items-center rounded-[6px] sm:mt-6 bg-sage shadow-[0_0_0_1px_var(--rule)] [&_svg]:size-7">
                     <t.Glyph />
                   </span>
-                  <span className="mt-6 font-display text-[1.375rem] leading-snug text-ink group-hover/t:text-green">{t.title}</span>
-                  <span className="mt-2 text-[0.9375rem] leading-relaxed text-ink-2">{t.text}</span>
+                  <span className="col-start-2 mt-1 font-display text-[1.1875rem] leading-snug text-ink group-hover/t:text-green sm:mt-6 sm:text-[1.375rem]">{t.title}</span>
+                  <span className="col-start-2 mt-1 text-[0.9375rem] leading-relaxed text-ink-2 sm:mt-2">{t.text}</span>
                 </Link>
               </li>
             ))}
@@ -179,20 +179,20 @@ export default async function HomePage() {
 
       {/* 4 — What a record holds, with real schools */}
       {featured.length ? (
-        <section aria-labelledby="records" className="mt-16 bg-sage py-14 sm:mt-20 sm:py-16">
-          <Page className="grid gap-x-12 gap-y-9 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:items-start">
+        <section aria-labelledby="records" className="mt-10 bg-sage py-9 sm:mt-20 sm:py-16">
+          <Page className="grid gap-x-12 gap-y-6 sm:gap-y-9 lg:grid-cols-[minmax(0,21rem)_minmax(0,1fr)] lg:items-start">
             <div>
               <Kicker>A research tool, not just a directory</Kicker>
-              <h2 id="records" className="mt-3 text-[clamp(1.9rem,1.5rem+1.4vw,2.5rem)] text-ink">
+              <h2 id="records" className="mt-3 text-[clamp(1.625rem,1.25rem+1.6vw,2.5rem)] text-ink">
                 Go beyond the school name.
               </h2>
-              <p className="mt-4 text-[1.0625rem] leading-relaxed text-ink-2">Each school has its own entrance test, admissions policy and evidence. Explore the original records and see how those details fit together.</p>
-              <p className="mt-7">
+              <p className="mt-3 text-[1.0625rem] leading-relaxed text-ink-2 sm:mt-4">Each school has its own entrance test, admissions policy and evidence. Explore the original records and see how those details fit together.</p>
+              <p className="mt-5 sm:mt-7">
                 <Link href="/grammar-schools" className={`${TEXT_LINK} border-ink text-ink hover:border-green hover:text-green`}>
                   Browse every school <Out />
                 </Link>
               </p>
-              <p className="mt-8 flex gap-3 border-t border-rule-strong pt-5 text-[0.9375rem] leading-relaxed text-ink-2">
+              <p className="mt-5 flex gap-3 border-t border-rule-strong pt-4 sm:mt-8 sm:pt-5 text-[0.9375rem] leading-relaxed text-ink-2">
                 <IconInfo size={18} className="mt-0.5 shrink-0 text-copper-ink" />A qualifying 11+ result is not a guaranteed place. Oversubscription rules decide the order if more eligible children apply than places exist.
               </p>
             </div>
@@ -203,7 +203,7 @@ export default async function HomePage() {
               <ul>
                 {featured.map((f, i) => (
                   <li key={f.slug} className="border-b border-rule last:border-b-0">
-                    <Link href={`/schools/${f.slug}`} className="group/r grid grid-cols-[2rem_minmax(0,1fr)_1rem] items-start gap-x-4 gap-y-2 px-5 py-5 no-underline hover:bg-sage/60 sm:grid-cols-[2rem_minmax(0,1.3fr)_minmax(0,1fr)_1rem]">
+                    <Link href={`/schools/${f.slug}`} className="group/r grid grid-cols-[2rem_minmax(0,1fr)_1rem] items-start gap-x-3 gap-y-1.5 px-4 py-4 no-underline sm:gap-x-4 sm:gap-y-2 sm:px-5 sm:py-5 hover:bg-sage/60 sm:grid-cols-[2rem_minmax(0,1.3fr)_minmax(0,1fr)_1rem]">
                       <span className="pt-1 font-mono text-[0.8125rem] font-semibold text-copper-ink">{String(i + 1).padStart(2, "0")}</span>
                       <span className="min-w-0">
                         <span className="block text-[1.0625rem] font-semibold text-ink group-hover/r:text-green">{f.name}</span>
@@ -230,10 +230,10 @@ export default async function HomePage() {
       ) : null}
 
       {/* 5 — From a test result to an offer */}
-      <section id="how-admission-works" aria-labelledby="process" className="pt-14 sm:pt-16">
+      <section id="how-admission-works" aria-labelledby="process" className="pt-9 sm:pt-16">
         <Page>
           <Head id="process" kicker="Understand the process" title="From a test result to an offer." lede="Grammar-school admission has several distinct decisions. Understand each step before comparing schools." />
-          <ol className="mt-9 grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-stretch lg:gap-3">
+          <ol className="mt-6 grid gap-3 sm:mt-9 sm:gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1fr] lg:items-stretch lg:gap-3">
             {steps.flatMap((s, i) => [
               ...(i > 0
                 ? [
@@ -242,11 +242,11 @@ export default async function HomePage() {
                     </li>,
                   ]
                 : []),
-              <li key={s.n} className="flex flex-col rounded-[16px] border border-rule bg-card p-6">
+              <li key={s.n} className="flex flex-col rounded-[16px] border border-rule bg-card p-5 sm:p-6">
                 <p className="font-mono text-[0.8125rem] font-semibold text-copper-ink">{s.n}</p>
-                <h3 className="mt-3 font-display text-[1.375rem] text-ink">{s.title}</h3>
+                <h3 className="mt-2 font-display text-[1.1875rem] text-ink sm:mt-3 sm:text-[1.375rem]">{s.title}</h3>
                 <p className="mt-2 flex-1 text-[0.9375rem] leading-relaxed text-ink-2">{s.text}</p>
-                <Link href={s.href} className="mt-5 inline-flex items-center gap-1.5 text-[0.9375rem] font-semibold text-ink no-underline hover:text-green">
+                <Link href={s.href} className="mt-3 inline-flex sm:mt-5 items-center gap-1.5 text-[0.9375rem] font-semibold text-ink no-underline hover:text-green">
                   {s.link} <Out />
                 </Link>
               </li>,
@@ -256,15 +256,15 @@ export default async function HomePage() {
       </section>
 
       {/* 6 — Keep moving forward: dates, on navy */}
-      <section aria-labelledby="dates" className="mt-16 bg-[radial-gradient(70%_120%_at_10%_100%,#fbddd5_0%,#fce4ec_35%,#fcfcfa_75%)] py-14 sm:mt-20">
+      <section aria-labelledby="dates" className="mt-10 bg-[radial-gradient(70%_120%_at_10%_100%,#fbddd5_0%,#fce4ec_35%,#fcfcfa_75%)] py-9 sm:mt-20 sm:py-14">
         <Page className="grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center">
           <div>
             <p className="label eyebrow">Keep moving forward</p>
-            <h2 id="dates" className="mt-3 text-[clamp(1.9rem,1.5rem+1.4vw,2.5rem)] text-ink">
+            <h2 id="dates" className="mt-3 text-[clamp(1.625rem,1.25rem+1.6vw,2.5rem)] text-ink">
               A plan that&apos;s easier to follow.
             </h2>
-            <p className="mt-4 max-w-[30rem] text-[1.0625rem] leading-relaxed text-ink-2">Important dates, admissions policies and school research — connected instead of scattered across bookmarks.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <p className="mt-3 max-w-[30rem] text-[1.0625rem] sm:mt-4 leading-relaxed text-ink-2">Important dates, admissions policies and school research — connected instead of scattered across bookmarks.</p>
+            <div className="mt-5 flex flex-wrap gap-3 sm:mt-8">
               <Link href="/calendar" className="inline-flex min-h-12 items-center gap-2 rounded-[8px] bg-green px-6 font-medium text-white no-underline hover:bg-green-deep">
                 Explore admissions dates <Out />
               </Link>
@@ -285,8 +285,8 @@ export default async function HomePage() {
                 {events.map((e) => {
                   const d = new Date(`${e.starts_on}T12:00:00Z`);
                   return (
-                    <li key={e.id} className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-4 border-b border-rule px-5 py-4 last:border-b-0">
-                      <p>
+                    <li key={e.id} className="grid gap-1 border-b border-rule px-4 py-3 last:border-b-0 sm:grid-cols-[6.5rem_minmax(0,1fr)] sm:gap-4 sm:px-5 sm:py-4">
+                      <p className="flex items-baseline gap-2 sm:block">
                         <span className="block font-semibold text-ink">{d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Europe/London" })}</span>
                         <span className="block text-[0.6875rem] font-bold tracking-[0.1em] text-ink-2 uppercase">{d.toLocaleDateString("en-GB", { weekday: "long", timeZone: "Europe/London" })}</span>
                       </p>
@@ -309,8 +309,8 @@ export default async function HomePage() {
       </section>
 
       {/* 7 — Our promise */}
-      <section aria-labelledby="promise" className="border-b border-rule py-9">
-        <Page className="grid gap-6 md:grid-cols-[9rem_minmax(0,1fr)_auto] md:items-center">
+      <section aria-labelledby="promise" className="border-b border-rule py-7 sm:py-9">
+        <Page className="grid gap-3 md:grid-cols-[9rem_minmax(0,1fr)_auto] md:items-center md:gap-6">
           <h2 id="promise" className="font-sans text-[0.75rem] font-bold tracking-[0.12em] text-ink uppercase">
             Our promise
           </h2>

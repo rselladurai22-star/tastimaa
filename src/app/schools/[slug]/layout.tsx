@@ -50,9 +50,9 @@ export default async function SchoolLayout({ children, params }: { children: Rea
 
   return (
     <>
-      <Hero className="pb-14 sm:pb-16">
+      <Hero className="pb-9 sm:pb-16">
         <Breadcrumbs items={[{ href: "/grammar-schools", label: "Grammar schools" }, ...(areaCrumb ? [areaCrumb] : []), { href: `/schools/${slug}`, label: school.name }]} />
-        <div className="mt-8 grid gap-x-12 gap-y-8 sm:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
+        <div className="mt-5 grid gap-x-12 gap-y-6 sm:mt-8 sm:gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
           <div className="anim-rise min-w-0">
             <p className="label eyebrow">
               School report
@@ -60,11 +60,11 @@ export default async function SchoolLayout({ children, params }: { children: Rea
               {deni ? <span className="text-ink-3"> · DENI {deni}</span> : null}
             </p>
             <h1 className="mt-3 max-w-[24ch] text-[clamp(1.875rem,1.45rem+1.8vw,2.5rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{school.name}</h1>
-            <p className="mt-4 flex items-start gap-2 text-[1.0625rem] text-ink-2">
+            <p className="mt-3 flex items-start gap-2 text-[1rem] text-ink-2 sm:mt-4 sm:text-[1.0625rem]">
               <IconPin size={18} className="mt-1 shrink-0 text-copper" />
               {place}
             </p>
-            <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:mt-4">
               <Tag tone="green">{SELECTIVITY_LABEL[school.selectivity]}</Tag>
               {school.gender !== "unknown" ? <Tag>{GENDER_LABEL[school.gender]}</Tag> : null}
               {school.hasSixthForm ? <Tag>Sixth form</Tag> : school.hasSixthForm === false ? <Tag>11–16</Tag> : null}
@@ -77,7 +77,7 @@ export default async function SchoolLayout({ children, params }: { children: Rea
               {school.selectivity === "partially_selective" ? <Status status={school.verificationStatus} /> : null}
               {!school.isOpen ? <Tag tone="bad">{school.status}</Tag> : null}
             </div>
-            <div className="mt-6 flex flex-wrap items-center gap-2" data-no-print>
+            <div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6" data-no-print>
               <SaveButton slug={slug} name={school.name} />
               <Link href={`/compare?schools=${slug}`} className="inline-flex min-h-11 items-center gap-2 rounded-[8px] border border-control bg-card px-3.5 text-[0.95rem] font-semibold text-ink no-underline hover:border-ink">
                 <IconCompare size={17} /> Compare
@@ -88,7 +88,10 @@ export default async function SchoolLayout({ children, params }: { children: Rea
                   <span className="sr-only">(opens in a new tab)</span>
                 </a>
               ) : null}
-              <PrintButton />
+              {/* Printing from a phone is rare; keep the row to the actions people use there. */}
+              <span className="hidden sm:contents">
+                <PrintButton />
+              </span>
             </div>
           </div>
           <HeroFigures items={figures} footer={<>Record checked {relativeAge(school.lastCheckedAt)} against {school.nation === "england" ? "Get Information about Schools (DfE)" : "the Department of Education (NI) census"}.</>} />

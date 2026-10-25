@@ -12,17 +12,17 @@ const COLUMNS: [string, [string, string][]][] = [
 
 export function SiteFooter() {
   return (
-    <footer data-site-footer className="on-dark mt-16 bg-[#1f1f1f]">
-      <div className="container-page grid gap-9 pt-10 pb-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+    <footer data-site-footer className="on-dark mt-10 bg-[#1f1f1f] sm:mt-16">
+      <div className="container-page grid gap-7 pt-8 pb-6 sm:gap-9 sm:pt-10 sm:pb-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <div>
           <AtlasMark size={40} />
-          <p className="mt-5 font-display text-[1.6rem] leading-[1.2] text-ink">Every fact here carries its source. If one is wrong, we want to know.</p>
+          <p className="mt-4 font-display text-[1.3rem] leading-[1.25] text-ink sm:mt-5 sm:text-[1.6rem]">Every fact here carries its source. If one is wrong, we want to know.</p>
           <div className="mt-5 flex flex-col items-start gap-2">
             <ArrowLink href="/corrections">Report a correction</ArrowLink>
             <ArrowLink href="/methodology">How we verify information</ArrowLink>
           </div>
         </div>
-        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 xl:grid-cols-5">
+        <nav aria-label="Footer" className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-3 sm:gap-y-8 xl:grid-cols-5">
           {COLUMNS.map(([title, links]) => (
             <div key={title}>
               <p className="label mb-3">{title}</p>

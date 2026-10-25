@@ -44,8 +44,8 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
   return (
     <ol className="border-t border-ink">
       {items.map((s, i) => (
-        <li key={s.id} className="group/row relative grid grid-cols-[2.25rem_minmax(0,1fr)_auto] gap-x-3 gap-y-2 border-b border-rule py-4 transition-colors duration-[var(--d-1)] hover:bg-card/70 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] lg:grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_8rem_auto] lg:items-start">
-          <span className="pt-1 font-mono text-[0.82rem] text-ink-2">{String(offset + i + 1).padStart(2, "0")}</span>
+        <li key={s.id} className="group/row relative grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 border-b border-rule py-4 transition-colors duration-[var(--d-1)] hover:bg-card/70 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] lg:grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_8rem_auto] lg:items-start">
+          <span className="hidden pt-1 font-mono text-[0.82rem] text-ink-2 sm:block">{String(offset + i + 1).padStart(2, "0")}</span>
           <div className="min-w-0">
             <h3 className="text-[1.15rem] leading-snug">
               <Link href={`/schools/${s.slug}`} className="text-ink no-underline after:absolute after:inset-0 group-hover/row:text-green hover:underline">
@@ -58,13 +58,11 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
               {s.gender !== "unknown" ? <Tag>{GENDER_LABEL[s.gender]}</Tag> : null}
               {s.hasSixthForm ? <Tag>Sixth form</Tag> : null}
               {s.boarding === "boarding" ? <Tag>Boarding</Tag> : null}
-              <span className="ml-1 inline-flex flex-wrap items-center gap-2 text-small text-ink-2">
-                {s.policyStatus === "awaiting_verification" ? <Status status="awaiting_verification" quiet /> : null}
-                Checked {relativeAge(s.lastCheckedAt)}
-              </span>
+              {s.policyStatus === "awaiting_verification" ? <Status status="awaiting_verification" quiet /> : null}
+              <span className="ml-1 hidden text-small text-ink-2 sm:inline">Checked {relativeAge(s.lastCheckedAt)}</span>
             </div>
           </div>
-          <div className="relative z-10 col-start-3 row-start-1 flex flex-col items-end gap-2 lg:col-start-5">
+          <div className="relative z-10 col-start-2 row-start-1 flex sm:col-start-3 flex-col items-end gap-2 lg:col-start-5">
             {s.distanceMiles !== null ? (
               <p className="text-right" title={precision === "postcode_district" ? "Straight-line distance from the centre of the postcode district" : "Straight-line distance from your postcode's centre point"}>
                 <span className="block font-mono text-[1rem] text-ink">{formatMiles(s.distanceMiles)}</span>
@@ -73,7 +71,7 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
             ) : null}
             <SaveButton slug={s.slug} name={s.name} variant="icon" />
           </div>
-          <dl className="col-span-2 col-start-2 grid grid-cols-2 gap-x-5 gap-y-1.5 text-[0.95rem] lg:col-span-1 lg:col-start-3 lg:row-start-1 lg:grid-cols-1">
+          <dl className="col-span-2 col-start-1 grid sm:col-start-2 grid-cols-2 gap-x-5 gap-y-1.5 text-[0.95rem] lg:col-span-1 lg:col-start-3 lg:row-start-1 lg:grid-cols-1">
             <div>
               <dt className="label text-[0.72rem]">Entrance test</dt>
               <dd className="text-ink">{s.testNames?.length ? s.testNames.join(", ") : <span className="text-ink-2">Not yet recorded</span>}</dd>
@@ -83,7 +81,7 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
               <dd className="text-ink">{s.catchmentType ? CATCHMENT_LABEL[s.catchmentType] : <span className="text-ink-2">Not yet recorded</span>}</dd>
             </div>
           </dl>
-          <div className="col-span-2 col-start-2 grid grid-cols-2 gap-x-5 lg:col-span-1 lg:col-start-4 lg:row-start-1 lg:grid-cols-1 lg:gap-y-2">
+          <div className="col-span-2 col-start-1 grid grid-cols-2 sm:col-start-2 gap-x-5 lg:col-span-1 lg:col-start-4 lg:row-start-1 lg:grid-cols-1 lg:gap-y-2">
             <div>
               <p className="label text-[0.72rem]">Attainment 8</p>
               <A8Bar value={s.attainment8} year={s.attainment8Year} bench={bench} />

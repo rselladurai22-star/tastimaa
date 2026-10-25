@@ -113,14 +113,14 @@ function FlipCard({ d, i }: { d: Domain; i: number }) {
     <li className="[perspective:1200px]">
       <div className={clsx("grid h-full transition-transform duration-[700ms] ease-[var(--ease-out)] [transform-style:preserve-3d]", flipped && "[transform:rotateY(180deg)]")}>
         {/* Front */}
-        <div inert={flipped} className="relative flex flex-col overflow-hidden rounded-[16px] bg-card p-5 shadow-[0_1px_1px_rgb(44_11_142/0.05),0_8px_16px_-6px_rgb(44_11_142/0.12),0_24px_48px_-20px_rgb(44_11_142/0.25)] [backface-visibility:hidden] [grid-area:1/1]">
+        <div inert={flipped} className="relative flex flex-col overflow-hidden rounded-[16px] bg-card p-4 sm:p-5 shadow-[0_1px_1px_rgb(44_11_142/0.05),0_8px_16px_-6px_rgb(44_11_142/0.12),0_24px_48px_-20px_rgb(44_11_142/0.25)] [backface-visibility:hidden] [grid-area:1/1]">
           <span aria-hidden className="absolute -top-10 -right-10 size-32 rounded-full opacity-[0.12] blur-xl" style={{ background: tint }} />
-          <div className="grid h-28 place-items-center rounded-[12px]" style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${tint} 10%, #fff), color-mix(in srgb, ${tint} 22%, #fff))` }}>
+          <div className="grid h-20 place-items-center rounded-[12px] sm:h-28" style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${tint} 10%, #fff), color-mix(in srgb, ${tint} 22%, #fff))` }}>
             <d.Art />
           </div>
-          <p className="mt-4 text-[1.25rem] font-semibold text-ink">{d.name}</p>
+          <p className="mt-3 text-[1.1875rem] font-semibold text-ink sm:mt-4 sm:text-[1.25rem]">{d.name}</p>
           <p className="mt-1.5 flex-1 text-[1rem] leading-relaxed text-ink-2">{d.what}</p>
-          <button type="button" onClick={() => setFlipped(true)} className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full text-[0.95rem] font-semibold text-white shadow-[0_6px_14px_-6px_currentColor] transition-transform hover:scale-[1.02]" style={{ background: tint }}>
+          <button type="button" onClick={() => setFlipped(true)} className="mt-3 inline-flex sm:mt-4 min-h-10 items-center justify-center gap-2 rounded-full text-[0.95rem] font-semibold text-white shadow-[0_6px_14px_-6px_currentColor] transition-transform hover:scale-[1.02]" style={{ background: tint }}>
             Try a question
             <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
               <path d="M3 8a5 5 0 0 1 9-3M13 8a5 5 0 0 1-9 3M12 2v3H9M4 14v-3h3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
