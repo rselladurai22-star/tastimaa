@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 
 test("homepage leads with search and real coverage figures", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Find a grammar school, and understand exactly how it chooses/);
-  await expect(page.getByText("Grammar schools, England")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Find a grammar school\.\s*See how it chooses\./);
+  await expect(page.getByText("grammar schools in England")).toBeVisible();
   await expect(page.locator("link[rel=canonical]")).toHaveAttribute("href", /^https?:\/\/[^/]+\/?$/);
   const ld = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(ld.some((t) => t.includes('"WebSite"'))).toBe(true);

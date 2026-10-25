@@ -104,78 +104,85 @@ const DOMAINS: Domain[] = [
   },
 ];
 
-export function TestStructure({ tests }: { tests: { slug: string; name: string; components: { subject: string; detail?: string | null }[] }[] }) {
-  const [sel, setSel] = useState(DOMAINS[0]!.key);
-  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
-  const d = DOMAINS.find((x) => x.key === sel)!;
+/** One subject as a card that turns over to an example question. */
+function FlipCard({ d, i }: { d: Domain; i: number }) {
+  const [flipped, setFlipped] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const tint = ["#4242fa", "#e60067", "#7a3cff", "#00777f"][i % 4]!;
   return (
-    <div className="playground overflow-hidden">
-      <div role="tablist" aria-label="What 11+ tests can include" className="grid grid-cols-2 border-b border-rule sm:grid-cols-4">
-        {DOMAINS.map((x) => (
-          <button
-            key={x.key}
-            type="button"
-            role="tab"
-            id={`ts-tab-${x.key}`}
-            aria-selected={x.key === sel}
-            aria-controls="ts-panel"
-            onClick={() => setSel(x.key)}
-            className={clsx(
-              "flex min-h-24 flex-col items-center justify-center gap-1 border-rule px-2 py-3 text-[0.95rem] font-semibold transition-colors duration-[var(--d-1)] odd:border-r sm:border-r sm:last:border-r-0",
-              x.key === sel ? "bg-paper text-ink shadow-[inset_0_-2px_0_var(--copper)]" : "text-ink-2 hover:bg-paper hover:text-ink",
-            )}
-          >
-            <span className="scale-75">
-              <x.Art />
-            </span>
-            {x.name}
+    <li className="[perspective:1200px]">
+      <div className={clsx("grid h-full transition-transform duration-[700ms] ease-[var(--ease-out)] [transform-style:preserve-3d]", flipped && "[transform:rotateY(180deg)]")}>
+        {/* Front */}
+        <div inert={flipped} className="relative flex flex-col overflow-hidden rounded-[16px] bg-card p-5 shadow-[0_1px_1px_rgb(44_11_142/0.05),0_8px_16px_-6px_rgb(44_11_142/0.12),0_24px_48px_-20px_rgb(44_11_142/0.25)] [backface-visibility:hidden] [grid-area:1/1]">
+          <span aria-hidden className="absolute -top-10 -right-10 size-32 rounded-full opacity-[0.12] blur-xl" style={{ background: tint }} />
+          <div className="grid h-28 place-items-center rounded-[12px]" style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${tint} 10%, #fff), color-mix(in srgb, ${tint} 22%, #fff))` }}>
+            <d.Art />
+          </div>
+          <p className="mt-4 text-[1.25rem] font-semibold text-ink">{d.name}</p>
+          <p className="mt-1.5 flex-1 text-[1rem] leading-relaxed text-ink-2">{d.what}</p>
+          <button type="button" onClick={() => setFlipped(true)} className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full text-[0.95rem] font-semibold text-white shadow-[0_6px_14px_-6px_currentColor] transition-transform hover:scale-[1.02]" style={{ background: tint }}>
+            Try a question
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
+              <path d="M3 8a5 5 0 0 1 9-3M13 8a5 5 0 0 1-9 3M12 2v3H9M4 14v-3h3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
-        ))}
-      </div>
-      <div id="ts-panel" role="tabpanel" aria-labelledby={`ts-tab-${sel}`} className="grid gap-6 p-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-        <div key={sel} className="anim-rise">
-          <p className="font-display text-[1.45rem] text-ink [font-variation-settings:'opsz'_36]">{d.name}</p>
-          <p className="mt-2 text-[1.05rem] leading-relaxed text-ink-2">{d.what}</p>
-          <div className="mt-5 rounded-[6px] border border-dashed border-rule-strong bg-paper p-4">
-            <p className="label mb-2">Example question · written for this site</p>
-            <p className="text-[1.05rem] text-ink">{d.example.q}</p>
-            {d.example.options ? (
-              <ul className="mt-2 flex flex-wrap gap-1.5">
-                {d.example.options.map((o) => (
-                  <li key={o} className={clsx("rounded-[3px] border px-2.5 py-1 text-[0.95rem]", revealed[sel] && o === d.example.answer ? "border-green bg-green-wash font-semibold text-green" : "border-rule-strong bg-card text-ink")}>
-                    {o}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-            <button type="button" onClick={() => setRevealed((r) => ({ ...r, [sel]: !r[sel] }))} aria-expanded={!!revealed[sel]} className="mt-3 inline-flex min-h-10 items-center rounded-[4px] border border-control bg-card px-3 text-[0.95rem] font-semibold text-ink hover:border-ink">
-              {revealed[sel] ? "Hide the answer" : "Show the answer"}
-            </button>
-            {revealed[sel] ? (
-              <p className="anim-rise mt-3 text-[1rem] text-ink" aria-live="polite">
-                <strong>{d.example.answer}.</strong> <span className="text-ink-2">{d.example.why}</span>
+        </div>
+        {/* Back */}
+        <div inert={!flipped} className="flex flex-col rounded-[16px] p-5 text-white shadow-[0_24px_48px_-20px_rgb(44_11_142/0.45)] [backface-visibility:hidden] [grid-area:1/1] [transform:rotateY(180deg)]" style={{ background: `linear-gradient(160deg, ${tint}, color-mix(in srgb, ${tint} 55%, #0a0c10))` }}>
+          <p className="text-[0.8125rem] font-bold tracking-[0.08em] uppercase opacity-85">{d.name} · example</p>
+          <p className="mt-3 text-[1.0625rem] leading-snug font-medium">{d.example.q}</p>
+          {d.example.options ? (
+            <ul className="mt-3 flex flex-wrap gap-1.5">
+              {d.example.options.map((o) => (
+                <li key={o} className={clsx("rounded-full px-3 py-1 text-[0.9375rem]", revealed && o === d.example.answer ? "bg-white font-semibold text-ink" : "bg-white/15")}>
+                  {o}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <div className="flex-1" aria-live="polite">
+            {revealed ? (
+              <p className="anim-rise mt-3 text-[0.98rem] leading-snug">
+                <strong>{d.example.answer}.</strong> <span className="opacity-85">{d.example.why}</span>
               </p>
             ) : null}
           </div>
+          <div className="mt-4 flex gap-2">
+            <button type="button" onClick={() => setRevealed((v) => !v)} aria-expanded={revealed} className="inline-flex min-h-10 flex-1 items-center justify-center rounded-full bg-white px-3 text-[0.95rem] font-semibold text-ink">
+              {revealed ? "Hide answer" : "Show answer"}
+            </button>
+            <button type="button" onClick={() => setFlipped(false)} className="inline-flex min-h-10 items-center rounded-full bg-white/15 px-3 text-[0.95rem] font-semibold hover:bg-white/25">
+              Back
+            </button>
+          </div>
         </div>
-        <div>
-          <p className="label mb-3">What the tests we hold say they cover</p>
-          <ul className="grid gap-4">
-            {tests.map((t) => (
-              <li key={t.slug} className="border-l-2 border-rule pl-3">
-                <Link href={`/11-plus/${t.slug}`} className="font-semibold text-ink underline decoration-green/40 underline-offset-4 hover:text-green">
-                  {t.name}
-                </Link>
-                {t.components.length ? (
-                  <p className="mt-1 text-[0.95rem] leading-snug text-ink-2">{t.components.map((c) => c.subject).join(" · ")}</p>
-                ) : (
-                  <p className="mt-1 text-[0.95rem] text-ink-2">Not yet verified.</p>
-                )}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-small text-ink-2">As published by each test administrator. Which subjects appear, and in what format, differs by test.</p>
-        </div>
+      </div>
+    </li>
+  );
+}
+
+export function TestStructure({ tests }: { tests: { slug: string; name: string; components: { subject: string; detail?: string | null }[] }[] }) {
+  return (
+    <div>
+      <ul className="grid gap-5 sm:grid-cols-2" aria-label="What 11+ tests can include">
+        {DOMAINS.map((d, i) => (
+          <FlipCard key={d.key} d={d} i={i} />
+        ))}
+      </ul>
+      <p className="mt-3 text-small text-ink-2">Example questions are written for this site to show the type — they are not past papers.</p>
+      <div className="mt-8 rounded-[12px] border border-rule bg-card p-5">
+        <p className="label mb-3">What the tests we hold say they cover</p>
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {tests.map((t) => (
+            <li key={t.slug} className="border-l-2 border-green pl-3">
+              <Link href={`/11-plus/${t.slug}`} className="font-semibold text-ink underline decoration-green/40 underline-offset-4 hover:text-green">
+                {t.name}
+              </Link>
+              {t.components.length ? <p className="mt-1 text-[0.95rem] leading-snug text-ink-2">{t.components.map((c) => c.subject).join(" · ")}</p> : <p className="mt-1 text-[0.95rem] text-ink-2">Not yet verified.</p>}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-small text-ink-2">As published by each test administrator. Which subjects appear, and in what format, differs by test.</p>
       </div>
     </div>
   );
@@ -207,7 +214,7 @@ export function ApplicationJourney({ events, entryYear }: { events: JourneyEvent
   return (
     <div className="playground overflow-hidden">
       <div className="relative flex overflow-x-auto border-b border-rule bg-paper [scrollbar-width:thin]" role="tablist" aria-label={`Application journey for September ${entryYear} entry`}>
-        <span aria-hidden className="absolute top-[30px] right-6 left-6 h-px bg-rule-strong" />
+        <span aria-hidden className="absolute top-[26px] right-10 left-10 h-[6px] rounded-full bg-[linear-gradient(90deg,#8f8fff,#ff4d8f_60%,#ffd23f)] shadow-[0_0_14px_-2px_#8f8fff]" />
         {STAGES.map((s, i) => {
           const has = events.some((e) => s.types.includes(e.type));
           return (
@@ -227,13 +234,13 @@ export function ApplicationJourney({ events, entryYear }: { events: JourneyEvent
                 setSel(next.key);
                 document.getElementById(`aj-tab-${next.key}`)?.focus();
               }}
-              className="group/aj relative flex min-w-[8.5rem] flex-1 flex-col items-center gap-2 px-2 pt-[22px] pb-4 text-center"
+              className={clsx("group/aj relative flex min-w-[8.5rem] flex-1 flex-col items-center gap-2 px-2 pt-[19px] pb-4 text-center transition-colors", s.key === sel && "bg-white/[0.04]")}
             >
               <span
                 aria-hidden
                 className={clsx(
-                  "relative z-10 grid size-4 place-items-center rounded-full border-2 transition-[transform,background-color,border-color] duration-[var(--d-2)] ease-[var(--ease-out)]",
-                  s.key === sel ? "scale-125 border-copper bg-copper" : has ? "border-green bg-green" : "border-green bg-paper group-hover/aj:scale-110",
+                  "relative z-10 grid size-5 place-items-center rounded-full border-[4px] transition-[transform,box-shadow] duration-[var(--d-2)] ease-[var(--ease-out)]",
+                  s.key === sel ? "scale-[1.45] border-white bg-copper shadow-[0_0_0_4px_rgb(255_77_143/0.35),0_0_18px_var(--copper)]" : has ? "border-white bg-[#8f8fff]" : "border-white bg-[#0d0f12] group-hover/aj:scale-110",
                 )}
               />
               <span className="font-mono text-[0.78rem] text-ink-2">

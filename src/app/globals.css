@@ -418,6 +418,24 @@
   animation: atlas-rise 700ms var(--ease-out) both;
 }
 
+/* Knowledge constellation */
+@keyframes km-twinkle {
+  50% {
+    opacity: 0.25;
+  }
+}
+.km-twinkle {
+  animation: km-twinkle 3.2s ease-in-out infinite;
+}
+@keyframes km-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.km-flow {
+  animation: km-flow 0.9s linear infinite;
+}
+
 /* Isometric buildings drop into place; depth-styled bars grow from the axis */
 @keyframes iso-drop {
   from {

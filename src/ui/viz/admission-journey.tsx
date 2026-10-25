@@ -115,25 +115,13 @@ export function AdmissionJourneyDiagram({
     return { x: 282 + inBand * 17, y: 70 + p.band * 50 };
   };
 
-  const fill = (p: Applicant) => {
+  // Each applicant is a marble; its glaze says where it stands.
+  const kind = (p: Applicant): { k: "applicant" | "qualified" | "offered" | "waiting" | "out"; opacity: number } => {
     const q = p.score >= THRESHOLD;
-    if (step === 0)
-      return {
-        fill: "var(--rule-strong)",
-        stroke: "var(--rule-strong)",
-        opacity: 1,
-      };
-    if (!q)
-      return {
-        fill: "var(--card)",
-        stroke: "var(--rule-strong)",
-        opacity: step >= 2 ? 0.55 : 1,
-      };
-    if (step === 3)
-      return (rankOf.get(p.id) ?? 99) < PLACES
-        ? { fill: "var(--copper)", stroke: "var(--copper-ink)", opacity: 1 }
-        : { fill: "var(--card)", stroke: "var(--green-bright)", opacity: 1 };
-    return { fill: "var(--green-bright)", stroke: "var(--green)", opacity: 1 };
+    if (step === 0) return { k: "applicant", opacity: 1 };
+    if (!q) return { k: "out", opacity: step >= 2 ? 0.5 : 0.9 };
+    if (step === 3) return (rankOf.get(p.id) ?? 99) < PLACES ? { k: "offered", opacity: 1 } : { k: "waiting", opacity: 1 };
+    return { k: "qualified", opacity: 1 };
   };
 
   // Where the line of places falls, band by band.
@@ -160,13 +148,34 @@ export function AdmissionJourneyDiagram({
         aria-label={description}
         className="block h-auto w-full"
       >
-        <rect
-          x="0"
-          y="0"
-          width={W}
-          height={H}
-          style={{ fill: "var(--card)" }}
-        />
+        <defs>
+          <radialGradient id="jm-stage" cx="50%" cy="35%" r="75%">
+            <stop offset="0" style={{ stopColor: "#1f2733" }} />
+            <stop offset="1" style={{ stopColor: "#0d0f12" }} />
+          </radialGradient>
+          {(
+            [
+              ["applicant", "#e6e9ef", "#7c8594"],
+              ["qualified", "#c9c9ff", "#4242fa"],
+              ["offered", "#ffb3d1", "#c20058"],
+              ["out", "#5b6372", "#262c35"],
+              ["waiting", "#2b3140", "#151922"],
+            ] as const
+          ).map(([k, hi, lo]) => (
+            <radialGradient key={k} id={`jm-${k}`} cx="35%" cy="30%" r="70%">
+              <stop offset="0" stopColor={hi} />
+              <stop offset="1" stopColor={lo} />
+            </radialGradient>
+          ))}
+          <filter id="jm-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        <rect x="0" y="0" width={W} height={H} fill="url(#jm-stage)" />
         {/* Score axis (step 1) */}
         <g
           className="transition-opacity duration-[var(--d-3)]"
@@ -194,15 +203,8 @@ export function AdmissionJourneyDiagram({
           >
             higher test score
           </text>
-          <line
-            x1={60 + THRESHOLD * 620}
-            y1="44"
-            x2={60 + THRESHOLD * 620}
-            y2="380"
-            strokeWidth="2"
-            strokeDasharray="5 4"
-            style={{ stroke: "var(--copper)" }}
-          />
+          <rect x={60 + THRESHOLD * 620 - 3} y="44" width="6" height="336" rx="3" filter="url(#jm-glow)" style={{ fill: "var(--copper)" }} />
+          <rect x={60 + THRESHOLD * 620 + 3} y="44" width={620 - THRESHOLD * 620} height="336" style={{ fill: "var(--copper)", opacity: 0.06 }} />
           <text
             x={60 + THRESHOLD * 620 + 8}
             y="40"
@@ -218,13 +220,8 @@ export function AdmissionJourneyDiagram({
         >
           {BANDS.map((b, i) => (
             <g key={b}>
-              <line
-                x1="24"
-                x2="696"
-                y1={95 + i * 50}
-                y2={95 + i * 50}
-                style={{ stroke: "var(--chart-grid)" }}
-              />
+              <rect x="270" y={56 + i * 50} width="430" height="28" rx="14" style={{ fill: "#07090c", stroke: "#2a3138" }} />
+              <line x1="284" x2="686" y1={57.5 + i * 50} y2={57.5 + i * 50} style={{ stroke: "#000", opacity: 0.6 }} />
               <text
                 x="24"
                 y={74 + i * 50}
@@ -251,14 +248,7 @@ export function AdmissionJourneyDiagram({
             className="transition-opacity duration-[var(--d-3)]"
             style={{ opacity: step === 3 ? 1 : 0 }}
           >
-            <line
-              x1={282 + cut[cutBand]! * 17 - 8.5}
-              x2={282 + cut[cutBand]! * 17 - 8.5}
-              y1={70 + cutBand * 50 - 18}
-              y2={70 + cutBand * 50 + 18}
-              strokeWidth="2.5"
-              style={{ stroke: "var(--copper)" }}
-            />
+            <rect x={282 + cut[cutBand]! * 17 - 10.5} y={70 + cutBand * 50 - 20} width="4" height="40" rx="2" filter="url(#jm-glow)" style={{ fill: "var(--copper)" }} />
             <text
               x={282 + cut[cutBand]! * 17 - 2}
               y={70 + cutBand * 50 - 24}
@@ -270,22 +260,20 @@ export function AdmissionJourneyDiagram({
         ) : null}
         {people.map((p, i) => {
           const { x, y } = pos(p);
-          const f = fill(p);
+          const f = kind(p);
           return (
-            <circle
+            <g
               key={p.id}
-              r={6.2}
-              cx={0}
-              cy={0}
-              strokeWidth={1.6}
               style={{
-                fill: f.fill,
-                stroke: f.stroke,
                 transform: `translate(${x}px, ${y}px)`,
                 opacity: f.opacity,
-                transition: `transform var(--d-4) var(--ease-spring) ${i * 6}ms, fill var(--d-3) var(--ease-out) ${120 + i * 4}ms, stroke var(--d-3) var(--ease-out), opacity var(--d-3)`,
+                transition: `transform var(--d-4) var(--ease-spring) ${i * 6}ms, opacity var(--d-3)`,
               }}
-            />
+            >
+              <ellipse cx="1.5" cy="6.5" rx="6" ry="2" style={{ fill: "#000", opacity: 0.45 }} />
+              <circle r={f.k === "offered" ? 7.4 : 6.6} fill={`url(#jm-${f.k})`} stroke={f.k === "waiting" ? "#8f8fff" : "none"} strokeWidth={f.k === "waiting" ? 1.6 : 0} filter={f.k === "offered" ? "url(#jm-glow)" : undefined} style={{ transition: "r var(--d-3) var(--ease-out)" }} />
+              <circle cx="-2.2" cy="-2.4" r="1.8" style={{ fill: "#fff", opacity: f.k === "out" || f.k === "waiting" ? 0.25 : 0.7 }} />
+            </g>
           );
         })}
       </svg>
@@ -294,19 +282,19 @@ export function AdmissionJourneyDiagram({
         aria-hidden
       >
         <span className="inline-flex items-center gap-2">
-          <span className="size-3 rounded-full border border-rule-strong bg-rule-strong" />{" "}
+          <span className="size-3.5 rounded-full bg-[radial-gradient(circle_at_35%_30%,#e6e9ef,#7c8594)]" />{" "}
           Applicant
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="size-3 rounded-full border border-green bg-green-bright" />{" "}
+          <span className="size-3.5 rounded-full bg-[radial-gradient(circle_at_35%_30%,#c9c9ff,#4242fa)]" />{" "}
           Qualified
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="size-3 rounded-full border border-copper-ink bg-copper" />{" "}
+          <span className="size-3.5 rounded-full bg-[radial-gradient(circle_at_35%_30%,#ffb3d1,#c20058)] shadow-[0_0_8px_#ff4d8f]" />{" "}
           Offered a place
         </span>
         <span className="inline-flex items-center gap-2">
-          <span className="size-3 rounded-full border-[1.6px] border-green-bright bg-card" />{" "}
+          <span className="size-3.5 rounded-full border-[1.6px] border-[#8f8fff] bg-[radial-gradient(circle_at_35%_30%,#2b3140,#151922)]" />{" "}
           Qualified, no offer here
         </span>
       </div>
@@ -314,9 +302,40 @@ export function AdmissionJourneyDiagram({
   );
 }
 
+/** Runs the machine: advances one step at a time, then stops on the last. */
+function usePlay(setStep: (f: (s: number) => number) => void) {
+  const [playing, setPlaying] = useState(false);
+  useEffect(() => {
+    if (!playing) return;
+    const t = setInterval(() => {
+      setStep((s) => {
+        if (s >= STEPS.length - 1) {
+          setPlaying(false);
+          return s;
+        }
+        return s + 1;
+      });
+    }, 2400);
+    return () => clearInterval(t);
+  }, [playing, setStep]);
+  return [playing, setPlaying] as const;
+}
+
+function PlayButton({ playing, onClick }: { playing: boolean; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} aria-pressed={playing} className="inline-flex min-h-10 items-center gap-2 rounded-full bg-copper px-4 text-[0.95rem] font-semibold text-[#0d0f12] shadow-[0_0_16px_-2px_var(--copper)] transition-transform hover:scale-[1.03]">
+      <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+        {playing ? <path d="M2 1h3v10H2zM7 1h3v10H7z" fill="currentColor" /> : <path d="M2 1l9 5-9 5z" fill="currentColor" />}
+      </svg>
+      {playing ? "Pause" : "Play"}
+    </button>
+  );
+}
+
 /** Scroll-linked explainer on wide screens; a stepper everywhere. */
 export function AdmissionJourney() {
   const [step, setStep] = useState(0);
+  const [playing, setPlaying] = usePlay(setStep);
   const refs = useRef<(HTMLElement | null)[]>([]);
   const q = PEOPLE.filter((p) => p.score >= THRESHOLD).length;
   const counts = [
@@ -405,6 +424,13 @@ export function AdmissionJourney() {
                 ))}
               </div>
               <div className="flex gap-1.5">
+                <PlayButton
+                  playing={playing}
+                  onClick={() => {
+                    if (!playing && step === STEPS.length - 1) setStep(0);
+                    setPlaying(!playing);
+                  }}
+                />
                 <button
                   type="button"
                   onClick={() => setStep((s) => Math.max(0, s - 1))}
@@ -441,12 +467,20 @@ export function AdmissionJourney() {
 /** Compact stepper version for articles. */
 export function JourneyStepper() {
   const [step, setStep] = useState(1);
+  const [playing, setPlaying] = usePlay(setStep);
   const s = STEPS[step]!;
   return (
     <div className="playground overflow-hidden">
       <AdmissionJourneyDiagram step={step} />
       <div className="grid gap-3 border-t border-rule bg-paper p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-start">
-        <div role="group" aria-label="Choose a step" className="flex gap-1.5">
+        <div role="group" aria-label="Choose a step" className="flex flex-wrap gap-1.5">
+          <PlayButton
+            playing={playing}
+            onClick={() => {
+              if (!playing && step === STEPS.length - 1) setStep(0);
+              setPlaying(!playing);
+            }}
+          />
           {STEPS.map((x, i) => (
             <button
               key={x.title}

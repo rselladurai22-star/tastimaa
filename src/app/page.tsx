@@ -183,8 +183,12 @@ export default async function HomePage() {
             </div>
             <ol className="grid gap-x-12 md:grid-cols-2">
               {QUESTIONS.map(({ n, q, Glyph }, i) => (
-                <li key={n} className="group/q grid grid-cols-[3rem_minmax(0,1fr)] gap-x-4 border-t border-rule py-7">
-                  <div className="pt-1 transition-transform duration-[var(--d-3)] ease-[var(--ease-out)] group-hover/q:-translate-y-0.5">
+                <li key={n} className="group/q grid grid-cols-[4rem_minmax(0,1fr)] gap-x-4 border-t border-rule py-7">
+                  {/* A soft clay tile: one light from above, an inner highlight and a cast shadow */}
+                  <div
+                    className="grid size-16 place-items-center rounded-[18px] shadow-[inset_0_2px_1px_rgb(255_255_255/0.9),inset_0_-4px_8px_rgb(44_11_142/0.08),0_10px_20px_-8px_rgb(44_11_142/0.35)] transition-transform duration-[var(--d-3)] ease-[var(--ease-spring)] group-hover/q:-translate-y-1 group-hover/q:-rotate-6"
+                    style={{ background: `linear-gradient(145deg, #ffffff, ${["#e8ecff", "#ffe6f0", "#e6f4ff", "#efe8ff", "#fff3dc", "#e4f7ee"][i % 6]})` }}
+                  >
                     <Glyph />
                   </div>
                   <div>
