@@ -30,6 +30,7 @@ export function AtlasMap({
   legend = true,
   spotlight,
   label,
+  depth = false,
 }: {
   points: AtlasPoint[];
   groups: { slug: string; name: string; n: number }[];
@@ -38,10 +39,12 @@ export function AtlasMap({
   /** Slugs to light up in copper; every other school recedes. */
   spotlight?: string[];
   label?: string;
+  /** Draw as a rotatable 3D atlas where the device supports WebGL. */
+  depth?: boolean;
 }) {
   const [focus, setFocus] = useState<string | null>(null);
   const [hover, setHover] = useState<AtlasPoint | null>(null);
-  const webgl = useWebGL();
+  const webgl = useWebGL() && depth;
 
   const geo = useMemo(() => {
     const lats = points.map((p) => p.lat);

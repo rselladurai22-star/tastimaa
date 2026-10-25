@@ -31,7 +31,7 @@ export function useTokens<K extends string>(names: readonly K[]): Record<K, Colo
  * A lit, shadowed WebGL stage that fades in over the flat figure beneath it.
  * Rendering pauses while the figure is off screen.
  */
-export function Stage({ children, camera, label, className }: { children: ReactNode; camera: { position: [number, number, number]; fov?: number }; label?: string; className?: string }) {
+export function Stage({ children, camera, label, className, overlay }: { children: ReactNode; camera: { position: [number, number, number]; fov?: number }; label?: string; className?: string; overlay?: ReactNode }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const [ready, setReady] = useState(false);
@@ -45,7 +45,8 @@ export function Stage({ children, camera, label, className }: { children: ReactN
   return (
     <div ref={wrap} aria-hidden={label ? undefined : true} role={label ? "img" : undefined} aria-label={label} className={className} style={{ opacity: ready ? 1 : 0, transition: "opacity 600ms var(--ease-out)" }}>
       <Canvas
-        shadows
+        shadows="percentage"
+        flat
         dpr={[1, 2]}
         frameloop={visible ? "always" : "never"}
         camera={{ fov: camera.fov ?? 32, position: camera.position, near: 0.1, far: 200 }}
@@ -70,6 +71,7 @@ export function Stage({ children, camera, label, className }: { children: ReactN
         <directionalLight position={[-6, 4, -5]} intensity={0.45} color="#c9d4ff" />
         {children}
       </Canvas>
+      {overlay}
     </div>
   );
 }

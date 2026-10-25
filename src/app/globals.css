@@ -407,6 +407,26 @@
     transform: none;
   }
 }
+/* Sample-page motion (/lab/depth) */
+@keyframes lab-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+.lab-rise {
+  transform-box: view-box;
+  animation: lab-rise 800ms var(--ease-out) both;
+}
+@keyframes lab-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+.lab-drop {
+  animation: lab-drop 600ms var(--ease-out) both;
+}
+
 @keyframes fade {
   from {
     opacity: 0;

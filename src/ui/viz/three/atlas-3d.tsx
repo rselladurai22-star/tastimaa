@@ -1,9 +1,9 @@
 "use client";
 
-import { Html, OrbitControls, RoundedBox } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { Bounds, OrbitControls, RoundedBox } from "@react-three/drei";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
-import { BufferGeometry, Float32BufferAttribute, Group, InstancedMesh, Object3D } from "three";
+import { BufferGeometry, Float32BufferAttribute, Group, InstancedMesh, Object3D, Vector3 } from "three";
 import { Stage, useFinePointer, useTokens } from "./stage";
 import { useReducedMotion } from "./support";
 
@@ -102,6 +102,25 @@ function Graticule({ lines }: { lines: [number, number, number, number][] }) {
   );
 }
 
+/** Keeps plain HTML labels pinned to points in the scene (crisp text, no extra React roots). */
+function Pins({ points, els }: { points: [number, number, number][]; els: React.RefObject<(HTMLSpanElement | null)[]> }) {
+  const anchor = useRef<Group>(null);
+  const size = useThree((s) => s.size);
+  const v = useMemo(() => new Vector3(), []);
+  useFrame(({ camera }) => {
+    const g = anchor.current;
+    if (!g) return;
+    points.forEach((p, i) => {
+      const el = els.current[i];
+      if (!el) return;
+      v.set(...p).applyMatrix4(g.matrixWorld).project(camera);
+      el.style.transform = `translate(-50%, -100%) translate(${((v.x + 1) / 2) * size.width}px, ${((1 - v.y) / 2) * size.height}px)`;
+      el.style.opacity = "1";
+    });
+  });
+  return <group ref={anchor} />;
+}
+
 function Sway({ children }: { children: React.ReactNode }) {
   const g = useRef<Group>(null);
   const still = useReducedMotion();
@@ -132,22 +151,33 @@ export default function Atlas3D({
   onHover: (i: number | null) => void;
 }) {
   const fine = useFinePointer();
+  const pins = useRef<(HTMLSpanElement | null)[]>([]);
   return (
-    <Stage camera={{ position: [0, 10.5, 9.6], fov: 34 }} className="absolute inset-0">
+    <Stage
+      camera={{ position: [0, 15.5, 13], fov: 30 }}
+      className="absolute inset-0"
+      overlay={labels.map((l, i) => (
+        <span
+          key={l.key}
+          ref={(el) => {
+            pins.current[i] = el;
+          }}
+          className="pointer-events-none absolute top-0 left-0 rounded-full border border-rule bg-paper/95 px-2.5 py-0.5 text-[12.5px] font-semibold whitespace-nowrap text-ink opacity-0 shadow-[0_6px_18px_-8px_rgb(10_12_16/0.45)] transition-opacity"
+        >
+          {l.name} <span className="font-mono font-normal text-ink-2">{l.n}</span>
+        </span>
+      ))}
+    >
+      <Bounds fit clip margin={1.05}>
       <Sway>
         <RoundedBox args={[width + 0.8, 0.25, depth + 0.8]} radius={0.12} smoothness={4} receiveShadow>
-          <meshStandardMaterial color="#f7f9fd" roughness={0.9} />
+          <meshStandardMaterial color="#eef3fb" emissive="#e3eaf6" emissiveIntensity={0.35} roughness={0.9} />
         </RoundedBox>
         <Graticule lines={lines} />
         <Columns cols={cols} focus={focus} hover={hover} onHover={onHover} />
-        {labels.map((l) => (
-          <Html key={l.key} position={[l.x, l.h + 0.45, l.z]} center zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
-            <span className="block rounded-full border border-rule bg-paper/95 px-2.5 py-0.5 text-[12.5px] font-semibold whitespace-nowrap text-ink shadow-[0_6px_18px_-8px_rgb(10_12_16/0.45)]">
-              {l.name} <span className="font-mono font-normal text-ink-2">{l.n}</span>
-            </span>
-          </Html>
-        ))}
+        <Pins points={labels.map((l): [number, number, number] => [l.x, l.h + 0.25, l.z])} els={pins} />
       </Sway>
+      </Bounds>
       {fine ? <OrbitControls enableZoom={false} enablePan={false} enableDamping minPolarAngle={0.25} maxPolarAngle={1.2} minAzimuthAngle={-0.9} maxAzimuthAngle={0.9} /> : null}
     </Stage>
   );
