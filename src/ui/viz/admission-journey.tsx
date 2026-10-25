@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { clsx } from "clsx";
-import { IconArrow, IconArrowLeft } from "../icons";
 
 /**
  * Signature explainer: how 72 imaginary applicants move from application to
@@ -332,139 +331,7 @@ function PlayButton({ playing, onClick }: { playing: boolean; onClick: () => voi
   );
 }
 
-/** Scroll-linked explainer on wide screens; a stepper everywhere. */
-export function AdmissionJourney() {
-  const [step, setStep] = useState(0);
-  const [playing, setPlaying] = usePlay(setStep);
-  const refs = useRef<(HTMLElement | null)[]>([]);
-  const q = PEOPLE.filter((p) => p.score >= THRESHOLD).length;
-  const counts = [
-    `${N} applicants`,
-    `${q} of ${N} qualify`,
-    `${q} ranked in order`,
-    `${PLACES} offers · ${q - PLACES} qualified, no offer`,
-  ];
-
-  useEffect(() => {
-    if (!window.matchMedia("(min-width: 1024px)").matches) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries)
-          if (e.isIntersecting)
-            setStep(Number((e.target as HTMLElement).dataset.step));
-      },
-      { rootMargin: "-48% 0px -48% 0px" },
-    );
-    refs.current.forEach((el) => el && io.observe(el));
-    return () => io.disconnect();
-  }, []);
-
-  return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
-      {/* Steps: tall on desktop so scrolling advances the diagram */}
-      <ol className="order-2 grid gap-4 lg:order-1 lg:gap-0">
-        {STEPS.map((s, i) => (
-          <li
-            key={s.title}
-            ref={(el) => {
-              refs.current[i] = el;
-            }}
-            data-step={i}
-            className={clsx(
-              "lg:flex lg:min-h-[64vh] lg:items-center",
-              i !== step && "hidden lg:flex",
-            )}
-          >
-            <div
-              className={clsx(
-                "border-l-2 pl-5 transition-[border-color,opacity] duration-[var(--d-3)] ease-[var(--ease-out)]",
-                i === step ? "border-copper" : "border-rule [&_h3]:text-ink-2",
-              )}
-            >
-              <p className="label text-copper-ink">{s.kicker}</p>
-              <h3 className="mt-2 text-h3">{s.title}</h3>
-              <p className="mt-3 text-body leading-relaxed text-ink-2">
-                {s.body}
-              </p>
-              <p className="mt-3 font-mono text-[0.85rem] text-ink-2">
-                {counts[i]}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ol>
-      <div className="order-1 lg:order-2">
-        <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
-          <div className="playground overflow-hidden">
-            <AdmissionJourneyDiagram step={step} />
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-rule px-4 py-3">
-              <div
-                role="group"
-                aria-label="Choose a step"
-                className="flex gap-1.5"
-              >
-                {STEPS.map((s, i) => (
-                  <button
-                    key={s.title}
-                    type="button"
-                    onClick={() => setStep(i)}
-                    aria-pressed={i === step}
-                    aria-label={
-                      i === 0 ? `Start: ${s.title}` : `Step ${i}: ${s.title}`
-                    }
-                    className={clsx(
-                      "grid h-10 min-w-10 place-items-center rounded-[4px] border px-2 font-mono text-[0.85rem] transition-colors duration-[var(--d-1)]",
-                      i === step
-                        ? "border-green bg-green text-paper"
-                        : "border-rule-strong bg-card text-ink hover:border-ink",
-                    )}
-                  >
-                    {i === 0 ? "Start" : i}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-1.5">
-                <PlayButton
-                  playing={playing}
-                  onClick={() => {
-                    if (!playing && step === STEPS.length - 1) setStep(0);
-                    setPlaying(!playing);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setStep((s) => Math.max(0, s - 1))}
-                  disabled={step === 0}
-                  className="inline-flex min-h-10 items-center gap-1.5 rounded-[4px] border border-rule-strong bg-card px-3 text-[0.95rem] font-semibold disabled:opacity-40"
-                  aria-label="Previous step"
-                >
-                  <IconArrowLeft size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setStep((s) => Math.min(STEPS.length - 1, s + 1))
-                  }
-                  disabled={step === STEPS.length - 1}
-                  className="inline-flex min-h-10 items-center gap-1.5 rounded-[4px] border border-green bg-green px-3 text-[0.95rem] font-semibold text-paper disabled:opacity-40"
-                >
-                  Next <IconArrow size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-          <p className="mt-3 text-small text-ink-2">
-            An illustration with {N} imaginary applicants and {PLACES} places —
-            not data from any school. Every school publishes its own criteria,
-            in its own order, for each entry year.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Compact stepper version for articles. */
+/** Compact stepper: the diagram, a Play control and the step buttons with their explanation. */
 export function JourneyStepper() {
   const [step, setStep] = useState(1);
   const [playing, setPlaying] = usePlay(setStep);

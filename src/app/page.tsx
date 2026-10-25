@@ -8,7 +8,7 @@ import { siteStats } from "@/server/schools";
 import { HomeFinder } from "@/ui/home/finder";
 import { IconArrow } from "@/ui/icons";
 import { Kicker, Page } from "@/ui/kit";
-import { NightSky, SkyHeight } from "@/ui/sky-height";
+import { Hero, HeroFigures } from "@/ui/hero";
 import { Status } from "@/ui/status";
 import { JourneyStepper } from "@/ui/viz/admission-journey";
 import { AtlasMap } from "@/ui/viz/atlas-map";
@@ -130,12 +130,8 @@ export default async function HomePage() {
 
   return (
     <>
-      <SkyHeight mobile="47rem" desktop="38rem" />
-      <NightSky />
-
       {/* 1 — One promise, the coverage behind it, and one place to start */}
-      <section aria-labelledby="hero-title">
-        <Page className="pt-8 sm:pt-12 lg:pt-8">
+      <Hero className="pt-8 sm:pt-12 lg:pt-8">
           <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
             <div className="anim-rise max-w-[40rem]">
               <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[0.875rem] font-medium text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.18)]">
@@ -148,30 +144,26 @@ export default async function HomePage() {
               </h1>
               <p className="mt-5 text-[1.1875rem] leading-[1.55] text-white/85">Entrance tests, admission rules and past offers for every grammar school in England and Northern Ireland — explained in plain English.</p>
             </div>
-            <div className="text-white lg:border-l lg:border-white/15 lg:pl-6">
-              <dl className="grid grid-cols-3 gap-4 lg:grid-cols-1 lg:gap-0">
-                {[
-                  [stats.listed, "schools listed"],
-                  [stats.england, "grammar schools in England"],
-                  [stats.ni, "in Northern Ireland"],
-                ].map(([v, l]) => (
-                  <div key={l as string} className="flex flex-col lg:border-b lg:border-white/15 lg:py-3 lg:first:pt-0">
-                    <dt className="order-2 text-[0.875rem] text-white/75">{l}</dt>
-                    <dd className="order-1 text-[1.75rem] leading-tight font-semibold num">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              <div className="mt-4 lg:mt-0 lg:pt-3">
-                <Link href="/data-sources" className="text-[0.9375rem] font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
-                  Where our data comes from
-                </Link>
-                {refreshed ? <p className="mt-1 text-[0.8125rem] text-white/70">Records refreshed {relativeAge(refreshed)}</p> : null}
-              </div>
-            </div>
+            <HeroFigures
+              items={[
+                [stats.listed, "schools listed"],
+                [stats.england, "grammar schools in England"],
+                [stats.ni, "in Northern Ireland"],
+              ]}
+              footer={
+                <>
+                  <Link href="/data-sources" className="text-[0.9375rem] font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
+                    Where our data comes from
+                  </Link>
+                  {refreshed ? <p className="mt-1 text-[0.8125rem]">Records refreshed {relativeAge(refreshed)}</p> : null}
+                </>
+              }
+            />
           </div>
-          <div className="mt-10">
-            <HomeFinder />
-          </div>
+      </Hero>
+      <section aria-label="Find a school" className="relative z-[2] -mt-14 sm:-mt-20">
+        <Page>
+          <HomeFinder />
           <nav aria-label="Popular areas" className="mt-5 flex flex-wrap items-center gap-2">
             <span className="mr-2 label text-ink-2">Popular areas</span>
             {councils.map((c) => (

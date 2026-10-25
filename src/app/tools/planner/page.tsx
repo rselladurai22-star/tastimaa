@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { defaultEntryYear, selectableEntryYears } from "@/lib/academic-year";
-import { Breadcrumbs } from "@/ui/breadcrumbs";
-import { Page, PageHead } from "@/ui/kit";
+import { PageHero } from "@/ui/hero";
+import { Page } from "@/ui/kit";
 import { Planner } from "@/ui/tools/planner";
 
 export const dynamic = "force-dynamic";
@@ -21,12 +21,11 @@ const NOTICES: Record<string, string> = {
 export default async function PlannerPage({ searchParams }: { searchParams: Promise<{ reminders?: string }> }) {
   const sp = await searchParams;
   return (
-    <Page className="pb-16">
-      <div className="pt-6">
-        <Breadcrumbs items={[{ href: "/tools/planner", label: "Admissions planner" }]} />
-      </div>
-      <PageHead kicker="Research tools" title="Admissions planner" lede="Every step from research to offers, with the verified dates for your shortlisted schools and their tests." />
-      <Planner years={selectableEntryYears()} defaultYear={defaultEntryYear()} notice={sp.reminders ? (NOTICES[sp.reminders] ?? null) : null} />
-    </Page>
+    <>
+      <PageHero crumbs={[{ href: "/tools/planner", label: "Admissions planner" }]} kicker="Research tools" title="Admissions planner" lede="Every step from research to offers, with the verified dates for your shortlisted schools and their tests." />
+      <Page className="pt-4 pb-16">
+        <Planner years={selectableEntryYears()} defaultYear={defaultEntryYear()} notice={sp.reminders ? (NOTICES[sp.reminders] ?? null) : null} />
+      </Page>
+    </>
   );
 }

@@ -3,8 +3,8 @@ import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { CATCHMENT_LABEL } from "@/domain/labels";
 import { clampEntryYear, selectableEntryYears } from "@/lib/academic-year";
-import { Breadcrumbs } from "@/ui/breadcrumbs";
-import { Note, Page, PageHead, SectionHead } from "@/ui/kit";
+import { PageHero } from "@/ui/hero";
+import { Page, SectionHead } from "@/ui/kit";
 import { YearPicker } from "@/ui/report/parts";
 import { CatchmentDesk } from "@/ui/tools/catchment-desk";
 
@@ -19,14 +19,20 @@ export const metadata: Metadata = {
 export default async function CatchmentCheckerPage({ searchParams }: { searchParams: Promise<{ schools?: string; year?: string }> }) {
   const sp = await searchParams;
   const entryYear = clampEntryYear(sp.year);
-  const slugs = (sp.schools ?? "").split(",").filter((s) => /^[a-z0-9-]{1,120}$/.test(s)).slice(0, 5);
+  const slugs = (sp.schools ?? "")
+    .split(",")
+    .filter((s) => /^[a-z0-9-]{1,120}$/.test(s))
+    .slice(0, 5);
   const picked = slugs.length
     ? await db().execute<{ slug: string; name: string; lat: number | null; lng: number | null; catchment_type: string | null }>(sql`
         SELECT s.slug, s.name, ST_Y(l.location::geometry) AS lat, ST_X(l.location::geometry) AS lng,
           (SELECT p.catchment_type FROM admission_policies p JOIN admission_cycles c ON c.id = p.cycle_id
             WHERE p.school_id = s.id AND c.entry_year = ${entryYear} AND p.status IN ('published','awaiting_verification') ORDER BY p.version DESC LIMIT 1) AS catchment_type
         FROM schools s LEFT JOIN school_locations l ON l.school_id = s.id
-        WHERE s.slug IN (${sql.join(slugs.map((x) => sql`${x}`), sql`, `)})
+        WHERE s.slug IN (${sql.join(
+          slugs.map((x) => sql`${x}`),
+          sql`, `,
+        )})
       `)
     : [];
   const schools = slugs
@@ -39,36 +45,39 @@ export default async function CatchmentCheckerPage({ searchParams }: { searchPar
            (SELECT count(*)::int FROM admission_policies p JOIN admission_cycles c ON c.id = p.cycle_id WHERE c.entry_year = ${entryYear} AND p.catchment_type = 'defined_area' AND p.status IN ('published','awaiting_verification')) AS defined
   `);
   return (
-    <Page className="pb-16">
-      <div className="pt-6">
-        <Breadcrumbs items={[{ href: "/tools/catchment-checker", label: "Catchment checker" }]} />
-      </div>
-      <PageHead
+    <>
+      <PageHero
+        crumbs={[{ href: "/tools/catchment-checker", label: "Catchment checker" }]}
         kicker="Research tools"
         title="Catchment checker"
         lede="Does where you live matter for a school — and if so, how? We check postcodes only against boundaries the admission authority has published in a verifiable form."
+        meta={
+          <span>
+            September {entryYear}: {counts!.policies} admissions {counts!.policies === 1 ? "policy" : "policies"} held, {counts!.defined} with a defined catchment area, {counts!.boundaries} verified digital{" "}
+            {counts!.boundaries === 1 ? "boundary" : "boundaries"}.
+          </span>
+        }
         aside={<YearPicker years={selectableEntryYears()} selected={entryYear} basePath="/tools/catchment-checker" extraQuery={slugs.length ? `schools=${slugs.join(",")}` : undefined} />}
       />
-      <Note className="mb-10" title="Coverage for this year">
-        We hold {counts!.policies} admissions {counts!.policies === 1 ? "policy" : "policies"} for September {entryYear} entry, of which {counts!.defined} use a defined catchment area. We hold {counts!.boundaries} verified digital{" "}
-        {counts!.boundaries === 1 ? "boundary" : "boundaries"}. Where no verified boundary exists we tell you, and point you to the official checker named in the school&apos;s policy.
-      </Note>
-      <CatchmentDesk schools={schools} entryYear={entryYear} />
-      <section className="mt-16" aria-labelledby="how">
-        <SectionHead id="how" kicker="Method" title="How we handle location" />
-        <ul className="mt-6 grid gap-px overflow-hidden rounded-[8px] border border-rule bg-rule md:grid-cols-3">
-          {[
-            ["Postcode centres, not addresses", "We use the published centre point of your postcode (ONS Postcode Directory via postcodes.io). It can be hundreds of metres from your door."],
-            ["Verified boundaries only", "A boundary is drawn only when we hold the admission authority's official geometry for that entry year, with its licence recorded."],
-            ["Never a circle", "We never draw a radius or a past year's last-offer distance as if it were a catchment area."],
-          ].map(([t, d]) => (
-            <li key={t} className="bg-card p-5">
-              <p className="font-semibold text-ink">{t}</p>
-              <p className="mt-1.5 text-[0.98rem] leading-relaxed text-ink-2">{d}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    </Page>
+      <Page className="pt-4 pb-16">
+        <CatchmentDesk schools={schools} entryYear={entryYear} />
+        <p className="mt-4 text-small text-ink-2">Where no verified boundary exists we say so, and point you to the official checker named in the school&apos;s policy.</p>
+        <section className="mt-16" aria-labelledby="how">
+          <SectionHead id="how" kicker="Method" title="How we handle location" />
+          <ul className="mt-6 grid gap-4 md:grid-cols-3">
+            {[
+              ["Postcode centres, not addresses", "We use the published centre point of your postcode (ONS Postcode Directory via postcodes.io). It can be hundreds of metres from your door."],
+              ["Verified boundaries only", "A boundary is drawn only when we hold the admission authority's official geometry for that entry year, with its licence recorded."],
+              ["Never a circle", "We never draw a radius or a past year's last-offer distance as if it were a catchment area."],
+            ].map(([t, d]) => (
+              <li key={t} className="rounded-[16px] bg-card p-5 shadow-[0_0_0_1px_var(--rule)]">
+                <p className="font-semibold text-ink">{t}</p>
+                <p className="mt-1.5 text-[0.98rem] leading-relaxed text-ink-2">{d}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </Page>
+    </>
   );
 }

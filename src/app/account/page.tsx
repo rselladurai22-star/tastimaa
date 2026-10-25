@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { currentUser } from "@/server/auth";
-import { Breadcrumbs } from "@/ui/breadcrumbs";
-import { Note, Page, PageHead } from "@/ui/kit";
+import { PageHero } from "@/ui/hero";
+import { Note, Page } from "@/ui/kit";
 import { SavedSchools, SignInForm } from "@/ui/tools/account";
 
 export const dynamic = "force-dynamic";
@@ -16,20 +16,24 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
     ? await db().select({ slug: schema.schools.slug, name: schema.schools.name }).from(schema.savedSchools).innerJoin(schema.schools, eq(schema.schools.id, schema.savedSchools.schoolId)).where(eq(schema.savedSchools.userId, user.id))
     : [];
   return (
-    <Page className="pb-16">
-      <div className="pt-6">
-        <Breadcrumbs items={[{ href: "/account", label: "Your account" }]} />
-      </div>
-      <PageHead kicker="The atlas" title="Your account" lede={user ? `Signed in as ${user.email}.` : "You don't need an account to use any tool. Sign in only if you want your shortlist saved across devices. We store just your email address and the schools you save."} />
-      <div className="max-w-[44rem]">
-        {sp.deleted ? <Note className="mb-6">Your account and saved data have been deleted.</Note> : null}
-        {sp.error === "link" ? (
-          <Note tone="caution" className="mb-6">
-            That sign-in link has expired or was already used. Request a new one.
-          </Note>
-        ) : null}
-        {user ? <SavedSchools initial={saved} /> : <SignInForm />}
-      </div>
-    </Page>
+    <>
+      <PageHero
+        crumbs={[{ href: "/account", label: "Your account" }]}
+        kicker="The atlas"
+        title="Your account"
+        lede={user ? `Signed in as ${user.email}.` : "You don't need an account to use any tool. Sign in only if you want your shortlist saved across devices. We store just your email address and the schools you save."}
+      />
+      <Page className="pt-4 pb-16">
+        <div className="max-w-[44rem]">
+          {sp.deleted ? <Note className="mb-6">Your account and saved data have been deleted.</Note> : null}
+          {sp.error === "link" ? (
+            <Note tone="caution" className="mb-6">
+              That sign-in link has expired or was already used. Request a new one.
+            </Note>
+          ) : null}
+          {user ? <SavedSchools initial={saved} /> : <SignInForm />}
+        </div>
+      </Page>
+    </>
   );
 }

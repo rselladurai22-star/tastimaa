@@ -12,7 +12,8 @@
  * contrast-checked (WCAG 2.2 AA): secondary text ≥ 8:1, tertiary ≥ 5.2:1 on every
  * surface. Copper is a graphic accent (3.4:1); small copper text uses copper-ink.
  */
-:root {
+:root,
+.on-light {
   color-scheme: light;
 
   /* Surfaces — measured from the reference site */
@@ -77,11 +78,6 @@
   --page: 1036px;
   --gutter: 1rem;
   --header-h: 5rem; /* 48px bar with 16px above and below */
-
-  /* Sky band behind the top of every page */
-  --sky-h: 27rem;
-  --sky: #c5eafc;
-  --sky-cloud: #a9dcf6;
 
   /* Radius: fine, never pill-shaped */
   --r-1: 3px;
@@ -561,14 +557,57 @@
   border: 1px solid var(--rule-strong);
 }
 
-/* Header: floats on the sky, turns solid once the page scrolls. */
+/* Light surfaces placed on the navy band (search boxes, finder cards, menus) keep the light tokens. */
+.on-light {
+  color: var(--ink);
+}
+
+/*
+ * The navy band at the top of a page (see <Hero>). Inside it, and in the header
+ * while it floats over the band, the tokens switch to light-on-navy so headings,
+ * labels, tags, status chips and buttons stay readable without per-page styling.
+ * Every pair is at least 4.5:1 on the darkest and lightest part of the gradient.
+ */
+[data-hero],
+html:not([data-scrolled]) body:has([data-hero]) .site-header {
+  --paper: #0b1033;
+  --card: rgb(255 255 255 / 0.07);
+  --sage: rgb(255 255 255 / 0.08);
+  --sage-deep: rgb(255 255 255 / 0.16);
+  --ink: #ffffff;
+  --ink-2: #d6dbf3;
+  --ink-3: #b3bbe0;
+  --green: #a9bcff;
+  --green-deep: #c9d4ff;
+  --green-bright: #a9bcff;
+  --green-wash: rgb(169 188 255 / 0.14);
+  --copper: #ff7aaa;
+  --copper-ink: #ffb8d2;
+  --copper-wash: rgb(255 122 170 / 0.14);
+  --rule: rgb(255 255 255 / 0.16);
+  --rule-strong: rgb(255 255 255 / 0.32);
+  --control: rgb(255 255 255 / 0.5);
+  --ok: #6fe3a8;
+  --ok-wash: rgb(111 227 168 / 0.14);
+  --pend: #ffd58a;
+  --pend-wash: rgb(255 213 138 / 0.14);
+  --info: #a9bcff;
+  --info-wash: rgb(169 188 255 / 0.14);
+  --bad: #ff9fb4;
+  --bad-wash: rgb(255 159 180 / 0.14);
+  --none: #c4cae6;
+  --none-wash: rgb(255 255 255 / 0.08);
+  color: var(--ink);
+}
+
+/* On the band the wordmark and the current menu item read in white. */
+html:not([data-scrolled]) body:has([data-hero]) .site-header {
+  --green: #ffffff;
+}
+
+/* Header: floats over the top of the page, turns solid once the page scrolls. */
 .site-header {
   transition: background-color var(--d-2) var(--ease-out), box-shadow var(--d-2) var(--ease-out);
-}
-@media (min-width: 1024px) {
-  :root {
-    --sky-h: 30rem;
-  }
 }
 html[data-scrolled] .site-header {
   background: rgb(255 255 255 / 0.94);
@@ -614,4 +653,27 @@ html[data-scrolled] .site-header {
 .playground ::selection {
   background: #4242fa;
   color: #fff;
+}
+
+/* Printers drop backgrounds, so the navy band prints as dark type on white. */
+@media print {
+  [data-hero] {
+    background: #fff !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    --card: #fff;
+    --ink: #0a0c10;
+    --ink-2: #262d40;
+    --ink-3: #5a6072;
+    --green: #4242fa;
+    --copper: #e60067;
+    --copper-ink: #c20058;
+    --rule: #e3e6e8;
+    --rule-strong: #c8cad0;
+    --control: #75808a;
+  }
+  [data-hero] .text-white,
+  [data-hero] [class*="text-[#"] {
+    color: #0a0c10 !important;
+  }
 }

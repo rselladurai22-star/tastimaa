@@ -307,7 +307,7 @@ export function MainNav({ data }: { data: NavData }) {
           id={`mega-${group.key}`}
           key={group.key}
           data-nav-panel
-          className="anim-rise absolute inset-x-0 top-full border-y border-rule bg-paper shadow-[0_24px_40px_-28px_rgb(23_35_31/0.35)]"
+          className="on-light anim-rise absolute inset-x-0 top-full border-y border-rule bg-paper shadow-[0_24px_40px_-28px_rgb(23_35_31/0.35)]"
           onPointerEnter={cancel}
         >
           <div className="container-page grid grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] gap-10 py-8">
@@ -385,7 +385,7 @@ export function MobileNav({ data }: { data: NavData }) {
         <IconMenu size={21} /> <span className="sr-only">Menu</span>
       </button>
       {open ? (
-        <div className="fixed inset-0 z-[70]" role="presentation">
+        <div className="on-light fixed inset-0 z-[70]" role="presentation">
           <div className="anim-fade absolute inset-0 bg-ink/35" onClick={() => setOpen(false)} aria-hidden />
           <div ref={sheetRef} data-nav-panel role="dialog" aria-modal="true" aria-label="Menu" className="absolute inset-y-0 right-0 flex w-full max-w-[26rem] animate-[rise_var(--d-3)_var(--ease-out)_both] flex-col overflow-y-auto bg-paper">
             <div className="flex h-[var(--header-h)] shrink-0 items-center justify-between border-b border-rule px-5">

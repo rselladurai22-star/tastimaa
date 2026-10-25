@@ -281,7 +281,7 @@ export function SearchDialogTrigger() {
         <span className="sr-only">Search</span>
       </button>
       {open ? (
-        <div className="fixed inset-0 z-[70] flex items-start justify-center px-3 pt-[9vh] sm:px-6" role="presentation">
+        <div className="on-light fixed inset-0 z-[70] flex items-start justify-center px-3 pt-[9vh] sm:px-6" role="presentation">
           <div className="anim-fade absolute inset-0 bg-ink/35 backdrop-blur-[2px]" onClick={() => setOpen(false)} aria-hidden />
           <div ref={panelRef} role="dialog" aria-modal="true" aria-label="Search Grammar Atlas" className="anim-rise relative w-full max-w-[42rem] rounded-[8px] border border-rule bg-paper p-4 shadow-lift sm:p-5">
             <div className="mb-3 flex items-center justify-between">

@@ -136,11 +136,11 @@ export default async function SchoolOverview({ params }: Props) {
 
   const contents = [
     { id: "at-a-glance", label: "Admissions at a glance" },
+    { id: "dates", label: "Key dates" },
     ...(policy?.criteria.length ? [{ id: "priority", label: "Priority order" }] : []),
+    ...(latestYear ? [{ id: "demand", label: "Applications & offers" }] : []),
     { id: "results-summary", label: "Results" },
     { id: "inspection-summary", label: "Inspection" },
-    ...(latestYear ? [{ id: "demand", label: "Applications & offers" }] : []),
-    { id: "dates", label: "Key dates" },
     { id: "facts", label: "Facts & contact" },
     { id: "faqs", label: "Parent questions" },
     ...(nearby.length ? [{ id: "nearby", label: "Nearby schools" }] : []),
@@ -183,6 +183,10 @@ export default async function SchoolOverview({ params }: Props) {
         </div>
       </RSection>
 
+      <RSection id="dates" mark={marks.dates} title="Key dates" lede="Only dates from official sources are shown. Deadlines set by your home council may also apply.">
+        <DateLine events={upcoming} today={today} emptyText={`We don't hold upcoming verified dates for September ${entryYear} entry for this school yet. Dates are only shown once taken from an official source.`} />
+      </RSection>
+
       {policy?.criteria.length ? (
         <RSection id="priority" mark={marks.priority} title="Priority order" lede="If more qualified children apply than there are places, places go in this order. Each rung fills before the next.">
           <ol className="grid gap-px overflow-hidden rounded-[6px] border border-rule bg-rule">
@@ -203,6 +207,23 @@ export default async function SchoolOverview({ params }: Props) {
             </Link>
             .
           </p>
+        </RSection>
+      ) : null}
+
+      {latestYear ? (
+        <RSection id="demand" mark={marks.demand} title="Applications and offers" action={<ChapterLink href={`/schools/${slug}/historical-admissions`}>Year by year</ChapterLink>}>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+            <div className="min-w-0 rounded-[8px] border border-rule bg-card p-4">
+              <DemandChart rows={allocations} height={220} />
+            </div>
+            <div>
+              <p className="text-[1.05rem] leading-relaxed text-ink-2">
+                For September {latestYear} entry, families named the school as a first preference <strong className="text-ink">{formatNumber(alloc(latestYear, "times_first_preference"))}</strong> times; it made{" "}
+                <strong className="text-ink">{formatNumber(alloc(latestYear, "offers_made"))}</strong> offers on national offer day.
+              </p>
+              <p className="mt-3 text-small text-ink-2">These are demand figures — not cut-off scores, distances or chances.</p>
+            </div>
+          </div>
         </RSection>
       ) : null}
 
@@ -250,26 +271,7 @@ export default async function SchoolOverview({ params }: Props) {
         {isNI ? <NIInspectionNote /> : latestInspection ? <InspectionEntry i={latestInspection} sources={sources} lead /> : <Note>No inspection is recorded for this URN in Ofsted&apos;s latest management information.</Note>}
       </RSection>
 
-      {latestYear ? (
-        <RSection id="demand" mark={marks.demand} title="Applications and offers" action={<ChapterLink href={`/schools/${slug}/historical-admissions`}>Year by year</ChapterLink>}>
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
-            <div className="min-w-0 rounded-[8px] border border-rule bg-card p-4">
-              <DemandChart rows={allocations} height={220} />
-            </div>
-            <div>
-              <p className="text-[1.05rem] leading-relaxed text-ink-2">
-                For September {latestYear} entry, families named the school as a first preference <strong className="text-ink">{formatNumber(alloc(latestYear, "times_first_preference"))}</strong> times; it made{" "}
-                <strong className="text-ink">{formatNumber(alloc(latestYear, "offers_made"))}</strong> offers on national offer day.
-              </p>
-              <p className="mt-3 text-small text-ink-2">These are demand figures — not cut-off scores, distances or chances.</p>
-            </div>
-          </div>
-        </RSection>
-      ) : null}
 
-      <RSection id="dates" mark={marks.dates} title="Key dates" lede="Only dates from official sources are shown. Deadlines set by your home council may also apply.">
-        <DateLine events={upcoming} today={today} emptyText={`We don't hold upcoming verified dates for September ${entryYear} entry for this school yet. Dates are only shown once taken from an official source.`} />
-      </RSection>
 
       <RSection id="facts" mark={marks.facts} title="Facts and contact">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_17rem]">

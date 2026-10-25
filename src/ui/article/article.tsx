@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatDate } from "@/lib/format";
 import { absoluteUrl, SITE } from "@/lib/site";
+import { Hero } from "../hero";
 import { Breadcrumbs, type Crumb } from "../breadcrumbs";
 import { IconArrow, IconExternal } from "../icons";
 import { JsonLd } from "../json-ld";
@@ -60,16 +61,19 @@ export function ArticleShell({
   return (
     <>
       <ReadingProgress target="article-body" />
-      <div className="container-page pt-6 pb-20" id="top">
-        <Breadcrumbs items={crumbs} />
-        <header className="mt-8 mb-16 max-w-[var(--measure)] sm:mt-12 sm:mb-24 lg:mb-[14.5rem]">
-          <h1 className="text-h1 font-medium">{title}</h1>
-          <p className="mt-3 text-[1rem] text-ink-2">
-            <em>Filed under</em> <span className="font-semibold text-ink">{kicker}</span> <em>· last reviewed</em> <span className="font-semibold text-ink">{formatDate(updated)}</span>
+      <Hero>
+        <div id="top">
+          <Breadcrumbs items={crumbs} />
+        </div>
+        <header className="anim-rise mt-8 max-w-[44rem] sm:mt-10">
+          <p className="label text-[#a9bcff]">{kicker}</p>
+          <h1 className="mt-3 text-[clamp(2.1rem,1.6rem+2vw,2.9rem)] leading-[1.1] font-semibold tracking-[-0.02em] text-white">{title}</h1>
+          <p className="mt-4 text-[1rem] text-ink-2">
+            Last reviewed <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (
               <>
                 {" "}
-                <em>·</em>{" "}
+                ·{" "}
                 <a href="#sources" className="font-semibold text-ink hover:text-green">
                   {sources.length} official {sources.length === 1 ? "source" : "sources"}
                 </a>
@@ -77,8 +81,10 @@ export function ArticleShell({
             ) : null}
           </p>
         </header>
+      </Hero>
 
-        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-x-[100px] gap-y-8 xl:grid-cols-[686px_250px]">
+      <div className="container-page pb-20">
+        <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-x-[100px] gap-y-8 xl:grid-cols-[686px_250px]">
           <div className="xl:order-2">
             <div className="xl:sticky xl:top-[calc(var(--header-h)+3rem)]">
               <Toc items={toc} />

@@ -5,7 +5,9 @@ import { GENDER_LABEL, NATION_LABEL } from "@/domain/labels";
 import { loadSources } from "@/server/profile";
 import { getTest } from "@/server/tests";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
-import { Gap, Kicker, Note, Page, SectionHead, Source } from "@/ui/kit";
+import { formatWeekdayDate } from "@/lib/format";
+import { Hero, HeroFigures, HeroHead } from "@/ui/hero";
+import { Gap, Note, Page, SectionHead, Source } from "@/ui/kit";
 import { Status } from "@/ui/status";
 import { DateLine } from "@/ui/viz/admissions-viz";
 
@@ -49,25 +51,35 @@ export default async function TestPage({ params }: Props) {
     };
   });
 
+  const next = rows.find((r) => (r.ends_on ?? r.starts_on) >= today) ?? null;
+
   return (
     <>
-      <div>
-        <Page className="pt-6 pb-10">
-          <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: `/11-plus/${test.slug}`, label: test.name }]} />
-          <div className="mt-8 max-w-[52rem]">
-            <Kicker>Entrance test · {NATION_LABEL[test.nation]}</Kicker>
-            <h1 className="mt-3 text-h1 leading-[1.05] [font-variation-settings:'opsz'_72]">{test.name}</h1>
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[1.02rem] text-ink-2">
+      <Hero>
+        <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: `/11-plus/${test.slug}`, label: test.name }]} />
+        <HeroHead
+          kicker={`Entrance test · ${NATION_LABEL[test.nation]}`}
+          title={test.name}
+          lede={test.summary ?? undefined}
+          meta={
+            <>
               <Status status={test.verificationStatus} />
               {provider ? <span>Set by {provider.name}</span> : null}
               {test.administeredBy ? <span>Administered by {test.administeredBy}</span> : null}
-            </div>
-            {test.summary ? <p className="mt-5 text-lede leading-[1.5] text-ink">{test.summary}</p> : null}
-          </div>
-        </Page>
-      </div>
+            </>
+          }
+          aside={
+            <HeroFigures
+              items={[
+                [schools.length, schools.length === 1 ? "school linked to this test" : "schools linked to this test"],
+                next ? [formatWeekdayDate(next.starts_on), `next: ${next.title}`] : [rows.length, rows.length === 1 ? "official date held, now passed" : "official dates held, all now passed"],
+              ]}
+            />
+          }
+        />
+      </Hero>
 
-      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-12 pt-10 pb-16 lg:grid-cols-[minmax(0,1fr)_21rem]">
+      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-12 pt-4 pb-16 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <div className="grid min-w-0 content-start gap-14">
           {test.verificationStatus === "unavailable" ? (
             <Note tone="caution" title="Details not yet verified">
@@ -78,6 +90,11 @@ export default async function TestPage({ params }: Props) {
               until an editor has checked them.
             </Note>
           ) : null}
+
+          <section aria-labelledby="dates">
+            <SectionHead id="dates" kicker="Timetable" title="Key dates" lede="Only dates published by the test administrator or schools are shown." />
+            <div className="mt-6">{rows.length ? <DateLine events={rows} today={today} /> : <Gap title="No official dates are held yet for this test." />}</div>
+          </section>
 
           <section aria-labelledby="format">
             <SectionHead id="format" kicker="The paper" title="Format" />
@@ -114,15 +131,11 @@ export default async function TestPage({ params }: Props) {
             <Source source={test.sourceDocumentId ? sources.get(test.sourceDocumentId) : null} locator={test.sourceLocator} status={test.verificationStatus} />
           </section>
 
-          <section aria-labelledby="dates">
-            <SectionHead id="dates" kicker="Timetable" title="Key dates" lede="Only dates published by the test administrator or schools are shown." />
-            <div className="mt-6">{rows.length ? <DateLine events={rows} today={today} /> : <Gap title="No official dates are held yet for this test." />}</div>
-          </section>
         </div>
 
         <aside className="min-w-0">
           <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)]">
-            <div className="rounded-[8px] border border-rule bg-card">
+            <div className="overflow-hidden rounded-[16px] bg-card shadow-[0_0_0_1px_var(--rule),0_16px_32px_-20px_rgb(44_11_142/0.3)]">
               <h2 className="flex items-baseline justify-between border-b border-rule px-5 py-3 font-sans text-[1rem] font-semibold">
                 Schools linked to this test <span className="font-mono text-[0.9rem] font-normal text-ink-2">{schools.length}</span>
               </h2>

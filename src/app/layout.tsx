@@ -4,7 +4,7 @@ import { SITE } from "@/lib/site";
 import { JsonLd } from "@/ui/json-ld";
 import { SiteFooter } from "@/ui/site-footer";
 import { SiteHeader } from "@/ui/site-header";
-import { Sky } from "@/ui/sky";
+import { ScrollState } from "@/ui/scroll-state";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#c5eafc",
+  themeColor: "#0b1033",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to main content
         </a>
-        <Sky />
+        <ScrollState />
         <SiteHeader />
         <main id="main" tabIndex={-1} className="relative z-[1] outline-none">
           {children}

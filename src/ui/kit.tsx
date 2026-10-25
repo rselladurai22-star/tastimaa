@@ -32,13 +32,13 @@ export function PageHead({ kicker, title, lede, meta, aside, className }: { kick
   );
 }
 
-/** Section heading with a meridian rule. */
+/** Section heading: label, title and an optional lede and action. */
 export function SectionHead({ id, kicker, title, lede, action, className, size = "h2" }: { id?: string; kicker?: ReactNode; title: ReactNode; lede?: ReactNode; action?: ReactNode; className?: string; size?: "h2" | "h3" }) {
   const H = size;
   return (
-    <div className={clsx("meridian flex flex-wrap items-end justify-between gap-x-8 gap-y-3 pt-5", className)}>
+    <div className={clsx("flex flex-wrap items-end justify-between gap-x-8 gap-y-3", className)}>
       <div className="max-w-[44rem] min-w-0">
-        {kicker ? <p className="label mb-2">{kicker}</p> : null}
+        {kicker ? <p className="label mb-3 text-green">{kicker}</p> : null}
         <H id={id} className={size === "h2" ? "text-h2" : "text-h3"}>
           {title}
         </H>

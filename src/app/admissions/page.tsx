@@ -6,8 +6,9 @@ import { defaultEntryYear } from "@/lib/academic-year";
 import { cycleEvents } from "@/server/insights";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
 import { IconArrow } from "@/ui/icons";
-import { Kicker, Page, SectionHead } from "@/ui/kit";
-import { AdmissionJourney } from "@/ui/viz/admission-journey";
+import { Hero, HeroHead } from "@/ui/hero";
+import { Page, SectionHead } from "@/ui/kit";
+import { JourneyStepper } from "@/ui/viz/admission-journey";
 import { ApplicationJourney } from "@/ui/viz/exam-viz";
 import { KnowledgeMap } from "@/ui/viz/knowledge-map";
 
@@ -26,57 +27,34 @@ export default async function AdmissionsHub() {
 
   return (
     <>
-      <div>
-        <Page className="pt-6 pb-12">
-          <Breadcrumbs items={[{ href: "/admissions", label: "Admissions guide" }]} />
-          <div className="mt-8 grid gap-x-16 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-end">
-            <div>
-              <Kicker>Understand admissions</Kicker>
-              <h1 className="mt-4 text-h1 leading-[1.04] [font-variation-settings:'opsz'_72] sm:text-display">How grammar school admissions work</h1>
-              <p className="mt-5 max-w-[42rem] text-lede leading-[1.5] text-ink">
-                Grammar school admissions combine a test, published criteria and a national timetable. These guides explain each part in plain English, with links to the official rules.
-              </p>
-            </div>
-            <nav aria-label="Reading paths" className="border-t border-ink">
+      <Hero>
+        <Breadcrumbs items={[{ href: "/admissions", label: "Admissions guide" }]} />
+        <HeroHead
+          kicker="Understand admissions"
+          title="How grammar school admissions work"
+          lede="A test, published criteria and a national timetable. These guides explain each part in plain English, with links to the official rules."
+          aside={
+            <nav aria-label="Reading paths" className="lg:border-l lg:border-white/15 lg:pl-6">
               {paths.map((k) => {
                 const list = ADMISSIONS_GUIDES.filter((g) => g.path === k);
                 return (
-                  <a key={k} href={`#path-${k}`} className="group/rp flex items-baseline justify-between gap-4 border-b border-rule py-3 no-underline">
+                  <a key={k} href={`#path-${k}`} className="group/rp flex items-baseline justify-between gap-4 border-b border-white/15 py-3 no-underline first:pt-0">
                     <span>
-                      <span className="block font-semibold text-ink group-hover/rp:text-green">{READING_PATHS[k].title}</span>
-                      <span className="text-small text-ink-2">{READING_PATHS[k].text}</span>
+                      <span className="block font-semibold text-white group-hover/rp:underline">{READING_PATHS[k].title}</span>
+                      <span className="text-small text-ink-3">{READING_PATHS[k].text}</span>
                     </span>
-                    <span className="font-mono text-[0.85rem] whitespace-nowrap text-ink-2">
+                    <span className="font-mono text-[0.85rem] whitespace-nowrap text-ink-3">
                       {list.length} {list.length === 1 ? "guide" : "guides"}
                     </span>
                   </a>
                 );
               })}
             </nav>
-          </div>
-        </Page>
-      </div>
+          }
+        />
+      </Hero>
 
-      <section aria-labelledby="steps" className="py-16">
-        <Page>
-          <div className="max-w-[44rem]">
-            <Kicker>The core idea</Kicker>
-            <h2 id="steps" className="mt-4 text-h2">Qualifying, ranking, offering — in that order.</h2>
-          </div>
-          <div className="mt-8">
-            <AdmissionJourney />
-          </div>
-        </Page>
-      </section>
-
-      <Page as="section" className="pt-16">
-        <SectionHead id="timeline" kicker={`England · September ${entryYear} entry`} title="The application year, stage by stage" lede="Choose a stage. Dates appear only where we hold them from an official source, each with its verification status." />
-        <div className="mt-8">
-          <ApplicationJourney events={events.map((e) => ({ type: e.event_type, date: e.starts_on, status: e.verification_status, title: e.title }))} entryYear={entryYear} />
-        </div>
-      </Page>
-
-      <Page as="section" className="pt-20">
+      <Page as="section" className="pt-6">
         <SectionHead id="guides" kicker="Reading paths" title="Every guide, in the order it helps most" />
         <div className="mt-10 grid gap-14">
           {paths.map((k) => (
@@ -85,13 +63,13 @@ export default async function AdmissionsHub() {
                 <h3 className="text-h3">{READING_PATHS[k].title}</h3>
                 <p className="mt-1.5 text-[1rem] text-ink-2">{READING_PATHS[k].text}</p>
               </div>
-              <ol className="grid gap-px overflow-hidden rounded-[8px] border border-rule bg-rule md:grid-cols-2">
+              <ol className="grid gap-4 md:grid-cols-2">
                 {ADMISSIONS_GUIDES.filter((g) => g.path === k).map((g, i) => (
-                  <li key={g.slug} className="bg-card">
-                    <Link href={`/admissions/${g.slug}`} className="group/g flex h-full gap-4 p-5 no-underline transition-colors hover:bg-paper">
+                  <li key={g.slug}>
+                    <Link href={`/admissions/${g.slug}`} className="group/g flex h-full gap-4 rounded-[16px] bg-card p-5 no-underline shadow-[0_0_0_1px_var(--rule)] transition-[box-shadow,transform] duration-[var(--d-2)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--green),0_16px_32px_-18px_rgb(44_11_142/0.35)]">
                       <span className="font-mono text-[0.85rem] text-copper-ink">{String(i + 1).padStart(2, "0")}</span>
                       <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="font-display text-[1.25rem] leading-snug text-ink group-hover/g:text-green">{g.title}</span>
+                        <span className="text-[1.1875rem] leading-snug font-semibold text-ink group-hover/g:text-green">{g.title}</span>
                         <span className="mt-2 text-[0.98rem] leading-relaxed text-ink-2">{g.description}</span>
                         <span className="mt-3 inline-flex items-center gap-1.5 text-small font-semibold text-green">
                           {g.sections.length} sections
@@ -104,6 +82,20 @@ export default async function AdmissionsHub() {
               </ol>
             </div>
           ))}
+        </div>
+      </Page>
+
+      <Page as="section" className="pt-20">
+        <SectionHead id="timeline" kicker={`England · September ${entryYear} entry`} title="The application year, stage by stage" lede="Choose a stage. Dates appear only where we hold them from an official source, each with its verification status." />
+        <div className="mt-8">
+          <ApplicationJourney events={events.map((e) => ({ type: e.event_type, date: e.starts_on, status: e.verification_status, title: e.title }))} entryYear={entryYear} />
+        </div>
+      </Page>
+
+      <Page as="section" className="pt-20">
+        <SectionHead id="steps" kicker="The core idea" title="Qualifying, ranking, offering — in that order" lede="Seventy-two imaginary applicants and twenty-two places. Step through it, or press Play." />
+        <div className="mt-8 max-w-[52rem]">
+          <JourneyStepper />
         </div>
       </Page>
 

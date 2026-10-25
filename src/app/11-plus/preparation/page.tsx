@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
-import { ArrowLink, Kicker, Note, Page } from "@/ui/kit";
+import { Hero, HeroHead } from "@/ui/hero";
+import { ArrowLink, Note, Page } from "@/ui/kit";
 import { PracticeTool } from "@/ui/tools/practice";
 
 export const metadata: Metadata = {
@@ -21,17 +22,14 @@ const PLAN = [
 export default function PreparationPage() {
   return (
     <>
-      <Page className="pt-6 pb-10">
+      <Hero>
         <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: "/11-plus/preparation", label: "Preparation" }]} />
-        <div className="mt-8 max-w-[48rem]">
-          <Kicker>Explore 11+ exams</Kicker>
-          <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">11+ preparation</h1>
-          <p className="mt-4 text-lede leading-[1.5] text-ink">A simple plan and free practice. Exact dates differ by area — use the planner for your schools&apos; verified dates.</p>
-        </div>
-      </Page>
+        <HeroHead kicker="Explore 11+ exams" title="11+ preparation" lede="A simple plan and free timed practice. Exact dates differ by area — use the planner for your schools' verified dates." />
+      </Hero>
 
-      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-14 pb-16 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-14 pt-4 pb-16 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section aria-labelledby="practice" className="min-w-0">
+          <p className="label mb-3 text-green">Free practice</p>
           <h2 id="practice" className="text-h2">
             Timed practice
           </h2>

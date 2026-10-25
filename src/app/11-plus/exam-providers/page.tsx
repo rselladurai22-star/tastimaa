@@ -3,7 +3,8 @@ import Link from "next/link";
 import { NATION_LABEL } from "@/domain/labels";
 import { listProviders, listTests } from "@/server/tests";
 import { Breadcrumbs } from "@/ui/breadcrumbs";
-import { ExternalLink, Kicker, Note, Page, SectionHead } from "@/ui/kit";
+import { Hero, HeroFigures, HeroHead } from "@/ui/hero";
+import { ExternalLink, Page, SectionHead } from "@/ui/kit";
 import { Status } from "@/ui/status";
 
 export const dynamic = "force-dynamic";
@@ -19,17 +20,24 @@ export default async function ProvidersPage() {
   const max = Math.max(1, ...tests.map((t) => t.schools));
   return (
     <>
-      <Page className="pt-6 pb-10">
+      <Hero>
         <Breadcrumbs items={[{ href: "/11-plus", label: "11+ exams" }, { href: "/11-plus/exam-providers", label: "Test providers" }]} />
-        <div className="mt-8 max-w-[48rem]">
-          <Kicker>Explore 11+ exams</Kicker>
-          <h1 className="mt-3 text-h1 [font-variation-settings:'opsz'_60]">Test providers and tests</h1>
-          <p className="mt-4 text-lede leading-[1.5] text-ink">Who produces and administers each entrance test we hold, with the schools linked to it.</p>
-        </div>
-        <Note className="mt-8 max-w-[48rem]">We are adding test arrangements area by area as we verify them. If a test is missing, it means we haven&apos;t verified it yet — not that it doesn&apos;t exist.</Note>
-      </Page>
+        <HeroHead
+          kicker="Explore 11+ exams"
+          title="Test providers and tests"
+          lede="Who produces and administers each entrance test we hold, with the schools linked to it. Tests are added area by area as we verify them — a missing test hasn't been verified yet."
+          aside={
+            <HeroFigures
+              items={[
+                [tests.length, "entrance tests held"],
+                [providers.length, "providers"],
+              ]}
+            />
+          }
+        />
+      </Hero>
 
-      <Page as="section" className="pb-6">
+      <Page as="section" className="pt-4 pb-6">
         <SectionHead id="tests" kicker="Tests" title="Every test we hold" lede="Bars show how many schools we link to each test." />
         <table className="mt-6 w-full border-collapse text-left">
           <caption className="sr-only">Entrance tests, their providers and the number of schools linked</caption>
@@ -63,8 +71,8 @@ export default async function ProvidersPage() {
                 <td className="hidden py-4 pr-4 text-ink-2 md:table-cell">{t.provider_name ?? "Not recorded"}</td>
                 <td className="w-[30%] py-4">
                   <span className="flex items-center gap-3">
-                    <span aria-hidden className="h-1.5 flex-1 rounded-full bg-sage-deep">
-                      <span className="block h-full rounded-full bg-green-bright" style={{ width: `${(t.schools / max) * 100}%` }} />
+                    <span aria-hidden className="h-2 flex-1 rounded-full bg-sage-deep shadow-[inset_0_1px_2px_rgb(10_12_16/0.12)]">
+                      <span className="block h-full rounded-full bg-[linear-gradient(90deg,var(--green-deep),var(--green))] shadow-[0_1px_2px_rgb(44_11_142/0.35)]" style={{ width: `${(t.schools / max) * 100}%` }} />
                     </span>
                     <span className="w-8 text-right font-mono text-[0.95rem] text-ink">{t.schools}</span>
                   </span>
@@ -77,10 +85,10 @@ export default async function ProvidersPage() {
 
       <Page as="section" className="pt-14 pb-16">
         <SectionHead id="providers" kicker="Organisations" title="Providers" />
-        <ul className="mt-6 grid gap-px overflow-hidden rounded-[8px] border border-rule bg-rule md:grid-cols-2">
+        <ul className="mt-6 grid gap-4 md:grid-cols-2">
           {providers.map((p) => (
-            <li key={p.slug} className="bg-card p-5">
-              <p className="font-display text-[1.25rem] text-ink">{p.name}</p>
+            <li key={p.slug} className="rounded-[16px] bg-card p-5 shadow-[0_0_0_1px_var(--rule)]">
+              <p className="text-[1.1875rem] font-semibold text-ink">{p.name}</p>
               <p className="mt-1.5 text-[0.98rem] leading-relaxed text-ink-2">{p.description}</p>
               {p.website ? (
                 <p className="mt-2">

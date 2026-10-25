@@ -41,10 +41,10 @@ export function ChapterIntro({ kicker, title, lede, aside }: { kicker: string; t
 export function RSection({ id, mark, title, lede, action, children, className }: { id: string; mark?: string; title: ReactNode; lede?: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section aria-labelledby={id} className={clsx("scroll-mt-[calc(var(--header-h)+4rem)]", className)}>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-t border-ink pt-4">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-t border-rule pt-5">
         <div className="flex max-w-[46rem] min-w-0 gap-4">
           {mark ? (
-            <span aria-hidden className="pt-1.5 font-mono text-[0.8rem] text-copper-ink">
+            <span aria-hidden className="mt-1 grid size-7 shrink-0 place-items-center rounded-full bg-green-wash font-mono text-[0.8rem] font-medium text-green">
               {mark}
             </span>
           ) : null}
