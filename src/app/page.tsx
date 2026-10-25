@@ -1,487 +1,420 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { clsx } from "clsx";
-import { ADMISSIONS_GUIDES, READING_PATHS } from "@/content/guides";
-import { KNOWLEDGE_EDGES, KNOWLEDGE_NODES } from "@/content/knowledge";
-import { CATCHMENT_LABEL, GENDER_LABEL, SELECTIVITY_SHORT } from "@/domain/labels";
-import { formatMeasure, MEASURES } from "@/domain/measures";
 import { defaultEntryYear } from "@/lib/academic-year";
-import { formatDate, formatNumber, formatWeekdayDate, relativeAge } from "@/lib/format";
+import { formatNumber, formatWeekdayDate, relativeAge } from "@/lib/format";
 import { SITE } from "@/lib/site";
-import { cycleEvents, dataFreshness, featuredSchools, nationalDemandTrend, regionProfiles, schoolPoints, upcomingEvents } from "@/server/insights";
-import { getAllocations, getComparators, getEntranceTests, getPolicies, getResults, getSchoolCore, loadSources, policyForYear } from "@/server/profile";
-import { measureRows } from "@/server/profile-view";
+import { cycleEvents, dataFreshness, featuredSchools, nationalDemandTrend, regionProfiles, schoolPoints, topCouncilAreas, upcomingEvents } from "@/server/insights";
 import { siteStats } from "@/server/schools";
-import { IconArrow, IconPin } from "@/ui/icons";
-import { ArrowLink, ButtonLink, Kicker, Page, SectionHead, Source, Tag } from "@/ui/kit";
-import { SearchField } from "@/ui/search";
+import { HomeFinder } from "@/ui/home/finder";
+import { IconArrow } from "@/ui/icons";
+import { Kicker, Page } from "@/ui/kit";
 import { NightSky, SkyHeight } from "@/ui/sky-height";
 import { Status } from "@/ui/status";
-import { AdmissionJourney } from "@/ui/viz/admission-journey";
-import { DateLine } from "@/ui/viz/admissions-viz";
+import { JourneyStepper } from "@/ui/viz/admission-journey";
 import { AtlasMap } from "@/ui/viz/atlas-map";
-import { GroupedBars, Sparkline } from "@/ui/viz/charts";
-import { GlyphAfterPassing, GlyphCatchment, GlyphCriteria, GlyphExam, GlyphNearMe, GlyphWhen } from "@/ui/viz/glyphs";
-import { KnowledgeMap } from "@/ui/viz/knowledge-map";
-import { RegionExplorer } from "@/ui/viz/region-explorer";
+import { GlyphCompare, GlyphCriteria, GlyphNearMe, GlyphWhen } from "@/ui/viz/glyphs";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { absolute: `${SITE.name} — find a grammar school and understand how it admits` },
+  title: {
+    absolute: `${SITE.name} — find a grammar school and understand how it admits`,
+  },
   description: "Official information on every grammar school in England and Northern Ireland: entrance tests, admission rules, catchment, results, inspections and past demand — each rule explained, each fact sourced.",
   alternates: { canonical: "/" },
 };
 
-async function specimen() {
-  const [f] = await featuredSchools(1);
-  if (!f) return null;
-  const core = await getSchoolCore(f.slug);
-  if (!core) return null;
-  const entryYear = defaultEntryYear();
-  const [policies, tests, results, comparators, allocations] = await Promise.all([getPolicies(core.school.id), getEntranceTests(core.school.id, entryYear), getResults(core.school.id), getComparators(core.la?.code), getAllocations(core.school.id)]);
-  const policy = policyForYear(policies, entryYear);
-  const sources = await loadSources([policy?.sourceDocumentId]);
-  const a8 = measureRows(results, comparators, "ks4_attainment8", core.la?.code);
-  const lastA8 = [...a8].reverse().find((r) => r.value !== null) ?? null;
-  const years = [...new Set(allocations.map((a) => a.entryYear))].sort();
-  const get = (y: number, m: string) => allocations.find((a) => a.entryYear === y && a.metric === m)?.value ?? null;
-  const latest = years.at(-1);
-  return { core, policy, test: tests[0] ?? null, entryYear, sources, a8, lastA8, years, get, latest };
+/** A section heading in the house style: kicker, title, and an optional lede to the right on wide screens. */
+function Head({ id, kicker, title, lede }: { id: string; kicker: string; title: React.ReactNode; lede?: React.ReactNode }) {
+  return (
+    <div className="grid gap-x-16 gap-y-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-end">
+      <div>
+        <Kicker>{kicker}</Kicker>
+        <h2 id={id} className="mt-3 text-h2">
+          {title}
+        </h2>
+      </div>
+      {lede ? <p className="text-[1.0625rem] leading-relaxed text-ink-2">{lede}</p> : null}
+    </div>
+  );
 }
 
-const QUESTIONS = [
-  { n: "01", q: "Which grammar schools are near me?", Glyph: GlyphNearMe },
-  { n: "02", q: "Does my child meet the admission criteria?", Glyph: GlyphCriteria },
-  { n: "03", q: "Can we apply outside our catchment?", Glyph: GlyphCatchment },
-  { n: "04", q: "How does the 11+ examination work?", Glyph: GlyphExam },
-  { n: "05", q: "What happens after passing the test?", Glyph: GlyphAfterPassing },
-  { n: "06", q: "When must we apply?", Glyph: GlyphWhen },
-] as const;
+const TILE = "grid size-14 place-items-center rounded-[16px] shadow-[inset_0_2px_1px_rgb(255_255_255/0.9),inset_0_-4px_8px_rgb(44_11_142/0.08),0_8px_16px_-8px_rgb(44_11_142/0.35)]";
+const CHIP = "inline-flex min-h-9 items-center gap-1.5 rounded-full bg-card px-3.5 text-[0.9375rem] font-medium text-ink no-underline shadow-[0_0_0_1px_var(--rule)] transition-colors hover:text-green hover:shadow-[0_0_0_1px_var(--green)]";
 
 export default async function HomePage() {
   const entryYear = defaultEntryYear();
-  const [stats, points, regions, events, demand, freshness, england, spec] = await Promise.all([
+  const [stats, points, regions, events, demand, freshness, england, featured, councils] = await Promise.all([
     siteStats(),
     schoolPoints(),
     regionProfiles(),
-    upcomingEvents(5),
+    upcomingEvents(4),
     nationalDemandTrend(),
     dataFreshness(),
     cycleEvents("england", entryYear),
-    specimen(),
+    featuredSchools(3),
+    topCouncilAreas(5),
   ]);
   const closing = england.find((e) => e.event_type === "application_deadline" && e.scope === "nation");
   const offerDay = england.find((e) => e.event_type === "national_offer_day" && e.scope === "nation");
   const groups = regions.map((r) => ({ slug: r.slug, name: r.name, n: r.n }));
-  const today = new Date().toISOString().slice(0, 10);
   const lastDemand = demand.at(-1);
+  const refreshed = freshness
+    .map((f) => f.last_success)
+    .filter((d): d is string => !!d)
+    .sort()
+    .at(-1);
 
-  const answers: React.ReactNode[] = [
-    <>
-      Search by postcode to see every school by straight-line distance — labelled as an approximation, because schools measure from your exact address using their own method.
-      <form action="/grammar-schools" method="get" className="mt-4 flex max-w-sm gap-2">
-        <input type="hidden" name="sort" value="distance" />
-        <label htmlFor="q1-pc" className="sr-only">
-          Postcode
-        </label>
-        <input id="q1-pc" name="postcode" required placeholder="e.g. HP21 7RP" autoComplete="postal-code" className="min-h-11 w-full min-w-0 rounded-[5px] border border-control bg-card px-3 uppercase placeholder:normal-case focus:border-green focus:outline-none" />
-        <button type="submit" className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-[5px] bg-green px-3.5 font-semibold text-paper hover:bg-green-deep">
-          <IconPin size={16} /> Find
-        </button>
-      </form>
-    </>,
-    <>
-      The <Link href="/tools/eligibility-checker">eligibility checker</Link> asks only the questions each school&apos;s rules depend on, then shows which criteria could apply — and what is still unknown. It never gives a probability.
-    </>,
-    <>
-      Usually yes. In England you apply through your home council and can name schools anywhere. Whether a place is realistic depends on the school&apos;s criteria — <Link href="/admissions/out-of-catchment">how catchment and distance work</Link>.
-    </>,
-    <>
-      There is no single 11+. Each area sets its own test, timetable and scoring, and a score only counts for its own test. <Link href="/11-plus">The 11+ explained</Link>.
-    </>,
-    <>
-      Passing makes your child eligible to be <em>considered</em>. If more qualified children apply than there are places, the school&apos;s published criteria decide the order. <Link href="#how-admission-works">See it step by step</Link>.
-    </>,
-    closing && offerDay ? (
-      <>
-        For September {entryYear} entry in England, applications to your home council close on <strong className="text-ink">{formatWeekdayDate(closing.starts_on)}</strong> and offers are sent on{" "}
-        <strong className="text-ink">{formatWeekdayDate(offerDay.starts_on)}</strong>. Test registration closes earlier. <Link href="/calendar">All verified dates</Link>.
-        <span className="mt-2 block">
-          <Status status={closing.verification_status} />
-        </span>
-      </>
-    ) : (
-      <>
-        Each test and council publishes its own dates. <Link href="/calendar">See the verified dates we hold</Link>.
-      </>
-    ),
+  const tasks = [
+    {
+      n: "01",
+      tag: "Find",
+      title: "Find schools",
+      text: "Search by name, town or postcode, then narrow by entrance test, gender, sixth form and admission rules.",
+      href: "/grammar-schools",
+      Glyph: GlyphNearMe,
+      tint: "#e8ecff",
+    },
+    {
+      n: "02",
+      tag: "Eligibility",
+      title: "Check the admission rules",
+      text: "Answer only the questions a school's rules depend on, and see which priority groups could apply.",
+      href: "/tools/eligibility-checker",
+      Glyph: GlyphCriteria,
+      tint: "#ffe6f0",
+    },
+    {
+      n: "03",
+      tag: "Compare",
+      title: "Compare your shortlist",
+      text: "Put up to five schools side by side: tests, rules, results and past offers.",
+      href: "/compare",
+      Glyph: GlyphCompare,
+      tint: "#e6f4ff",
+    },
+    {
+      n: "04",
+      tag: "Plan",
+      title: "Plan the application",
+      text: closing ? `Applications for September ${entryYear} close on ${formatWeekdayDate(closing.starts_on)}. Keep every deadline in one plan.` : "Keep every registration, test and application deadline in one plan.",
+      href: "/tools/planner",
+      Glyph: GlyphWhen,
+      tint: "#fff3dc",
+    },
+  ];
+
+  const steps = [
+    {
+      n: "01",
+      title: "Meet the standard",
+      text: "Your child sits the test for that area and must reach the school's qualifying standard to be considered.",
+      href: "/11-plus",
+      link: "How 11+ tests work",
+    },
+    {
+      n: "02",
+      title: "Be ranked by the criteria",
+      text: "If more qualified children apply than there are places, the school's published priority order ranks them.",
+      href: "/admissions/oversubscription",
+      link: "How the order works",
+    },
+    {
+      n: "03",
+      title: "Receive an offer — if places remain",
+      text: offerDay ? `Offers go down the list until places run out, and arrive on ${formatWeekdayDate(offerDay.starts_on)}.` : "Offers go down the list until places run out, on national offer day.",
+      href: "/admissions/qualifying-is-not-an-offer",
+      link: "Why a pass isn't a place",
+    },
   ];
 
   return (
     <>
-      <SkyHeight mobile="60rem" desktop="40rem" />
+      <SkyHeight mobile="47rem" desktop="38rem" />
       <NightSky />
-      {/* A — Introduction: one promise, one search, one picture */}
+
+      {/* 1 — One promise, the coverage behind it, and one place to start */}
       <section aria-labelledby="hero-title">
-        <Page className="pt-8 sm:pt-12 lg:pt-6">
-        {/* On the navy band: the promise on the left, the drawn atlas on the right */}
-        <div className="grid items-center gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-          <div className="anim-rise max-w-[38rem]">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[0.875rem] font-medium text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.18)]">
-              <span aria-hidden className="size-2 rounded-full bg-[#3ddc97] shadow-[0_0_8px_#3ddc97]" />
-              Official data · England &amp; Northern Ireland
-            </p>
-            <h1 id="hero-title" className="mt-5 text-[clamp(2.1rem,1.5rem+2.4vw,2.9rem)] leading-[1.1] font-semibold tracking-[-0.025em] text-white">
-              Find a grammar school.
-              <span className="block text-[#9fb6ff]">See how it chooses.</span>
-            </h1>
-            <p className="mt-5 text-[1.1875rem] leading-[1.55] text-white/85">
-              Entrance tests, admission rules and past offers for all {stats.listed} grammar schools — in plain English, each fact linked to its official source.
-            </p>
-            <div className="mt-7">
-              <SearchField size="lg" placeholder="School, town or postcode" />
+        <Page className="pt-8 sm:pt-12 lg:pt-8">
+          <div className="grid gap-x-16 gap-y-8 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end">
+            <div className="anim-rise max-w-[40rem]">
+              <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[0.875rem] font-medium text-white shadow-[inset_0_0_0_1px_rgb(255_255_255/0.18)]">
+                <span aria-hidden className="size-2 rounded-full bg-[#3ddc97] shadow-[0_0_8px_#3ddc97]" />
+                Independent · every fact linked to its source
+              </p>
+              <h1 id="hero-title" className="mt-5 text-[clamp(2.25rem,1.6rem+2.6vw,3.25rem)] leading-[1.08] font-semibold tracking-[-0.025em] text-white">
+                Find a grammar school.
+                <span className="block text-[#9fb6ff]">See how it chooses.</span>
+              </h1>
+              <p className="mt-5 text-[1.1875rem] leading-[1.55] text-white/85">Entrance tests, admission rules and past offers for every grammar school in England and Northern Ireland — explained in plain English.</p>
             </div>
-            <ul className="mt-4 flex flex-wrap items-center gap-2 text-[0.9375rem]" aria-label="Popular areas">
-              <li className="mr-1 text-white/75">Popular:</li>
-              {groups.slice(0, 3).map((g) => (
-                <li key={g.slug}>
-                  <Link href={`/grammar-schools/${g.slug}`} className="inline-flex min-h-9 items-center rounded-full bg-white/10 px-3.5 font-medium text-white no-underline shadow-[inset_0_0_0_1px_rgb(255_255_255/0.2)] transition-colors hover:bg-white hover:text-green">
-                    {g.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <figure className="relative min-w-0">
-            <AtlasMap points={points} groups={groups} legend={false} />
-            <figcaption className="sr-only">Every grammar school, drawn as small school buildings grouped by neighbourhood; bigger buildings mean more schools.</figcaption>
-          </figure>
-        </div>
-        </Page>
-        <Page className="pt-6 pb-6">
-          <dl className="grid grid-cols-2 overflow-hidden rounded-[12px] bg-paper shadow-[0_1px_1px_rgb(44_11_142/0.05),0_6px_12px_-4px_rgb(44_11_142/0.08),0_20px_40px_-16px_rgb(44_11_142/0.16)] sm:grid-cols-4">
-            {[
-              [stats.listed, "schools listed"],
-              [stats.england, "grammar schools in England"],
-              [stats.partial, "partially selective"],
-              [stats.ni, "in Northern Ireland"],
-            ].map(([v, l], i) => (
-              <div key={l as string} className={clsx("flex flex-col px-5 py-5 sm:px-7", i % 2 === 1 && "border-l border-rule", i >= 2 && "border-t border-rule sm:border-t-0", i === 2 && "sm:border-l")}>
-                <dt className="order-2 mt-1 text-[0.9375rem] text-ink-2">{l}</dt>
-                <dd className="order-1 text-[2rem] leading-none font-semibold tracking-[-0.02em] text-ink num">{v}</dd>
+            <div className="text-white lg:border-l lg:border-white/15 lg:pl-6">
+              <dl className="grid grid-cols-3 gap-4 lg:grid-cols-1 lg:gap-0">
+                {[
+                  [stats.listed, "schools listed"],
+                  [stats.england, "grammar schools in England"],
+                  [stats.ni, "in Northern Ireland"],
+                ].map(([v, l]) => (
+                  <div key={l as string} className="flex flex-col lg:border-b lg:border-white/15 lg:py-3 lg:first:pt-0">
+                    <dt className="order-2 text-[0.875rem] text-white/75">{l}</dt>
+                    <dd className="order-1 text-[1.75rem] leading-tight font-semibold num">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="mt-4 lg:mt-0 lg:pt-3">
+                <Link href="/data-sources" className="text-[0.9375rem] font-semibold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
+                  Where our data comes from
+                </Link>
+                {refreshed ? <p className="mt-1 text-[0.8125rem] text-white/70">Records refreshed {relativeAge(refreshed)}</p> : null}
               </div>
-            ))}
-          </dl>
-        </Page>
-      </section>
-
-      {/* B — Start with a question */}
-      <section aria-labelledby="questions" className="pt-20 sm:pt-24">
-        <Page>
-          <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-            <div className="lg:sticky lg:top-[calc(var(--header-h)+2.5rem)] lg:self-start">
-              <Kicker>Start with a question</Kicker>
-              <h2 id="questions" className="mt-4 text-h2">The six questions parents ask first.</h2>
-              <p className="mt-4 text-[1.06rem] leading-relaxed text-ink-2">Short, sourced answers — and a route to the full one.</p>
             </div>
-            <ol className="grid gap-x-12 md:grid-cols-2">
-              {QUESTIONS.map(({ n, q, Glyph }, i) => (
-                <li key={n} className="group/q grid grid-cols-[4rem_minmax(0,1fr)] gap-x-4 border-t border-rule py-7">
-                  {/* A soft clay tile: one light from above, an inner highlight and a cast shadow */}
-                  <div
-                    className="grid size-16 place-items-center rounded-[18px] shadow-[inset_0_2px_1px_rgb(255_255_255/0.9),inset_0_-4px_8px_rgb(44_11_142/0.08),0_10px_20px_-8px_rgb(44_11_142/0.35)] transition-transform duration-[var(--d-3)] ease-[var(--ease-spring)] group-hover/q:-translate-y-1 group-hover/q:-rotate-6"
-                    style={{ background: `linear-gradient(145deg, #ffffff, ${["#e8ecff", "#ffe6f0", "#e6f4ff", "#efe8ff", "#fff3dc", "#e4f7ee"][i % 6]})` }}
-                  >
-                    <Glyph />
-                  </div>
-                  <div>
-                    <p className="font-mono text-[0.8rem] text-copper-ink">{n}</p>
-                    <h3 className="mt-1 text-[1.32rem] leading-snug [font-variation-settings:'opsz'_30]">{q}</h3>
-                    <div className="mt-2 text-[1.02rem] leading-relaxed text-ink-2 [&_a]:font-semibold [&_a]:text-green [&_a]:underline [&_a]:decoration-green/40 [&_a]:underline-offset-4 hover:[&_a]:decoration-current">{answers[i]}</div>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </Page>
-      </section>
-
-      {/* C — How admission works */}
-      <section id="how-admission-works" aria-labelledby="journey-title" className="pt-20 sm:pt-28">
-        <Page>
-          <div className="max-w-[46rem]">
-            <Kicker>Fig. 2 · How grammar school admission works</Kicker>
-            <h2 id="journey-title" className="mt-4 text-h1 [font-variation-settings:'opsz'_60]">Qualifying is the first step, not the last.</h2>
-            <p className="mt-4 text-lede leading-[1.5] text-ink">Most confusion comes from treating a pass as a place. Follow seventy-two imaginary applicants through the three steps every grammar school uses.</p>
           </div>
           <div className="mt-10">
-            <AdmissionJourney />
+            <HomeFinder />
           </div>
+          <nav aria-label="Popular areas" className="mt-5 flex flex-wrap items-center gap-2">
+            <span className="mr-2 label text-ink-2">Popular areas</span>
+            {councils.map((c) => (
+              <Link key={c.slug} href={`/grammar-schools/${c.slug}`} className={CHIP}>
+                {c.name} <span className="font-mono text-[0.8rem] text-ink-3">{c.n}</span>
+              </Link>
+            ))}
+            <Link href="/grammar-schools/northern-ireland" className={CHIP}>
+              Northern Ireland <span className="font-mono text-[0.8rem] text-ink-3">{stats.ni}</span>
+            </Link>
+          </nav>
         </Page>
       </section>
 
-      {/* D — Discover schools */}
-      <section aria-labelledby="discover" className="pt-20 sm:pt-24">
+      {/* 2 — The four jobs parents come to do */}
+      <section aria-labelledby="tasks" className="pt-20 sm:pt-24">
         <Page>
-          <SectionHead
-            id="discover"
-            kicker="Discover schools"
-            title="Grammar schools cluster in a few places."
-            lede="Each area runs its own test and timetable, so start with the region — then narrow by test, sixth form and admissions rules."
-            action={
-              <ButtonLink href="/grammar-schools" variant="secondary" arrow>
-                All {stats.listed} schools
-              </ButtonLink>
-            }
-          />
-          <div className="mt-8">
-            <RegionExplorer regions={regions} />
+          <Head id="tasks" kicker="Your research, organised" title="Everything you need to make the choice." lede="Most families need the same four things, in roughly this order. Each one draws on the same official records." />
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {tasks.map((t) => (
+              <li key={t.n}>
+                <Link
+                  href={t.href}
+                  className="group/t flex h-full flex-col rounded-[16px] bg-card p-6 no-underline shadow-[0_0_0_1px_var(--rule),0_1px_2px_rgb(44_11_142/0.04)] transition-[box-shadow,transform] duration-[var(--d-2)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--green),0_16px_32px_-18px_rgb(44_11_142/0.35)]"
+                >
+                  <span className="flex items-center justify-between">
+                    <span className="font-mono text-[0.8125rem] text-ink-2">
+                      {t.n} / {t.tag.toUpperCase()}
+                    </span>
+                    <IconArrow size={16} className="text-ink-3 transition-transform duration-[var(--d-2)] group-hover/t:translate-x-0.5 group-hover/t:text-green" />
+                  </span>
+                  <span
+                    className={`${TILE} mt-5`}
+                    style={{
+                      background: `linear-gradient(145deg,#ffffff,${t.tint})`,
+                    }}
+                  >
+                    <t.Glyph />
+                  </span>
+                  <span className="mt-5 text-[1.25rem] font-semibold text-ink group-hover/t:text-green">{t.title}</span>
+                  <span className="mt-2 text-[1rem] leading-relaxed text-ink-2">{t.text}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Page>
+      </section>
+
+      {/* 3 — Where the schools are */}
+      <section aria-labelledby="regions" className="pt-20 sm:pt-28">
+        <Page>
+          <Head id="regions" kicker="Explore by region" title="Grammar schools cluster in a few places." lede="Each area runs its own test and timetable, so most families start with their region. Wales and Scotland have no state grammar schools." />
+          <div className="mt-10 rounded-[20px] bg-[linear-gradient(160deg,#e9eefc,#f6f8fe)] p-5 shadow-[inset_0_0_0_1px_var(--rule)] sm:p-8">
+            <AtlasMap points={points} groups={groups} />
           </div>
           <p className="mt-4 text-[1rem] text-ink-2">
-            Wales and Scotland have no state grammar schools — <Link href="/admissions/wales-and-scotland" className="a">how school choice works there</Link>.
+            Each building stands for the schools in one neighbourhood; bigger buildings mean more schools. Point at a region to light it up, or{" "}
+            <Link href="/grammar-schools?view=map" className="a">
+              open the street map
+            </Link>
+            .
           </p>
         </Page>
       </section>
 
-      {/* E — Understand schools visually */}
-      {spec ? (
-        <section aria-labelledby="specimen" className="pt-20 sm:pt-24">
-          <Page>
-            <SectionHead id="specimen" kicker="What a profile tells you" title="A school, read like a research report." lede="An excerpt from a real profile. The notes in the margin explain how to read it." />
-            <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem]">
-              <article className="sheet relative overflow-hidden" aria-label={`Excerpt from the ${spec.core.school.name} profile`}>
-                <header className="border-b border-rule bg-paper px-6 py-5 sm:px-8">
-                  <p className="label">School profile · excerpt</p>
-                  <h3 className="mt-2 text-h3">
-                    <Link href={`/schools/${spec.core.school.slug}`} className="no-underline hover:underline">
-                      {spec.core.school.name}
+      {/* 4 — What a record holds, with real schools */}
+      {featured.length ? (
+        <section aria-labelledby="records" className="pt-20 sm:pt-28">
+          <Page className="grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+            <div>
+              <Kicker>A research tool, not just a list</Kicker>
+              <h2 id="records" className="mt-3 text-h2">
+                Go beyond the school name.
+              </h2>
+              <p className="mt-4 text-[1.0625rem] leading-relaxed text-ink-2">
+                Every school has its own test, its own admission rules for each year and its own record of past demand. Each profile brings them together, with the source document for every rule.
+              </p>
+              <p className="mt-6">
+                <Link href="/grammar-schools" className="inline-flex min-h-11 items-center gap-2 rounded-[8px] bg-green px-5 font-semibold text-white no-underline hover:bg-green-deep">
+                  Browse all {stats.listed} schools <IconArrow size={16} />
+                </Link>
+              </p>
+              <p className="mt-8 border-t border-rule pt-4 text-[0.9375rem] leading-relaxed text-ink-2">
+                A qualifying 11+ result is not a guaranteed place. When more qualified children apply than there are places, the school&apos;s priority order decides.
+              </p>
+            </div>
+            <div className="self-start overflow-hidden rounded-[16px] bg-card shadow-[0_0_0_1px_var(--rule),0_20px_40px_-24px_rgb(44_11_142/0.3)]">
+              <p className="label border-b border-rule px-5 py-3">School records · examples from the directory</p>
+              <ul>
+                {featured.map((f, i) => (
+                  <li key={f.slug} className="border-b border-rule last:border-b-0">
+                    <Link href={`/schools/${f.slug}`} className="group/r grid grid-cols-[2rem_minmax(0,1fr)_1rem] gap-x-4 gap-y-2 px-5 py-4 no-underline hover:bg-sage/60 xl:grid-cols-[2rem_minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.1fr)_1rem]">
+                      <span className="pt-0.5 font-mono text-[0.8125rem] text-copper-ink">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="min-w-0">
+                        <span className="block font-semibold text-ink group-hover/r:text-green">{f.name}</span>
+                        <span className="block text-small text-ink-2">{[f.town, f.la].filter(Boolean).join(" · ")}</span>
+                      </span>
+                      <span className="col-start-2 min-w-0 xl:col-start-auto">
+                        <span className="label block text-[0.6875rem]">Entrance test</span>
+                        <span className="block text-[0.9375rem] text-ink">{f.test ?? "Not yet recorded"}</span>
+                      </span>
+                      <span className="col-start-2 min-w-0 xl:col-start-auto">
+                        <span className="label block text-[0.6875rem]">Sept {f.entry_year ?? "—"} demand</span>
+                        <span className="block text-[0.9375rem] text-ink num">{f.first_prefs != null && f.offers != null ? `${formatNumber(f.first_prefs)} first choices · ${formatNumber(f.offers)} offers` : "Not published"}</span>
+                      </span>
+                      <IconArrow size={16} className="col-start-3 row-start-1 mt-1 text-ink-3 group-hover/r:text-green xl:col-start-5" />
                     </Link>
-                  </h3>
-                  <p className="mt-1 text-[1rem] text-ink-2">{[spec.core.location?.town, spec.core.la?.name].filter(Boolean).join(" · ")}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                    <Tag>{SELECTIVITY_SHORT[spec.core.school.selectivity]}</Tag>
-                    <Tag>{GENDER_LABEL[spec.core.school.gender]}</Tag>
-                    {spec.core.school.hasSixthForm ? <Tag>Sixth form</Tag> : null}
-                  </div>
-                </header>
-                <div className="grid divide-y divide-rule sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                  <div className="relative p-6">
-                    <Marker n={1} />
-                    <p className="label">Admission · Sept {spec.entryYear}</p>
-                    {spec.policy ? (
-                      <>
-                        <p className="mt-2 font-display text-[2.2rem] leading-none num">{spec.policy.scoreRules.find((r) => r.kind === "qualifying_threshold")?.scoreValue ?? "—"}</p>
-                        <p className="mt-1 text-small text-ink-2">qualifying score{spec.test ? ` · ${spec.test.test.name}` : ""}</p>
-                        <p className="mt-3 text-[0.98rem] text-ink">
-                          {spec.policy.publishedAdmissionNumber ?? "—"} places · {spec.policy.criteria.length} ordered criteria
-                        </p>
-                        <p className="text-small text-ink-2">{CATCHMENT_LABEL[spec.policy.catchmentType]}</p>
-                        <Status status={spec.policy.verificationStatus} className="mt-3" />
-                      </>
-                    ) : (
-                      <p className="mt-2 text-ink-2">Admissions rules not yet held for this year.</p>
-                    )}
-                  </div>
-                  <div className="relative p-6">
-                    <Marker n={2} />
-                    <p className="label">GCSE · Attainment 8</p>
-                    {spec.lastA8 ? (
-                      <>
-                        <p className="mt-2 font-display text-[2.2rem] leading-none num">{formatMeasure(MEASURES.ks4_attainment8, spec.lastA8.value)}</p>
-                        <p className="mt-1 text-small text-ink-2">
-                          {spec.lastA8.year} · all selective schools {formatMeasure(MEASURES.ks4_attainment8, spec.lastA8.nationalSelective)}
-                        </p>
-                        <Sparkline values={spec.a8.map((r) => r.value)} className="mt-3" />
-                      </>
-                    ) : (
-                      <p className="mt-2 text-ink-2">Not published.</p>
-                    )}
-                  </div>
-                  <div className="relative p-6">
-                    <Marker n={3} />
-                    <p className="label">Demand · Sept {spec.latest ?? "—"}</p>
-                    {spec.latest ? (
-                      <>
-                        <p className="mt-2 font-display text-[2.2rem] leading-none num">{formatNumber(spec.get(spec.latest, "times_first_preference"))}</p>
-                        <p className="mt-1 text-small text-ink-2">first preferences · {formatNumber(spec.get(spec.latest, "offers_made"))} offers made</p>
-                        <Sparkline values={spec.years.map((y) => spec.get(y, "offers_made"))} className="mt-3" />
-                      </>
-                    ) : (
-                      <p className="mt-2 text-ink-2">No DfE data.</p>
-                    )}
-                  </div>
-                </div>
-                <div className="relative border-t border-rule px-6 pt-1 pb-5 sm:px-8">
-                  <Marker n={4} />
-                  <Source source={spec.policy?.sourceDocumentId ? spec.sources.get(spec.policy.sourceDocumentId) : null} locator={spec.policy?.sourceLocator} />
-                </div>
-              </article>
-              <ol className="grid content-start gap-6">
-                {[
-                  ["The rules for one entry year", "Admissions rules change every year, so each one belongs to a single September. We never fill a gap with another year's rules."],
-                  ["Results with a fair benchmark", "Grammar schools are compared with all selective schools, not every school — and the year is always shown."],
-                  ["Demand, not chances", "First preferences and offers describe a past year. They are not a pass mark, a distance or a probability."],
-                  ["A source on every fact", "Each figure names the document it came from, and when we retrieved it. Unchecked facts say so."],
-                ].map(([t, d], i) => (
-                  <li key={t} className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3">
-                    <span className="grid size-7 place-items-center rounded-full border border-copper bg-copper-wash font-mono text-[0.8rem] text-copper-ink">{i + 1}</span>
-                    <div>
-                      <p className="font-semibold text-ink">{t}</p>
-                      <p className="mt-0.5 text-[0.98rem] leading-relaxed text-ink-2">{d}</p>
-                    </div>
                   </li>
                 ))}
-                <li className="pl-11">
-                  <ArrowLink href={`/schools/${spec.core.school.slug}`}>Read the full profile</ArrowLink>
-                </li>
-              </ol>
+              </ul>
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule bg-paper px-5 py-3 text-small">
+                <span className="text-ink-2">Figures from DfE and each school&apos;s determined policy.</span>
+                <Link href="/grammar-schools?view=table" className="font-semibold text-green">
+                  Open the full data table
+                </Link>
+              </div>
             </div>
           </Page>
         </section>
       ) : null}
 
-      {/* F — The knowledge atlas */}
-      <section aria-labelledby="knowledge" className="pt-20 sm:pt-24">
+      {/* 5 — How admission works, in three steps and one machine */}
+      <section id="how-admission-works" aria-labelledby="process" className="pt-20 sm:pt-28">
         <Page>
-          <SectionHead id="knowledge" kicker="The knowledge atlas" title="Every guide connects to the next." lede="Admissions ideas depend on each other. Trace a topic to see what it leads to, or follow a reading path." />
-          <div className="mt-8">
-            <KnowledgeMap nodes={KNOWLEDGE_NODES} edges={KNOWLEDGE_EDGES} />
-          </div>
-          <div className="mt-10 grid gap-10 md:grid-cols-3">
-            {(Object.keys(READING_PATHS) as (keyof typeof READING_PATHS)[]).map((k) => (
-              <div key={k}>
-                <p className="label text-copper-ink">Reading path</p>
-                <h3 className="mt-1 text-h3">{READING_PATHS[k].title}</h3>
-                <p className="mt-1 text-[0.98rem] text-ink-2">{READING_PATHS[k].text}</p>
-                <ol className="mt-4 grid gap-0 border-t border-rule">
-                  {ADMISSIONS_GUIDES.filter((g) => g.path === k).map((g, i) => (
-                    <li key={g.slug} className="border-b border-rule">
-                      <Link href={`/admissions/${g.slug}`} className="group/p flex items-baseline gap-3 py-3 no-underline">
-                        <span className="font-mono text-[0.8rem] text-ink-2">{String(i + 1).padStart(2, "0")}</span>
-                        <span className="font-semibold text-ink group-hover/p:text-green">{g.short}</span>
-                        <IconArrow size={14} className="ml-auto shrink-0 self-center text-ink-3 transition-transform duration-[var(--d-2)] group-hover/p:translate-x-1 group-hover/p:text-green" />
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            ))}
+          <Head
+            id="process"
+            kicker="Understand the process"
+            title="From a test result to an offer."
+            lede={
+              lastDemand?.first && lastDemand.offers ? (
+                <>
+                  In {lastDemand.entry_year}, England&apos;s grammar schools were named as a first choice {formatNumber(lastDemand.first)} times, for {formatNumber(lastDemand.offers)} offers. Passing is only the first step.
+                </>
+              ) : (
+                "Passing the test is only the first step. Places go to qualified children in each school's published order."
+              )
+            }
+          />
+          <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
+            <ol className="grid gap-3">
+              {steps.map((s) => (
+                <li key={s.n} className="rounded-[16px] bg-card p-5 shadow-[0_0_0_1px_var(--rule)]">
+                  <p className="font-mono text-[0.8125rem] text-copper-ink">{s.n}</p>
+                  <h3 className="mt-1 text-[1.1875rem] font-semibold text-ink">{s.title}</h3>
+                  <p className="mt-1.5 text-[1rem] leading-relaxed text-ink-2">{s.text}</p>
+                  <Link href={s.href} className="mt-3 inline-flex items-center gap-1.5 text-[0.9375rem] font-semibold text-green">
+                    {s.link} <IconArrow size={14} />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+            <div>
+              <JourneyStepper />
+              <p className="mt-3 text-small text-ink-2">Seventy-two imaginary applicants and twenty-two places — an illustration, not data from any school. Press Play to run it.</p>
+            </div>
           </div>
         </Page>
       </section>
 
-      {/* G — Dates and research */}
-      <section aria-labelledby="dates" className="pt-20 sm:pt-28">
-        <Page className="grid gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      {/* 6 — Dates: what is coming up, and where to plan it */}
+      <section aria-labelledby="dates" className="mt-24 bg-[linear-gradient(165deg,#0b1033_0%,#141a4d_45%,#1f2a78_100%)] py-16 text-white sm:mt-28 sm:py-20">
+        <Page className="grid gap-x-16 gap-y-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center">
           <div>
-            <Kicker>Dates</Kicker>
-            <h2 id="dates" className="mt-4 text-h2">Coming up</h2>
-            <p className="mt-2 text-[1.04rem] text-ink-2">Dates from official sources only — each one says whether an editor has checked it.</p>
-            <div className="mt-6">
-              <DateLine events={events.map((e) => ({ ...e, context: `${e.nation === "northern_ireland" ? "Northern Ireland" : "England"} · September ${e.entry_year} entry` }))} today={today} emptyText="No upcoming dates are held yet." />
+            <p className="label text-[#9fb6ff]">Keep moving forward</p>
+            <h2 id="dates" className="mt-3 text-h2 text-white">
+              A plan that&apos;s easier to follow.
+            </h2>
+            <p className="mt-4 max-w-[34rem] text-[1.0625rem] leading-relaxed text-white/80">Registration, test, application and offer dates from official sources, each marked as checked or awaiting checking.</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/tools/planner" className="inline-flex min-h-11 items-center gap-2 rounded-[8px] bg-white px-5 font-semibold text-[#141a4d] no-underline hover:bg-[#e8ecff]">
+                Open your planner <IconArrow size={16} />
+              </Link>
+              <Link href="/calendar" className="inline-flex min-h-11 items-center rounded-[8px] px-5 font-semibold text-white no-underline shadow-[inset_0_0_0_1.5px_rgb(255_255_255/0.6)] hover:bg-white/10">
+                See every key date
+              </Link>
             </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <ButtonLink href="/tools/planner" arrow>
-                Plan your year
-              </ButtonLink>
-              <ButtonLink href="/calendar" variant="secondary">
+          </div>
+          <div className="overflow-hidden rounded-[16px] bg-card text-ink shadow-[0_30px_60px_-30px_rgb(0_0_0/0.6)]">
+            <div className="flex items-center justify-between border-b border-rule px-5 py-3">
+              <p className="label">Coming up</p>
+              <Link href="/calendar" className="text-small font-semibold text-green">
                 Full calendar
-              </ButtonLink>
+              </Link>
             </div>
+            {events.length ? (
+              <ul>
+                {events.map((e) => {
+                  const d = new Date(`${e.starts_on}T12:00:00Z`);
+                  return (
+                    <li key={e.id} className="grid grid-cols-[3.5rem_minmax(0,1fr)] gap-4 border-b border-rule px-5 py-4 last:border-b-0">
+                      <p className="self-start overflow-hidden rounded-[10px] text-center leading-none shadow-[0_0_0_1px_var(--rule)]">
+                        <span className="block bg-[linear-gradient(var(--copper),color-mix(in_srgb,var(--copper)_75%,#000))] py-1 text-[0.6875rem] font-bold tracking-[0.08em] text-white uppercase">
+                          {d.toLocaleDateString("en-GB", {
+                            month: "short",
+                            timeZone: "Europe/London",
+                          })}
+                        </span>
+                        <span className="block py-1.5 text-[1.375rem] font-semibold text-ink num">
+                          {d.toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            timeZone: "Europe/London",
+                          })}
+                        </span>
+                      </p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-ink">{e.title}</p>
+                        <p className="text-small text-ink-2">
+                          {formatWeekdayDate(e.starts_on)} · {e.nation === "northern_ireland" ? "Northern Ireland" : "England"}
+                          {e.test_name ? ` · ${e.test_name}` : ""}
+                        </p>
+                        <Status status={e.verification_status} className="mt-2" />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="px-5 py-6 text-ink-2">No upcoming dates are held yet.</p>
+            )}
           </div>
-          {demand.length > 1 && lastDemand ? (
-            <div className="min-w-0">
-              <Kicker>Research</Kicker>
-              <h2 className="mt-4 text-h2">Demand for places in England</h2>
-              <p className="mt-2 text-[1.04rem] text-ink-2">
-                In {lastDemand.entry_year}, families named England&apos;s {lastDemand.schools} grammar schools as a first preference {formatNumber(lastDemand.first)} times; {formatNumber(lastDemand.offers)} offers were made on national offer day.
-              </p>
-              <div className="mt-6 rounded-[8px] border border-rule bg-card p-5">
-                <GroupedBars
-                  label={`First preferences and offers made, England's fully selective schools, ${demand[0]!.entry_year}–${lastDemand.entry_year}`}
-                  xs={demand.map((d) => String(d.entry_year))}
-                  series={[
-                    { key: "first", label: "Named as first preference", tone: "school", points: demand.map((d) => ({ x: String(d.entry_year), y: d.first })) },
-                    { key: "offers", label: "Offers made", tone: "benchmark", points: demand.map((d) => ({ x: String(d.entry_year), y: d.offers })) },
-                  ]}
-                />
-                <p className="mt-3 text-small leading-relaxed text-ink-2">
-                  Year of September entry. Source: DfE school-level applications and offers. DfE&apos;s figures for 2021 entry are unusually high for first preferences and are shown as published. More first preferences than offers doesn&apos;t mean
-                  children were refused — many had not qualified, and some had other offers.
-                </p>
-              </div>
-            </div>
-          ) : null}
         </Page>
       </section>
 
-      {/* H — Data credibility */}
-      <section aria-labelledby="provenance" className="pt-20 sm:pt-24">
-        <Page className="grid gap-12 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-          <div>
-            <Kicker>Provenance</Kicker>
-            <h2 id="provenance" className="mt-4 text-h2">Where every fact comes from.</h2>
-            <p className="mt-3 text-[1.04rem] leading-relaxed text-ink-2">Official publishers first. Anything we haven&apos;t checked is labelled, never guessed — and if a refresh fails, the previous data stays in place.</p>
-            <ul className="mt-6 grid gap-2 text-[1rem] text-ink-2">
-              <li>— We can&apos;t promise a place or predict offers.</li>
-              <li>— A school&apos;s determined policy is always the authority.</li>
-              <li>— Postcode distances are approximate.</li>
-            </ul>
-            <div className="mt-6 flex flex-col gap-2">
-              <ArrowLink href="/methodology">Our methodology</ArrowLink>
-              <ArrowLink href="/data-sources">Every source, with licences</ArrowLink>
-            </div>
-          </div>
-          <div className="min-w-0">
-            <table className="w-full border-collapse text-left">
-              <caption className="sr-only">Data sources and when each was last refreshed</caption>
-              <thead>
-                <tr className="border-b border-ink">
-                  <th scope="col" className="label pb-2 font-medium">
-                    Source
-                  </th>
-                  <th scope="col" className="label hidden pb-2 font-medium sm:table-cell">
-                    Refreshed
-                  </th>
-                  <th scope="col" className="label pb-2 text-right font-medium">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {freshness.map((f) => (
-                  <tr key={f.job} className="border-b border-rule align-top">
-                    <td className="py-3.5 pr-4">
-                      <span className="block font-semibold text-ink">{f.source_name ?? f.job}</span>
-                      <span className="block text-small text-ink-2">{f.description}</span>
-                      <span className="block text-small text-ink-2 sm:hidden">Refreshed {relativeAge(f.last_success)}</span>
-                    </td>
-                    <td className="hidden py-3.5 pr-4 text-[0.98rem] whitespace-nowrap text-ink-2 sm:table-cell">{f.last_success ? `${relativeAge(f.last_success)} · ${formatDate(f.last_success)}` : "Never"}</td>
-                    <td className="py-3.5 text-right">
-                      {f.last_status === "failed" ? (
-                        <span className="text-small font-semibold text-bad">Last run failed — previous data kept</span>
-                      ) : f.last_status === "partial" ? (
-                        <span className="text-small font-semibold text-pend">Completed with warnings</span>
-                      ) : (
-                        <span className="text-small font-semibold text-ok">Up to date</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* 7 — The promise behind the records */}
+      <section aria-labelledby="promise" className="border-b border-rule py-12">
+        <Page className="grid gap-6 md:grid-cols-[10rem_minmax(0,1fr)_auto] md:items-center">
+          <h2 id="promise" className="label text-ink">
+            Our promise
+          </h2>
+          <p className="max-w-[48rem] text-[1rem] leading-relaxed text-ink-2">
+            Grammar Atlas is independent. We separate published facts, missing records and information awaiting checking, so you can research with confidence — and we never present an estimate as an admission decision. A school&apos;s determined
+            policy is always the authority.
+          </p>
+          <div className="flex flex-col gap-1.5 text-[0.9375rem] font-semibold">
+            <Link href="/methodology" className="text-green">
+              Our methodology
+            </Link>
+            <Link href="/data-sources" className="text-green">
+              Every source and licence
+            </Link>
           </div>
         </Page>
       </section>
     </>
-  );
-}
-
-function Marker({ n }: { n: number }) {
-  return (
-    <span aria-hidden className="absolute top-3 right-3 grid size-6 place-items-center rounded-full border border-copper bg-copper-wash font-mono text-[0.75rem] text-copper-ink">
-      {n}
-    </span>
   );
 }

@@ -71,3 +71,17 @@ export function GlyphWhen() {
     </svg>
   );
 }
+export function GlyphCompare() {
+  return (
+    <svg {...base}>
+      <rect x="8" y="10" width="13" height="28" rx="2" style={{ ...g, fill: "var(--card)" }} />
+      <rect x="27" y="10" width="13" height="28" rx="2" style={{ ...g, fill: "var(--card)" }} />
+      {[17, 23, 29].map((y) => (
+        <g key={y}>
+          <path d={`M11 ${y}h7`} style={g} />
+          <path d={`M30 ${y}h7`} style={y === 23 ? c : g} />
+        </g>
+      ))}
+    </svg>
+  );
+}

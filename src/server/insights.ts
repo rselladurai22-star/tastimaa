@@ -170,3 +170,14 @@ export async function areaIndex() {
   }
   return [...groups.values()].sort((a, b) => b.n - a.n);
 }
+
+/** Council areas with the most listed schools, for quick links. */
+export async function topCouncilAreas(limit = 6) {
+  const rows = await db().execute<{ slug: string; name: string; n: number }>(sql`
+    SELECT a.slug, a.name, count(s.id)::int AS n
+    FROM geographic_areas a JOIN schools s ON s.local_authority_id = a.id AND s.is_open AND s.selectivity <> 'non_selective'
+    WHERE a.type = 'local_authority'
+    GROUP BY a.id ORDER BY n DESC, a.name LIMIT ${limit}
+  `);
+  return [...rows];
+}
