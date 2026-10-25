@@ -56,7 +56,7 @@ export default async function ResultsPage({ params }: Props) {
       </RSection>
       <RSection id="gcse" mark="B" title="GCSE (key stage 4)">
         {ks4.length ? (
-          <div className="grid gap-10">
+          <div className="grid gap-8">
             {ks4.map(({ m, rows }, i) => (
               <MeasureFigure key={m} n={`B${i + 1}`} measure={m} rows={rows} laName={la?.name ?? null} sources={sources} />
             ))}
@@ -67,7 +67,7 @@ export default async function ResultsPage({ params }: Props) {
       </RSection>
       <RSection id="alevel" mark="C" title="A level (16 to 18)">
         {ks5.length ? (
-          <div className="grid gap-10">
+          <div className="grid gap-8">
             {ks5.map(({ m, rows }, i) => (
               <MeasureFigure key={m} n={`C${i + 1}`} measure={m} rows={rows} laName={la?.name ?? null} sources={sources} />
             ))}

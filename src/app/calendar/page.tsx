@@ -61,7 +61,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           }
         />
       </Hero>
-      <Page className="pb-16">
+      <Page className="pb-12">
         <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[14px] bg-card px-4 py-3 shadow-[0_0_0_1px_var(--rule)]">
           <nav aria-label="Nation" className="flex overflow-hidden rounded-[5px] border border-control">
             {(
@@ -90,7 +90,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         </div>
 
         {months.length > 1 ? (
-          <nav aria-label="Months" className="relative mb-12 overflow-x-auto">
+          <nav aria-label="Months" className="relative mb-9 overflow-x-auto">
             <ol className="flex min-w-max items-end gap-1">
               {months.map((k) => {
                 const n = byMonth.get(k)!.length;
@@ -116,9 +116,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         ) : null}
 
         {events.length === 0 ? <Gap title="No verified dates match these filters." /> : null}
-        <div className="grid gap-14">
+        <div className="grid gap-10">
           {[...byMonth.entries()].map(([k, evs]) => (
-            <section key={k} id={`m-${k}`} aria-labelledby={`h-${k}`} className="grid scroll-mt-[calc(var(--header-h)+1.5rem)] gap-x-12 gap-y-4 lg:grid-cols-[13rem_minmax(0,1fr)]">
+            <section key={k} id={`m-${k}`} aria-labelledby={`h-${k}`} className="grid scroll-mt-[calc(var(--header-h)+1.5rem)] gap-x-9 gap-y-4 lg:grid-cols-[13rem_minmax(0,1fr)]">
               <div>
                 <h2 id={`h-${k}`} className="text-h2 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
                   {monthLabel(k)}

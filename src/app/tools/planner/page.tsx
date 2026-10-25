@@ -23,7 +23,7 @@ export default async function PlannerPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHero crumbs={[{ href: "/tools/planner", label: "Admissions planner" }]} kicker="Research tools" title="Admissions planner" lede="Every step from research to offers, with the verified dates for your shortlisted schools and their tests." />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <Planner years={selectableEntryYears()} defaultYear={defaultEntryYear()} notice={sp.reminders ? (NOTICES[sp.reminders] ?? null) : null} />
       </Page>
     </>

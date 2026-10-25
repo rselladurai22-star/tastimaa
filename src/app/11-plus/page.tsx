@@ -83,7 +83,7 @@ export default async function ElevenPlusHub() {
           </li>
         </ul>
         <p>Which of these appear, in what format and for how long differs by test. Always use the official familiarisation materials for the test your child will sit.</p>
-        <Figure n={1} title="The four kinds of question, and how each test combines them" caption="The example questions are original and illustrative — not taken from any real paper. The components listed for each test are as published by its administrator." className="my-10">
+        <Figure n={1} title="The four kinds of question, and how each test combines them" caption="The example questions are original and illustrative — not taken from any real paper. The components listed for each test are as published by its administrator." className="my-8">
           <TestStructure tests={structures} />
         </Figure>
       </section>

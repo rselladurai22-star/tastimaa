@@ -50,16 +50,16 @@ export default async function SchoolLayout({ children, params }: { children: Rea
 
   return (
     <>
-      <Hero className="pb-20 sm:pb-24">
+      <Hero className="pb-14 sm:pb-16">
         <Breadcrumbs items={[{ href: "/grammar-schools", label: "Grammar schools" }, ...(areaCrumb ? [areaCrumb] : []), { href: `/schools/${slug}`, label: school.name }]} />
-        <div className="mt-8 grid gap-x-16 gap-y-8 sm:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
+        <div className="mt-8 grid gap-x-12 gap-y-8 sm:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
           <div className="anim-rise min-w-0">
             <p className="label eyebrow">
               School report
               {urn ? <span className="text-ink-3"> · URN {urn}</span> : null}
               {deni ? <span className="text-ink-3"> · DENI {deni}</span> : null}
             </p>
-            <h1 className="mt-3 max-w-[24ch] text-[clamp(2.25rem,1.6rem+2.4vw,3rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{school.name}</h1>
+            <h1 className="mt-3 max-w-[24ch] text-[clamp(1.875rem,1.45rem+1.8vw,2.5rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{school.name}</h1>
             <p className="mt-4 flex items-start gap-2 text-[1.0625rem] text-ink-2">
               <IconPin size={18} className="mt-1 shrink-0 text-copper" />
               {place}

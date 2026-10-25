@@ -64,13 +64,13 @@
   --chart-axis: #c9c3b6;
 
   /* Type scale — fixed sizes, as on the reference site */
-  --t-display: clamp(2.25rem, 1.8rem + 1.6vw, 3rem);
-  --t-h1: 2.25rem; /* 36px / 54px, weight 500 */
-  --t-h2: 2rem; /* 32px / 48px, weight 700 */
-  --t-h3: 1.5rem; /* 24px / 36px, weight 700 */
-  --t-h4: 1.125rem;
-  --t-lede: 1.125rem;
-  --t-body: 1.125rem; /* 18px / 27px */
+  --t-display: clamp(2rem, 1.7rem + 1.2vw, 2.5rem);
+  --t-h1: 2rem; /* 32px */
+  --t-h2: 1.625rem; /* 26px */
+  --t-h3: 1.25rem; /* 20px */
+  --t-h4: 1.0625rem;
+  --t-lede: 1.0625rem;
+  --t-body: 1.0625rem; /* 17px / 26px: compact but comfortable */
   --t-ui: 1rem;
   --t-small: 0.9375rem;
   --t-label: 0.8125rem;
@@ -79,7 +79,7 @@
   --measure: 686px;
   --page: 1220px;
   --gutter: 1rem;
-  --header-h: 5rem; /* 48px bar with 16px above and below */
+  --header-h: 4rem; /* 48px bar with 8px above and below */
 
   /* Radius: fine, never pill-shaped */
   --r-1: 3px;
@@ -313,16 +313,16 @@
     max-width: var(--measure);
   }
   .prose-atlas > * + * {
-    margin-top: 1.5em;
+    margin-top: 1.1em;
   }
   .prose-atlas h2:not(:where(.not-prose, .not-prose *)) {
     font-size: var(--t-h2);
-    margin-top: 2.5em;
-    margin-bottom: -0.25em;
+    margin-top: 1.8em;
+    margin-bottom: -0.2em;
   }
   .prose-atlas h3:not(:where(.not-prose, .not-prose *)) {
     font-size: var(--t-h3);
-    margin-top: 1.8em;
+    margin-top: 1.4em;
   }
   .prose-atlas strong {
     font-weight: 600;

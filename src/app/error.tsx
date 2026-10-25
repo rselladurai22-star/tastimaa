@@ -5,7 +5,7 @@ import { Kicker, Page } from "@/ui/kit";
 
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <Page className="max-w-[44rem] pt-16 pb-24">
+    <Page className="max-w-[44rem] pt-12 pb-16">
       <Kicker>Something went wrong</Kicker>
       <h1 className="mt-4 text-h1">This page couldn&apos;t be loaded</h1>
       <p className="mt-4 text-lede leading-[1.5] text-ink">The problem has been logged. Please try again.</p>

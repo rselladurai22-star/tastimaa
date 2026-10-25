@@ -23,7 +23,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         title="Your account"
         lede={user ? `Signed in as ${user.email}.` : "You don't need an account to use any tool. Sign in only if you want your shortlist saved across devices. We store just your email address and the schools you save."}
       />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <div className="max-w-[44rem]">
           {sp.deleted ? <Note className="mb-6">Your account and saved data have been deleted.</Note> : null}
           {sp.error === "link" ? (

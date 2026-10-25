@@ -12,13 +12,13 @@ import { ContentsRail } from "./chrome";
 /** Chapter page frame: an "in this chapter" rail beside the report text. */
 export function ReportBody({ contents, children }: { contents: { id: string; label: string }[]; children: ReactNode }) {
   return (
-    <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-x-14 pt-10 pb-16 lg:grid-cols-[12.5rem_minmax(0,1fr)]">
+    <div className="container-page grid grid-cols-[minmax(0,1fr)] gap-x-10 pt-8 pb-12 lg:grid-cols-[12.5rem_minmax(0,1fr)]">
       <aside className="hidden lg:block" data-no-print>
         <div className="sticky top-[calc(var(--header-h)+4.5rem)]">
           <ContentsRail items={contents} />
         </div>
       </aside>
-      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-16">{children}</div>
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-12">{children}</div>
     </div>
   );
 }

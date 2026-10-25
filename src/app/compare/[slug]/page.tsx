@@ -40,7 +40,7 @@ export default async function SavedComparison({ params }: Props) {
         title={data.schools.map((s) => s.name).join(" vs ")}
         lede={`A saved comparison for September ${data.entryYear} entry. Figures update as official data changes.`}
       />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <CompareView data={data} groups={Object.keys(COMPARE_GROUPS) as CompareGroup[]} diffOnly={false} years={selectableEntryYears()} savedSlug={slug} />
       </Page>
     </>

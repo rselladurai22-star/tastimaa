@@ -9,7 +9,7 @@ import { Breadcrumbs, type Crumb } from "./breadcrumbs";
 export function Hero({ children, className, edge = true }: { children: ReactNode; className?: string; edge?: boolean }) {
   return (
     <section data-hero className="relative overflow-hidden bg-[radial-gradient(86%_80%_at_74%_31%,#fbddd5_8%,#fce4ec_38%,#fcfcfa_80%)]">
-      <div className={clsx("relative z-[1] container-page pt-6", edge ? "pb-20 sm:pb-24" : "pb-14", className)}>{children}</div>
+      <div className={clsx("relative z-[1] container-page pt-6", edge ? "pb-14 sm:pb-16" : "pb-10", className)}>{children}</div>
     </section>
   );
 }
@@ -17,10 +17,10 @@ export function Hero({ children, className, edge = true }: { children: ReactNode
 /** The heading block inside a Hero: label, title, one-sentence summary, and an optional column of key figures. */
 export function HeroHead({ kicker, title, lede, meta, aside, children }: { kicker?: ReactNode; title: ReactNode; lede?: ReactNode; meta?: ReactNode; aside?: ReactNode; children?: ReactNode }) {
   return (
-    <div className="mt-8 grid gap-x-16 gap-y-8 sm:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
+    <div className="mt-8 grid gap-x-12 gap-y-8 sm:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,19rem)] lg:items-end">
       <div className="anim-rise max-w-[44rem] min-w-0">
         {kicker ? <p className="label eyebrow">{kicker}</p> : null}
-        <h1 className="mt-3 text-[clamp(2.25rem,1.6rem+2.4vw,3rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{title}</h1>
+        <h1 className="mt-3 text-[clamp(1.875rem,1.45rem+1.8vw,2.5rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{title}</h1>
         {lede ? <p className="mt-4 text-[1.125rem] leading-[1.55] text-ink-2">{lede}</p> : null}
         {meta ? <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-small text-ink-3">{meta}</div> : null}
         {children}

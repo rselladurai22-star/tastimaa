@@ -27,7 +27,7 @@ export default function PreparationPage() {
         <HeroHead kicker="Explore 11+ exams" title="11+ preparation" lede="A simple plan and free timed practice. Exact dates differ by area — use the planner for your schools' verified dates." />
       </Hero>
 
-      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-14 pt-4 pb-16 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-10 pt-4 pb-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section aria-labelledby="practice" className="min-w-0">
           <p className="label mb-3 text-green">Free practice</p>
           <h2 id="practice" className="text-h2">
@@ -39,7 +39,7 @@ export default function PreparationPage() {
           <PracticeTool />
         </section>
 
-        <aside className="grid content-start gap-10">
+        <aside className="grid content-start gap-8">
           <section aria-labelledby="timeline">
             <h2 id="timeline" className="label text-ink">
               A typical timeline in England

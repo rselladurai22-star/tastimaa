@@ -29,7 +29,7 @@ export function MeasureFigure({ measure, rows, laName, sources, n }: { measure: 
     ...(showLa ? [{ key: "la", label: `${laName ?? "LA"} average`, short: "LA average", tone: "third" as const, points: rows.map((r) => ({ x: r.year, y: r.la })) }] : []),
   ];
   return (
-    <figure className="grid gap-6 border-b border-rule pb-10 last:border-b-0 xl:grid-cols-[17rem_minmax(0,1fr)]">
+    <figure className="grid gap-6 border-b border-rule pb-8 last:border-b-0 xl:grid-cols-[17rem_minmax(0,1fr)]">
       <div>
         <p className="label text-copper-ink">Fig. {n}</p>
         <h3 className="mt-1.5 text-h4">{def.label}</h3>

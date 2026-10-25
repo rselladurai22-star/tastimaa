@@ -109,7 +109,7 @@ export function AssistantChat({ llmEnabled }: { llmEnabled: boolean }) {
         </section>
       ) : null}
 
-      <ol className="grid gap-12" aria-live="polite">
+      <ol className="grid gap-9" aria-live="polite">
         {turns.map((t, i) => (
           <li key={i} className="anim-rise grid gap-5">
             <div className="flex items-baseline gap-4 border-b border-ink pb-3">

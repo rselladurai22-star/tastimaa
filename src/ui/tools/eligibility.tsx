@@ -317,7 +317,7 @@ export function EligibilityChecker({ initialSchools, years, defaultYear }: { ini
   const answeredCount = asked.filter(isAnswered).length;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-8 lg:grid-cols-[25rem_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-x-8 gap-y-8 lg:grid-cols-[25rem_minmax(0,1fr)]">
       <form className="grid content-start gap-7" onSubmit={(e) => e.preventDefault()} aria-label="Your situation">
         <section className="grid gap-3">
           <p className="flex items-center gap-3">
@@ -523,7 +523,7 @@ export function EligibilityChecker({ initialSchools, years, defaultYear }: { ini
         </div>
         {error ? <p className="rounded-[5px] border border-bad/30 bg-bad-wash p-4 font-semibold text-bad">{error}</p> : null}
         {!schools.length ? (
-          <div className="grid place-items-center rounded-[8px] border border-dashed border-rule-strong bg-card px-6 py-14 text-center">
+          <div className="grid place-items-center rounded-[8px] border border-dashed border-rule-strong bg-card px-6 py-10 text-center">
             <p className="font-display text-[1.3rem] text-ink">Add a school to start.</p>
             <p className="mt-1 text-ink-2">Your shortlist is added automatically.</p>
           </div>

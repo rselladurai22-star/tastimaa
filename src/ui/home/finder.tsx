@@ -14,7 +14,7 @@ export function HomeFinder() {
     { key: "postcode", label: "Near a postcode" },
   ] as const;
   return (
-    <div className="rounded-[16px] border border-rule bg-card p-5 text-ink shadow-[0_24px_48px_-32px_rgb(33_51_67/0.35)] sm:p-7">
+    <div className="rounded-[16px] border border-rule bg-card p-5 text-ink shadow-[0_24px_48px_-32px_rgb(33_51_67/0.35)] sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
         <div>
           <p className="label eyebrow">School finder</p>

@@ -32,9 +32,9 @@ export default async function EligibilityPage({ searchParams }: { searchParams: 
           don&apos;t hold a school&apos;s rules for that year, it says so.
         </Note>
       </PageHero>
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <EligibilityChecker initialSchools={slugs.map((s) => rows.find((r) => r.slug === s)).filter((r): r is { slug: string; name: string } => !!r)} years={selectableEntryYears()} defaultYear={clampEntryYear(sp.year)} />
-        <div className="mt-14">
+        <div className="mt-10">
           <StepsStrip />
         </div>
       </Page>

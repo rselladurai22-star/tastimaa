@@ -310,7 +310,7 @@ export function MainNav({ data }: { data: NavData }) {
           className="on-light anim-rise absolute inset-x-0 top-full border-y border-rule bg-paper shadow-[0_24px_40px_-28px_rgb(23_35_31/0.35)]"
           onPointerEnter={cancel}
         >
-          <div className="container-page grid grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] gap-10 py-8">
+          <div className="container-page grid grid-cols-[minmax(0,17rem)_minmax(0,1fr)_minmax(0,19rem)] gap-8 py-8">
             <div>
               <p className="font-display text-[1.6rem] leading-tight text-ink">{group.label}</p>
               <p className="mt-3 text-[1rem] leading-relaxed text-ink-2">{group.intro}</p>
@@ -394,7 +394,7 @@ export function MobileNav({ data }: { data: NavData }) {
                 <IconClose size={20} />
               </button>
             </div>
-            <nav aria-label="Main" className="px-5 pb-10">
+            <nav aria-label="Main" className="px-5 pb-8">
               {GROUPS.map((g) => (
                 <details key={g.key} className="group/mg border-b border-rule" open={g.match(pathname)}>
                   <summary className="flex min-h-14 list-none items-center justify-between font-display text-[1.35rem] text-ink">

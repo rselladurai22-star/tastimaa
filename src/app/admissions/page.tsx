@@ -56,9 +56,9 @@ export default async function AdmissionsHub() {
 
       <Page as="section" className="pt-6">
         <SectionHead id="guides" kicker="Reading paths" title="Every guide, in the order it helps most" />
-        <div className="mt-10 grid gap-14">
+        <div className="mt-8 grid gap-10">
           {paths.map((k) => (
-            <div key={k} id={`path-${k}`} className="grid scroll-mt-[calc(var(--header-h)+2rem)] gap-x-12 gap-y-5 lg:grid-cols-[16rem_minmax(0,1fr)]">
+            <div key={k} id={`path-${k}`} className="grid scroll-mt-[calc(var(--header-h)+2rem)] gap-x-9 gap-y-5 lg:grid-cols-[16rem_minmax(0,1fr)]">
               <div>
                 <h3 className="text-h3">{READING_PATHS[k].title}</h3>
                 <p className="mt-1.5 text-[1rem] text-ink-2">{READING_PATHS[k].text}</p>
@@ -85,21 +85,21 @@ export default async function AdmissionsHub() {
         </div>
       </Page>
 
-      <Page as="section" className="pt-20">
+      <Page as="section" className="pt-14">
         <SectionHead id="timeline" kicker={`England · September ${entryYear} entry`} title="The application year, stage by stage" lede="Choose a stage. Dates appear only where we hold them from an official source, each with its verification status." />
         <div className="mt-8">
           <ApplicationJourney events={events.map((e) => ({ type: e.event_type, date: e.starts_on, status: e.verification_status, title: e.title }))} entryYear={entryYear} />
         </div>
       </Page>
 
-      <Page as="section" className="pt-20">
+      <Page as="section" className="pt-14">
         <SectionHead id="steps" kicker="The core idea" title="Qualifying, ranking, offering — in that order" lede="Seventy-two imaginary applicants and twenty-two places. Step through it, or press Play." />
         <div className="mt-8 max-w-[52rem]">
           <JourneyStepper />
         </div>
       </Page>
 
-      <Page as="section" className="pt-20 pb-6">
+      <Page as="section" className="pt-14 pb-6">
         <SectionHead id="map" kicker="The knowledge atlas" title="How the ideas connect" lede="Trace a topic to see what it leads to — guides, exam pages and tools." />
         <div className="mt-8">
           <KnowledgeMap nodes={KNOWLEDGE_NODES} edges={KNOWLEDGE_EDGES} />

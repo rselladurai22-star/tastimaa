@@ -58,7 +58,7 @@ export default async function DataSourcesPage() {
           />
         }
       />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <ol className="grid gap-4">
           {rows.map((r, i) => (
             <li key={r.job} className="grid gap-x-8 gap-y-3 rounded-[16px] bg-card p-5 shadow-[0_0_0_1px_var(--rule)] md:grid-cols-[2.5rem_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,13rem)] md:p-6">

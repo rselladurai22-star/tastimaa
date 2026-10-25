@@ -154,7 +154,7 @@ export default async function AreaPage({ params, searchParams }: Props) {
         <DirectoryDesk p={p} result={result} basePath={`/grammar-schools/${area.slug}`} lockArea entryYear={entryYear} bench={bench} />
       </Page>
 
-      <Page as="section" className="pt-16 pb-6">
+      <Page as="section" className="pt-12 pb-6">
         <SectionHead id="before-you-apply" kicker={`Before you apply in ${name}`} title="Tests, intake and competition" lede="What the schools here have in common, from official records." />
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           <div className="rounded-[16px] bg-card p-5 shadow-[0_0_0_1px_var(--rule)]">

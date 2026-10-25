@@ -44,7 +44,7 @@ export function CatchmentDesk({ schools, entryYear }: { schools: DeskSchool[]; e
   const points = schools.filter((s) => s.lat !== null && s.lng !== null).map((s) => ({ slug: s.slug, name: s.name, lat: s.lat!, lng: s.lng!, sub: s.rule }));
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-x-8 gap-y-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
       <div className="grid content-start gap-7">
         <section aria-labelledby="cd-schools">
           <h2 id="cd-schools" className="mb-3 flex items-center gap-3 font-semibold text-ink">
@@ -119,7 +119,7 @@ export function CatchmentDesk({ schools, entryYear }: { schools: DeskSchool[]; e
             note={origin ? `Diamond: the centre of ${origin.postcode} — not your exact address. Boundaries are drawn on each school's catchment chapter when verified.` : "School sites. Check a postcode to place it on the map."}
           />
         ) : (
-          <div className="grid aspect-[4/3] place-items-center rounded-[8px] border border-dashed border-rule-strong bg-card p-8 text-center text-ink-2">The map appears once you add a school.</div>
+          <div className="grid aspect-[4/3] place-items-center rounded-[8px] border border-dashed border-rule-strong bg-card p-6 text-center text-ink-2">The map appears once you add a school.</div>
         )}
       </div>
     </div>

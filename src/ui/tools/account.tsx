@@ -45,7 +45,7 @@ export function SavedSchools({ initial }: { initial: { slug: string; name: strin
   const [deleting, setDeleting] = useState(false);
   const unsynced = list.filter((l) => !saved.some((s) => s.slug === l.slug));
   return (
-    <div className="grid gap-10">
+    <div className="grid gap-8">
       <section aria-labelledby="acc-saved">
         <h2 id="acc-saved" className="text-h3">
           Saved schools

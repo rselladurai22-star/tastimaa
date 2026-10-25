@@ -30,7 +30,7 @@ export default async function CorrectionsPage({ searchParams }: { searchParams: 
           </ol>
         }
       />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <CorrectionForm school={school?.slug} schoolName={school?.name} page={sp.page} />
       </Page>
     </>

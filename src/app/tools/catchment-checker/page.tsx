@@ -59,10 +59,10 @@ export default async function CatchmentCheckerPage({ searchParams }: { searchPar
         }
         aside={<YearPicker years={selectableEntryYears()} selected={entryYear} basePath="/tools/catchment-checker" extraQuery={slugs.length ? `schools=${slugs.join(",")}` : undefined} />}
       />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <CatchmentDesk schools={schools} entryYear={entryYear} />
         <p className="mt-4 text-small text-ink-2">Where no verified boundary exists we say so, and point you to the official checker named in the school&apos;s policy.</p>
-        <section className="mt-16" aria-labelledby="how">
+        <section className="mt-12" aria-labelledby="how">
           <SectionHead id="how" kicker="Method" title="How we handle location" />
           <ul className="mt-6 grid gap-4 md:grid-cols-3">
             {[

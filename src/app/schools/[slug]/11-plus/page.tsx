@@ -69,7 +69,7 @@ export default async function SchoolTestPage({ params, searchParams }: Props) {
             . Read our <Link href="/11-plus">guide to how 11+ tests work</Link>.
           </Gap>
         ) : (
-          <div className="grid gap-10">
+          <div className="grid gap-8">
             {tests.map(({ test, link, provider }) => (
               <article key={test.id} className="overflow-hidden rounded-[8px] border border-rule bg-card">
                 <header className="flex flex-wrap items-start justify-between gap-3 border-b border-rule bg-paper px-5 py-4 sm:px-6">

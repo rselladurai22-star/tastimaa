@@ -11,7 +11,7 @@ import { ReadingProgress, Toc } from "./progress";
 /** Section heading with a deep link that appears on hover or focus. */
 export function DeepHeading({ id, children, n }: { id: string; children: ReactNode; n?: number }) {
   return (
-    <h2 id={id} data-n={n} className="group/dh relative mt-20 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-semibold text-ink first:mt-0">
+    <h2 id={id} data-n={n} className="group/dh relative mt-14 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-semibold text-ink first:mt-0">
       {children}
       <a href={`#${id}`} className="ml-2 inline-block align-middle text-[0.9em] text-ink-3 no-underline opacity-0 transition-opacity duration-[var(--d-1)] group-hover/dh:opacity-100 hover:text-green focus-visible:opacity-100">
         #<span className="sr-only">Link to this section</span>
@@ -65,9 +65,9 @@ export function ArticleShell({
         <div id="top">
           <Breadcrumbs items={crumbs} />
         </div>
-        <header className="anim-rise mt-8 max-w-[44rem] sm:mt-10">
+        <header className="anim-rise mt-8 max-w-[44rem] sm:mt-8">
           <p className="label eyebrow">{kicker}</p>
-          <h1 className="mt-3 text-[clamp(2.25rem,1.6rem+2.4vw,3rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{title}</h1>
+          <h1 className="mt-3 text-[clamp(1.875rem,1.45rem+1.8vw,2.5rem)] leading-[1.15] font-semibold tracking-[-0.02em] text-ink">{title}</h1>
           <p className="mt-4 text-[1rem] text-ink-2">
             Last reviewed <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (
@@ -83,7 +83,7 @@ export function ArticleShell({
         </header>
       </Hero>
 
-      <div className="container-page pb-20">
+      <div className="container-page pb-14">
         <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-x-[100px] gap-y-8 xl:grid-cols-[686px_250px]">
           <div className="xl:order-2">
             <div className="xl:sticky xl:top-[calc(var(--header-h)+3rem)]">
@@ -97,7 +97,7 @@ export function ArticleShell({
             </div>
 
             {next ? (
-              <Link href={next.href} className="group/nx mt-16 flex max-w-[var(--measure)] items-center justify-between gap-6 rounded-[8px] border border-green bg-green px-6 py-5 text-paper no-underline transition-colors hover:bg-green-deep">
+              <Link href={next.href} className="group/nx mt-12 flex max-w-[var(--measure)] items-center justify-between gap-6 rounded-[8px] border border-green bg-green px-6 py-5 text-paper no-underline transition-colors hover:bg-green-deep">
                 <span>
                   <span className="label block text-[0.75rem] text-paper">{next.kicker ?? "Next"}</span>
                   <span className="mt-1 block font-display text-[1.35rem] leading-snug">{next.title}</span>
@@ -107,7 +107,7 @@ export function ArticleShell({
             ) : null}
 
             {sources.length ? (
-              <section aria-labelledby="sources" className="mt-16 max-w-[var(--measure)] border-t border-ink pt-5">
+              <section aria-labelledby="sources" className="mt-12 max-w-[var(--measure)] border-t border-ink pt-5">
                 <h2 id="sources" className="label scroll-mt-[calc(var(--header-h)+1.5rem)] text-ink">
                   Official sources
                 </h2>
@@ -127,7 +127,7 @@ export function ArticleShell({
             ) : null}
 
             {related.length ? (
-              <section aria-labelledby="related" className="mt-14">
+              <section aria-labelledby="related" className="mt-10">
                 <h2 id="related" className="label text-ink">
                   Read next
                 </h2>

@@ -44,25 +44,25 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
   return (
     <ol className="border-t border-ink">
       {items.map((s, i) => (
-        <li key={s.id} className="group/row relative grid grid-cols-[2.25rem_minmax(0,1fr)_auto] gap-x-3 gap-y-3 border-b border-rule py-5 transition-colors duration-[var(--d-1)] hover:bg-card/70 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] lg:grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_8rem_auto] lg:items-start">
-          <span className="pt-1.5 font-mono text-[0.82rem] text-ink-2">{String(offset + i + 1).padStart(2, "0")}</span>
+        <li key={s.id} className="group/row relative grid grid-cols-[2.25rem_minmax(0,1fr)_auto] gap-x-3 gap-y-2 border-b border-rule py-4 transition-colors duration-[var(--d-1)] hover:bg-card/70 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] lg:grid-cols-[2.5rem_minmax(0,1.5fr)_minmax(0,1fr)_8rem_auto] lg:items-start">
+          <span className="pt-1 font-mono text-[0.82rem] text-ink-2">{String(offset + i + 1).padStart(2, "0")}</span>
           <div className="min-w-0">
-            <h3 className="text-[1.3rem] leading-snug">
+            <h3 className="text-[1.15rem] leading-snug">
               <Link href={`/schools/${s.slug}`} className="text-ink no-underline after:absolute after:inset-0 group-hover/row:text-green hover:underline">
                 {s.name}
               </Link>
             </h3>
             <p className="mt-0.5 text-[0.98rem] text-ink-2">{[s.town, s.laName].filter(Boolean).join(" · ") || "Location not recorded"}</p>
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <Tag>{SELECTIVITY_SHORT[s.selectivity]}</Tag>
               {s.gender !== "unknown" ? <Tag>{GENDER_LABEL[s.gender]}</Tag> : null}
               {s.hasSixthForm ? <Tag>Sixth form</Tag> : null}
               {s.boarding === "boarding" ? <Tag>Boarding</Tag> : null}
+              <span className="ml-1 inline-flex flex-wrap items-center gap-2 text-small text-ink-2">
+                {s.policyStatus === "awaiting_verification" ? <Status status="awaiting_verification" quiet /> : null}
+                Checked {relativeAge(s.lastCheckedAt)}
+              </span>
             </div>
-            <p className="mt-2.5 flex flex-wrap items-center gap-2 text-small text-ink-2">
-              {s.policyStatus === "awaiting_verification" ? <Status status="awaiting_verification" quiet /> : null}
-              Record checked {relativeAge(s.lastCheckedAt)}
-            </p>
           </div>
           <div className="relative z-10 col-start-3 row-start-1 flex flex-col items-end gap-2 lg:col-start-5">
             {s.distanceMiles !== null ? (
@@ -73,7 +73,7 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
             ) : null}
             <SaveButton slug={s.slug} name={s.name} variant="icon" />
           </div>
-          <dl className="col-span-2 col-start-2 grid grid-cols-2 gap-x-5 gap-y-2 text-[0.95rem] lg:col-span-1 lg:col-start-3 lg:row-start-1 lg:grid-cols-1">
+          <dl className="col-span-2 col-start-2 grid grid-cols-2 gap-x-5 gap-y-1.5 text-[0.95rem] lg:col-span-1 lg:col-start-3 lg:row-start-1 lg:grid-cols-1">
             <div>
               <dt className="label text-[0.72rem]">Entrance test</dt>
               <dd className="text-ink">{s.testNames?.length ? s.testNames.join(", ") : <span className="text-ink-2">Not yet recorded</span>}</dd>
@@ -83,7 +83,7 @@ function Ledger({ items, offset, bench, precision }: { items: SchoolListItem[]; 
               <dd className="text-ink">{s.catchmentType ? CATCHMENT_LABEL[s.catchmentType] : <span className="text-ink-2">Not yet recorded</span>}</dd>
             </div>
           </dl>
-          <div className="col-span-2 col-start-2 grid grid-cols-2 gap-x-5 lg:col-span-1 lg:col-start-4 lg:row-start-1 lg:grid-cols-1 lg:gap-y-3">
+          <div className="col-span-2 col-start-2 grid grid-cols-2 gap-x-5 lg:col-span-1 lg:col-start-4 lg:row-start-1 lg:grid-cols-1 lg:gap-y-2">
             <div>
               <p className="label text-[0.72rem]">Attainment 8</p>
               <A8Bar value={s.attainment8} year={s.attainment8Year} bench={bench} />
@@ -258,7 +258,7 @@ export async function DirectoryDesk({ p, result, basePath, lockArea = false, ent
   const href = (o: Partial<DirectoryParams>) => `${basePath}${directoryQueryString(p, o)}`;
 
   return (
-    <div className="grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-[17.5rem_minmax(0,1fr)]">
+    <div className="grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-[17.5rem_minmax(0,1fr)]">
       <aside aria-label="Filters" className="min-w-0">
         <details className="group/f rounded-[8px] border border-rule bg-card lg:hidden">
           <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 font-semibold text-ink">
@@ -273,7 +273,7 @@ export async function DirectoryDesk({ p, result, basePath, lockArea = false, ent
             <Filters p={p} basePath={basePath} lockArea={lockArea} idPrefix="fm" />
           </div>
         </details>
-        <div className="sticky top-[calc(var(--header-h)+1.25rem)] hidden max-h-[calc(100vh-var(--header-h)-2.5rem)] overflow-y-auto bg-paper pr-2 pb-2 lg:block">
+        <div className="hidden pr-2 pb-2 lg:block">
           <p className="mb-4 flex items-center gap-2 font-display text-[1.3rem] text-ink">
             <IconFilter size={18} className="text-copper-ink" /> Refine
           </p>

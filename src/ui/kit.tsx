@@ -20,7 +20,7 @@ export function Kicker({ children, className }: { children: ReactNode; className
 /** Standard page header for index, tool and data pages: asymmetric, with an optional aside. */
 export function PageHead({ kicker, title, lede, meta, aside, className }: { kicker?: ReactNode; title: ReactNode; lede?: ReactNode; meta?: ReactNode; aside?: ReactNode; className?: string }) {
   return (
-    <header className={clsx("grid gap-x-16 gap-y-8 pt-8 pb-10 sm:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-end", className)}>
+    <header className={clsx("grid gap-x-12 gap-y-8 pt-8 pb-8 sm:pt-9 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] lg:items-end", className)}>
       <div className="max-w-[46rem]">
         {kicker ? <Kicker>{kicker}</Kicker> : null}
         <h1 className="mt-4 text-h1">{title}</h1>

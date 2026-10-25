@@ -21,7 +21,7 @@ export default function AssistantPage() {
         title="School Intelligence Assistant"
         lede="Ask in plain English. Answers are built only from our verified school data and official documents, with numbered sources. It won't guess, and it won't estimate your chances of a place."
       />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <AssistantChat llmEnabled={!!env().ANTHROPIC_API_KEY} />
       </Page>
     </>

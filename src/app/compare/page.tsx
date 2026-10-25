@@ -26,7 +26,7 @@ export default async function ComparePage({ searchParams }: { searchParams: SP }
   return (
     <>
       <PageHero crumbs={[{ href: "/compare", label: "Compare schools" }]} kicker="Research tools" title="Compare schools" lede="Side-by-side facts for up to five schools, for one admission year. Differences are highlighted and explained." />
-      <Page className="pt-4 pb-16">
+      <Page className="pt-4 pb-12">
         <CompareView data={data} groups={parseGroups(sp.dims)} diffOnly={sp.diff === "1"} years={selectableEntryYears()} />
       </Page>
     </>

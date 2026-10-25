@@ -332,7 +332,7 @@ export default async function SchoolOverview({ params }: Props) {
 
       {nearby.length ? (
         <RSection id="nearby" mark={marks.nearby} title="Nearby selective schools" lede="Straight-line distance between school sites.">
-          <ul className="grid gap-x-10 sm:grid-cols-2">
+          <ul className="grid gap-x-8 sm:grid-cols-2">
             {nearby.map((n) => (
               <li key={n.slug}>
                 <Link href={`/schools/${n.slug}`} className="group/nb flex items-baseline gap-3 border-b border-rule py-3 no-underline">

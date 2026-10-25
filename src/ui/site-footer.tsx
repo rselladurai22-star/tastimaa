@@ -12,8 +12,8 @@ const COLUMNS: [string, [string, string][]][] = [
 
 export function SiteFooter() {
   return (
-    <footer data-site-footer className="on-dark mt-24 bg-[#1f1f1f]">
-      <div className="container-page grid gap-12 pt-14 pb-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
+    <footer data-site-footer className="on-dark mt-16 bg-[#1f1f1f]">
+      <div className="container-page grid gap-9 pt-10 pb-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <div>
           <AtlasMark size={40} />
           <p className="mt-5 font-display text-[1.6rem] leading-[1.2] text-ink">Every fact here carries its source. If one is wrong, we want to know.</p>

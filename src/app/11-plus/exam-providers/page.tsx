@@ -83,7 +83,7 @@ export default async function ProvidersPage() {
         </table>
       </Page>
 
-      <Page as="section" className="pt-14 pb-16">
+      <Page as="section" className="pt-10 pb-12">
         <SectionHead id="providers" kicker="Organisations" title="Providers" />
         <ul className="mt-6 grid gap-4 md:grid-cols-2">
           {providers.map((p) => (

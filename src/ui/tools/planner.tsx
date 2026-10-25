@@ -64,7 +64,7 @@ export function Planner({ years, defaultYear, notice }: { years: number[]; defau
   const completed = data?.steps.reduce((n, g) => n + g.steps.filter((s) => done.includes(`${g.nation}:${s.key}`)).length, 0) ?? 0;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-x-9 gap-y-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0">
         {notice ? <p className="mb-5 rounded-[5px] border border-info/25 bg-info-wash p-3 text-info">{notice}</p> : null}
         <div className="mb-6 flex flex-wrap items-end gap-3 border-b border-rule pb-5">
@@ -108,7 +108,7 @@ export function Planner({ years, defaultYear, notice }: { years: number[]; defau
           )}
         </p>
         {data?.steps.map((group) => (
-          <section key={group.nation} aria-labelledby={`pl-${group.nation}`} className="mb-12">
+          <section key={group.nation} aria-labelledby={`pl-${group.nation}`} className="mb-9">
             <h2 id={`pl-${group.nation}`} className="mb-5 text-h3">
               {group.nation === "northern_ireland" ? "Northern Ireland — Year 8 transfer" : "England — Year 7 entry"}
             </h2>

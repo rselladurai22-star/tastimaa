@@ -48,7 +48,7 @@ export default async function InspectionPage({ params }: Props) {
         {isNI ? (
           <NIInspectionNote />
         ) : inspections.length ? (
-          <ol className="grid gap-10">
+          <ol className="grid gap-8">
             {inspections.map((i, n) => (
               <li key={i.id}>
                 <InspectionEntry i={i} sources={sources} lead={n === 0} />

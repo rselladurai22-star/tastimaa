@@ -13,7 +13,7 @@ export default function NotFound() {
           </div>
         </HeroHead>
       </Hero>
-      <Page className="flex flex-col gap-2 pt-4 pb-24">
+      <Page className="flex flex-col gap-2 pt-4 pb-16">
         <ArrowLink href="/grammar-schools">Browse all grammar schools</ArrowLink>
         <ArrowLink href="/admissions">How admissions work</ArrowLink>
         <p className="sr-only">

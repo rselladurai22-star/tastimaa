@@ -79,8 +79,8 @@ export default async function TestPage({ params }: Props) {
         />
       </Hero>
 
-      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-14 gap-y-12 pt-4 pb-16 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <div className="grid min-w-0 content-start gap-14">
+      <Page className="grid grid-cols-[minmax(0,1fr)] gap-x-10 gap-y-9 pt-4 pb-12 lg:grid-cols-[minmax(0,1fr)_21rem]">
+        <div className="grid min-w-0 content-start gap-10">
           {test.verificationStatus === "unavailable" ? (
             <Note tone="caution" title="Details not yet verified">
               We could not retrieve this test&apos;s current arrangements from the official source automatically. Please use the{" "}

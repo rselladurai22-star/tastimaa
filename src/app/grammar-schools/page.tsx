@@ -67,7 +67,7 @@ export default async function DirectoryPage({ searchParams }: { searchParams: Pr
         <DirectoryDesk p={p} result={result} basePath="/grammar-schools" entryYear={entryYear} bench={bench} />
       </Page>
 
-      <Page as="section" className="pt-16 pb-6">
+      <Page as="section" className="pt-12 pb-6">
         <SectionHead id="by-area" kicker="Atlas index" title="Browse by area" lede="Each local authority with at least one grammar school, grouped by region. Numbers are schools listed." />
         <div className="mt-8 columns-1 gap-x-5 sm:columns-2 lg:columns-3">
           {index.map((g) => (
