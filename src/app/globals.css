@@ -15,77 +15,78 @@
 :root {
   color-scheme: light;
 
-  /* Surfaces */
-  --paper: #ffffff; /* the canvas */
-  --card: #ffffff; /* a raised sheet of paper */
-  --sage: #eef3ef; /* subtle surface */
-  --sage-deep: #dbe3db;
-  --green-wash: #e3ece6;
-  --copper-wash: #f5eadb;
+  /* Surfaces — measured from the reference site */
+  --paper: #ffffff;
+  --card: #ffffff;
+  --sage: #f2f4f8; /* subtle surface */
+  --sage-deep: #e3e6e8;
+  --green-wash: #e8f1fc; /* tint of the primary (info callouts, code) */
+  --copper-wash: #fde8f1;
 
   /* Ink */
-  --ink: #0b1512;
-  --ink-2: #2f3b36;
-  --ink-3: #55625c;
+  --ink: #0a0c10;
+  --ink-2: #262d40;
+  --ink-3: #5a6072;
 
-  /* Brand */
-  --green: #1c5040;
-  --green-deep: #133a2e;
-  --green-bright: #23805a; /* chart and diagram step, validated */
-  --copper: #b8773b;
-  --copper-ink: #8a501c;
+  /* Brand (token names kept; values follow the reference palette) */
+  --green: #4242fa; /* primary */
+  --green-deep: #2c0b8e; /* tertiary — section headings */
+  --green-bright: #4242fa; /* charts and diagrams */
+  --copper: #e60067; /* secondary accent */
+  --copper-ink: #c20058;
 
   /* Lines */
-  --rule: #d7ded7;
-  --rule-strong: #b9c4bb;
-  --control: #74817a; /* form control borders: ≥ 3:1 on card and paper */
+  --rule: #e3e6e8;
+  --rule-strong: #c8cad0;
+  --control: #75808a; /* form control borders: ≥ 3:1 on white */
 
   /* Semantic status (always paired with an icon and a label) */
-  --ok: #1e6a44;
-  --ok-wash: #e2efe6;
-  --pend: #7a5310;
-  --pend-wash: #f6ebd4;
-  --info: #365c85;
-  --info-wash: #e4ebf2;
-  --bad: #a13a2a;
-  --bad-wash: #f7e3de;
-  --none: #525d58;
-  --none-wash: #ecede8;
+  --ok: #00752f;
+  --ok-wash: #e3f5ea;
+  --pend: #8a5a00;
+  --pend-wash: #fbf4d0;
+  --info: #4433ff;
+  --info-wash: #e8f1fc;
+  --bad: #c20544;
+  --bad-wash: #fde8ee;
+  --none: #5a6072;
+  --none-wash: #eef0f4;
+  --warn-edge: #ff9d00;
 
-  /* Data visualisation (validated: lightness band, chroma floor, CVD with secondary encoding) */
-  --series-1: #23805a;
-  --series-2: #c07a35;
-  --series-3: #3f6eb0;
-  --chart-grid: #e4e8e2;
-  --chart-axis: #b9c4bb;
+  /* Data visualisation: distinct hues plus dashes and markers for colour-blind readers */
+  --series-1: #4242fa;
+  --series-2: #e60067;
+  --series-3: #c77700;
+  --chart-grid: #e6e8f0;
+  --chart-axis: #c8cad0;
 
-  /* Type scale — fluid between 360px and 1440px viewports */
-  --t-display: clamp(1.9rem, 1.45rem + 2.2vw, 3.3rem);
-  --t-h1: clamp(1.75rem, 1.45rem + 1.4vw, 2.6rem);
-  --t-h2: clamp(1.45rem, 1.28rem + 0.8vw, 2rem);
-  --t-h3: clamp(1.25rem, 1.17rem + 0.35vw, 1.45rem);
+  /* Type scale — fixed sizes, as on the reference site */
+  --t-display: clamp(2.25rem, 1.8rem + 1.6vw, 3rem);
+  --t-h1: 2.25rem; /* 36px / 54px, weight 500 */
+  --t-h2: 2rem; /* 32px / 48px, weight 700 */
+  --t-h3: 1.5rem; /* 24px / 36px, weight 700 */
   --t-h4: 1.125rem;
-  --t-lede: clamp(1.0625rem, 0.98rem + 0.4vw, 1.3rem);
-  --t-body: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --t-lede: 1.125rem;
+  --t-body: 1.125rem; /* 18px / 27px */
   --t-ui: 1rem;
   --t-small: 0.9375rem;
   --t-label: 0.8125rem;
 
   /* Measure and layout */
-  --measure: 68ch;
-  --page: 70rem;
-  --gutter: clamp(1rem, 0.6rem + 2.2vw, 2.5rem);
-  --header-h: 4.5rem;
+  --measure: 686px;
+  --page: 1036px;
+  --gutter: 1rem;
+  --header-h: 5rem; /* 48px bar with 16px above and below */
 
   /* Sky band behind the top of every page */
   --sky-h: 27rem;
-  --sky: #c9ecd9;
-  --sky-cloud: #b2e0c8;
+  --sky: #c5eafc;
+  --sky-cloud: #a9dcf6;
 
   /* Radius: fine, never pill-shaped */
-  --r-1: 4px;
-  --r-2: 6px;
-  --r-3: 10px;
+  --r-1: 3px;
+  --r-2: 4px;
+  --r-3: 8px;
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -180,25 +181,26 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 650;
+    font-weight: 700;
     color: var(--ink);
     text-wrap: balance;
     font-optical-sizing: auto;
   }
 
   h1 {
-    font-weight: 550;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.5;
   }
   h2 {
-    letter-spacing: -0.015em;
-    line-height: 1.2;
-    color: var(--green);
+    letter-spacing: 0;
+    line-height: 1.5;
+    color: var(--green-deep);
   }
   h3 {
-    letter-spacing: -0.006em;
-    line-height: 1.22;
+    letter-spacing: 0;
+    line-height: 1.5;
+    color: var(--ink-2);
   }
 
   p,
@@ -215,8 +217,8 @@
   }
 
   ::selection {
-    background: #cfe2d7;
-    color: var(--ink);
+    background: #1f1ab3;
+    color: #fff;
   }
 
   :focus-visible {
@@ -235,10 +237,10 @@
     font-family: var(--font-code);
   }
   code {
-    font-size: 0.88em;
+    font-size: 0.875em;
     background: var(--green-wash);
-    border-radius: var(--r-1);
-    padding: 0.08em 0.35em;
+    border-radius: 3px;
+    padding: 2px 6px;
   }
   kbd {
     font-size: 0.8em;
@@ -302,34 +304,35 @@
   /* Long-form reading. */
   .prose-atlas {
     font-size: var(--t-body);
-    line-height: 1.6;
+    line-height: 1.5;
     color: var(--ink);
     max-width: var(--measure);
   }
   .prose-atlas > * + * {
-    margin-top: 1.05em;
+    margin-top: 1.5em;
   }
   .prose-atlas h2:not(:where(.not-prose, .not-prose *)) {
     font-size: var(--t-h2);
-    margin-top: 2.2em;
-    margin-bottom: 0.1em;
+    margin-top: 2.5em;
+    margin-bottom: -0.25em;
   }
   .prose-atlas h3:not(:where(.not-prose, .not-prose *)) {
     font-size: var(--t-h3);
     margin-top: 1.8em;
   }
   .prose-atlas strong {
-    font-weight: 650;
+    font-weight: 600;
   }
   .prose-atlas a:not(:where(.not-prose, .not-prose *)) {
     color: var(--green);
+    font-weight: 500;
     text-decoration-line: underline;
-    text-decoration-color: color-mix(in srgb, var(--green) 45%, transparent);
-    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in srgb, var(--green) 50%, transparent);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.22em;
   }
   .prose-atlas a:not(:where(.not-prose, .not-prose *)):hover {
     text-decoration-color: currentColor;
-    text-decoration-thickness: 2px;
   }
   .prose-atlas ul:not(:where(.not-prose, .not-prose *)),
   .prose-atlas ol:not(:where(.not-prose, .not-prose *)) {
@@ -384,7 +387,7 @@
 @layer utilities {
   .container-page {
     width: 100%;
-    max-width: var(--page);
+    max-width: calc(var(--page) + 2 * var(--gutter));
     margin-inline: auto;
     padding-inline: var(--gutter);
   }
@@ -526,30 +529,30 @@ html[data-scrolled] .site-header {
 
 /* Playground: interactive explainers sit on a dark stage, like a lab bench. */
 .playground {
-  --paper: #0d1714;
-  --card: #13201c;
-  --sage: #1a2a25;
-  --sage-deep: #263a33;
-  --green-wash: #183128;
-  --copper-wash: #33261a;
-  --ink: #f2f5f1;
-  --ink-2: #c3cec8;
-  --ink-3: #9fada6;
-  --green: #7fd3a8;
-  --green-deep: #a6e3c3;
-  --green-bright: #3fb37a;
-  --copper: #e3a15d;
-  --copper-ink: #f0b877;
-  --rule: #2b3c36;
-  --rule-strong: #3d524a;
-  --control: #6f8279;
-  --chart-grid: #22332d;
-  --chart-axis: #3d524a;
-  --series-1: #3fb37a;
-  --series-2: #e3a15d;
-  --series-3: #7ea6e0;
-  --ok: #7fd3a8;
-  --ok-wash: #183128;
+  --paper: #0d0f12;
+  --card: #1a1f23;
+  --sage: #1f252b;
+  --sage-deep: #2a3138;
+  --green-wash: #1d2340;
+  --copper-wash: #3a1a2a;
+  --ink: #ffffff;
+  --ink-2: #c8cdd6;
+  --ink-3: #a3aab6;
+  --green: #ffd23f;
+  --green-deep: #ffe17a;
+  --green-bright: #8f8fff;
+  --copper: #ff4d8f;
+  --copper-ink: #ff7aaa;
+  --rule: #2a3138;
+  --rule-strong: #3c4550;
+  --control: #6b7480;
+  --chart-grid: #232a31;
+  --chart-axis: #3c4550;
+  --series-1: #8f8fff;
+  --series-2: #ff4d8f;
+  --series-3: #ffd23f;
+  --ok: #4fd38a;
+  --ok-wash: #11301f;
   --pend: #f0c06a;
   --pend-wash: #33291a;
   --none: #b7c3bd;
@@ -560,6 +563,6 @@ html[data-scrolled] .site-header {
   box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -24px rgb(13 23 20 / 0.6);
 }
 .playground ::selection {
-  background: #2f5c49;
+  background: #4242fa;
   color: #fff;
 }

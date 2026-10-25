@@ -187,8 +187,8 @@ export function Source({ source, locator, status, checkedAt, className, label = 
 }
 
 const NOTE = {
-  note: { box: "border-l-green bg-green-wash", icon: IconInfo, iconTone: "text-green" },
-  caution: { box: "border-l-copper bg-pend-wash", icon: IconWarning, iconTone: "text-pend" },
+  note: { box: "border-l-info bg-info-wash", icon: IconInfo, iconTone: "text-info" },
+  caution: { box: "border-l-[var(--warn-edge)] bg-pend-wash", icon: IconWarning, iconTone: "text-pend" },
   warning: { box: "border-l-bad bg-bad-wash", icon: IconWarning, iconTone: "text-bad" },
   plain: { box: "border-l-rule-strong bg-sage/60", icon: IconInfo, iconTone: "text-ink-2" },
 } as const;
@@ -198,9 +198,9 @@ export function Note({ tone = "note", title, children, className, icon = true }:
   const t = NOTE[tone];
   const Icon = t.icon;
   return (
-    <aside className={clsx("relative rounded-r-[6px] border-l-[3px] py-4 pr-5 pl-6 text-[1.02rem] leading-relaxed text-ink", icon && "mt-4", t.box, className)}>
+    <aside className={clsx("relative rounded-r-[4px] border-l-[3px] py-5 pr-5 pl-[21px] text-[1.125rem] leading-[1.5] text-ink sm:py-6 sm:pr-8 sm:pl-[29px] [.prose-atlas_&]:max-sm:-mx-4 [.prose-atlas_&]:max-sm:rounded-none [.prose-atlas_&]:max-sm:pl-[13px] [.prose-atlas_&]:lg:-mx-8", icon && "mt-4", t.box, className)}>
       {icon ? (
-        <span aria-hidden className={clsx("absolute -top-4 -left-[17px] grid size-8 place-items-center rounded-full bg-paper", t.iconTone)}>
+        <span aria-hidden className={clsx("absolute -top-4 left-2 grid size-8 sm:-left-[17px] place-items-center rounded-full bg-paper", t.iconTone)}>
           <Icon size={22} />
         </span>
       ) : null}

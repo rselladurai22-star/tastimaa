@@ -32,7 +32,7 @@ export function ReadingProgress({ target }: { target: string }) {
   }, [target]);
   return (
     <div aria-hidden className="pointer-events-none fixed inset-x-0 top-[var(--header-h)] z-30 h-[3px]" data-no-print>
-      <div ref={bar} className="h-full origin-left scale-x-0 bg-copper" />
+      <div ref={bar} className="h-full origin-left scale-x-0 bg-green" />
     </div>
   );
 }
@@ -60,7 +60,7 @@ export function Toc({ items }: { items: { id: string; label: string }[] }) {
           <a
             href={`#${i.id}`}
             aria-current={i.id === active ? "location" : undefined}
-            className={clsx("block py-1.5 text-[1rem] leading-snug no-underline transition-colors duration-[var(--d-2)]", i.id === active ? "font-semibold text-green" : "text-ink-2 hover:text-ink")}
+            className={clsx("block py-[6px] text-[1rem] leading-[1.5] no-underline transition-colors duration-[var(--d-2)]", i.id === active ? "text-green" : "text-ink-3 hover:text-green")}
           >
             {i.label}
           </a>
@@ -70,7 +70,7 @@ export function Toc({ items }: { items: { id: string; label: string }[] }) {
   );
   return (
     <>
-      <details className="group/toc rounded-[10px] bg-sage/70 xl:hidden">
+      <details className="group/toc rounded-[4px] bg-sage xl:hidden">
         <summary className="flex min-h-12 list-none items-center justify-between px-4 font-semibold text-ink">
           Table of contents
           <IconChevron size={18} className="text-ink-2 transition-transform duration-[var(--d-2)] group-open/toc:rotate-180" />
@@ -80,7 +80,7 @@ export function Toc({ items }: { items: { id: string; label: string }[] }) {
         </nav>
       </details>
       <nav aria-label="On this page" className="hidden xl:block">
-        <p className="label mb-4 text-[0.95rem] text-ink">Table of contents</p>
+        <p className="mb-2 text-[1rem] font-medium tracking-[2px] text-ink-2 uppercase">Table of contents</p>
         {list}
         <a href="#top" className="mt-5 inline-block text-small font-semibold text-ink-2 no-underline hover:text-green">
           ↑ Back to top

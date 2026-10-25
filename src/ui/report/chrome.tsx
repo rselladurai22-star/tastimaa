@@ -62,7 +62,7 @@ export function ContentsRail({ items }: { items: { id: string; label: string }[]
     <nav aria-label="In this chapter" className="relative">
       <p className="label mb-4 text-[0.95rem] text-ink">In this chapter</p>
       <ol className="relative border-l border-rule">
-        <span aria-hidden className="absolute -left-px w-[2px] bg-copper transition-transform duration-[var(--d-3)] ease-[var(--ease-out)]" style={{ height: "2.25rem", transform: `translateY(${idx * 2.25}rem)` }} />
+        <span aria-hidden className="absolute -left-px w-[2px] bg-green transition-transform duration-[var(--d-3)] ease-[var(--ease-out)]" style={{ height: "2.25rem", transform: `translateY(${idx * 2.25}rem)` }} />
         {items.map((i) => (
           <li key={i.id}>
             <a href={`#${i.id}`} aria-current={i.id === active ? "location" : undefined} className={clsx("flex h-9 items-center truncate pl-4 text-[0.95rem] no-underline transition-colors", i.id === active ? "font-semibold text-ink" : "text-ink-2 hover:text-ink")}>

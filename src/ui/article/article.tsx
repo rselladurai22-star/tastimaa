@@ -10,7 +10,7 @@ import { ReadingProgress, Toc } from "./progress";
 /** Section heading with a deep link that appears on hover or focus. */
 export function DeepHeading({ id, children, n }: { id: string; children: ReactNode; n?: number }) {
   return (
-    <h2 id={id} data-n={n} className="group/dh relative mt-20 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-bold text-green first:mt-0">
+    <h2 id={id} data-n={n} className="group/dh relative mt-20 mb-6 scroll-mt-[calc(var(--header-h)+1.5rem)] text-h2 font-bold text-green-deep first:mt-0">
       {children}
       <a href={`#${id}`} className="ml-2 inline-block align-middle text-[0.9em] text-ink-3 no-underline opacity-0 transition-opacity duration-[var(--d-1)] group-hover/dh:opacity-100 hover:text-green focus-visible:opacity-100">
         #<span className="sr-only">Link to this section</span>
@@ -62,9 +62,9 @@ export function ArticleShell({
       <ReadingProgress target="article-body" />
       <div className="container-page pt-6 pb-20" id="top">
         <Breadcrumbs items={crumbs} />
-        <header className="mt-10 mb-28 max-w-[52rem] sm:mb-32">
-          <h1 className="text-h1 font-medium sm:text-[clamp(2.1rem,1.8rem+1.2vw,2.6rem)]">{title}</h1>
-          <p className="mt-5 text-[1.02rem] text-ink-2">
+        <header className="mt-8 mb-16 max-w-[var(--measure)] sm:mt-12 sm:mb-24 lg:mb-[14.5rem]">
+          <h1 className="text-h1 font-medium">{title}</h1>
+          <p className="mt-3 text-[1rem] text-ink-2">
             <em>Filed under</em> <span className="font-semibold text-ink">{kicker}</span> <em>· last reviewed</em> <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (
               <>
@@ -78,15 +78,15 @@ export function ArticleShell({
           </p>
         </header>
 
-        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-x-16 gap-y-8 xl:grid-cols-[minmax(0,1fr)_15rem]">
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-x-[100px] gap-y-8 xl:grid-cols-[686px_250px]">
           <div className="xl:order-2">
-            <div className="xl:sticky xl:top-[calc(var(--header-h)+2rem)]">
+            <div className="xl:sticky xl:top-[calc(var(--header-h)+3rem)]">
               <Toc items={toc} />
             </div>
           </div>
           <article id="article-body" className="min-w-0 xl:order-1">
             <div className="prose-atlas max-w-[var(--measure)]">
-              <div className="text-lede leading-[1.55] [&_strong]:font-bold">{lede}</div>
+              <div className="text-lede leading-[1.5] [&_strong]:font-bold">{lede}</div>
               {children}
             </div>
 

@@ -27,7 +27,9 @@ const PAGES = [
 for (const path of PAGES) {
   test(`no serious accessibility violations: ${path}`, async ({ page }) => {
     await page.goto(path);
-    await page.waitForLoadState("networkidle");
+    // Map tiles and analytics can keep the network busy; wait for load, then let client islands settle.
+    await page.waitForLoadState("load");
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).exclude(".maplibregl-map").analyze();
     const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
     expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`)).toEqual([]);

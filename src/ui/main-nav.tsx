@@ -289,7 +289,7 @@ export function MainNav({ data }: { data: NavData }) {
                   }
                 }}
                 className={clsx(
-                  "inline-flex h-[var(--header-h)] items-center px-4 text-[1.0625rem] font-medium text-ink transition-colors duration-[var(--d-1)] hover:text-green",
+                  "inline-flex h-[var(--header-h)] items-center px-4 text-[1rem] font-normal text-ink transition-colors duration-[var(--d-1)] hover:text-green",
                   (open === g.key || activeKey === g.key) && "text-green",
                 )}
               >
@@ -298,7 +298,7 @@ export function MainNav({ data }: { data: NavData }) {
               </button>
             </li>
           ))}
-          <span ref={barRef} aria-hidden className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-0 bg-copper opacity-0 transition-[transform,width,opacity] duration-[var(--d-3)] ease-[var(--ease-out)]" />
+          <span ref={barRef} aria-hidden className="pointer-events-none absolute bottom-0 left-0 hidden h-[2px] w-0 bg-green opacity-0 transition-[transform,width,opacity] duration-[var(--d-3)] ease-[var(--ease-out)]" />
         </ul>
       </nav>
 

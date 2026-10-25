@@ -65,7 +65,7 @@ export function MeasureFigure({ measure, rows, laName, sources, n }: { measure: 
             <IconChevron size={16} className="transition-transform duration-[var(--d-2)] group-open/t:rotate-180" />
             Show the data as a table
           </summary>
-          <div className="relative overflow-x-auto pb-1">
+          <div className="relative overflow-x-auto pb-1" role="region" aria-label={`${def.label} by year`} tabIndex={0}>
             <table className="w-full min-w-[520px] border-collapse text-[0.95rem]">
               <caption className="sr-only">{def.label} by year, with comparisons</caption>
               <thead>
