@@ -289,13 +289,12 @@ export function MainNav({ data }: { data: NavData }) {
                   }
                 }}
                 className={clsx(
-                  "inline-flex h-[var(--header-h)] items-center gap-1 px-3 text-[0.98rem] font-semibold transition-colors duration-[var(--d-1)]",
-                  open === g.key || activeKey === g.key ? "text-ink" : "text-ink-2 hover:text-ink",
+                  "inline-flex h-[var(--header-h)] items-center px-4 text-[1.0625rem] font-medium text-ink transition-colors duration-[var(--d-1)] hover:text-green",
+                  (open === g.key || activeKey === g.key) && "text-green",
                 )}
               >
                 <span className="2xl:hidden">{g.short}</span>
                 <span className="hidden 2xl:inline">{g.label}</span>
-                <IconChevron size={14} className={clsx("transition-transform duration-[var(--d-2)] ease-[var(--ease-out)]", open === g.key && "rotate-180")} />
               </button>
             </li>
           ))}
@@ -381,8 +380,8 @@ export function MobileNav({ data }: { data: NavData }) {
 
   return (
     <div className="lg:hidden">
-      <button ref={btnRef} type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="inline-flex min-h-10 items-center gap-2 rounded-[6px] border border-transparent px-2.5 text-[0.95rem] font-semibold text-ink sm:border-rule-strong sm:bg-card sm:px-3">
-        <IconMenu size={18} /> <span className="sr-only sm:not-sr-only">Menu</span>
+      <button ref={btnRef} type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" className="grid size-11 place-items-center rounded-full text-ink hover:bg-ink/5">
+        <IconMenu size={21} /> <span className="sr-only">Menu</span>
       </button>
       {open ? (
         <div className="fixed inset-0 z-[70]" role="presentation">

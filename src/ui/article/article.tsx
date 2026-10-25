@@ -63,7 +63,7 @@ export function ArticleShell({
       <div className="container-page pt-6 pb-20" id="top">
         <Breadcrumbs items={crumbs} />
         <header className="mt-10 mb-28 max-w-[52rem] sm:mb-32">
-          <h1 className="text-h1 font-semibold sm:text-[clamp(2.2rem,1.8rem+1.6vw,3rem)]">{title}</h1>
+          <h1 className="text-h1 font-medium sm:text-[clamp(2.1rem,1.8rem+1.2vw,2.6rem)]">{title}</h1>
           <p className="mt-5 text-[1.02rem] text-ink-2">
             <em>Filed under</em> <span className="font-semibold text-ink">{kicker}</span> <em>· last reviewed</em> <span className="font-semibold text-ink">{formatDate(updated)}</span>
             {sources.length ? (

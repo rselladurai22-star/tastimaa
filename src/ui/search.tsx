@@ -274,12 +274,11 @@ export function SearchDialogTrigger() {
         type="button"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
-        className="group/st inline-flex min-h-10 items-center gap-2.5 rounded-[6px] border border-transparent px-2.5 text-ink sm:border-rule-strong sm:bg-card sm:px-3 text-[0.95rem] text-ink-2 transition-colors duration-[var(--d-1)] hover:border-ink hover:text-ink"
+        title="Search (press /)"
+        className="grid size-11 place-items-center rounded-full text-ink transition-[background-color,transform] duration-[var(--d-1)] hover:bg-ink/5 active:scale-95"
       >
-        <IconSearch size={17} />
-        <span className="hidden xl:inline">Search schools, postcodes, guides</span>
-        <span className="sr-only sm:not-sr-only xl:hidden">Search</span>
-        <kbd className="ml-1 hidden text-[0.75rem] text-ink-2 lg:inline">/</kbd>
+        <IconSearch size={21} />
+        <span className="sr-only">Search</span>
       </button>
       {open ? (
         <div className="fixed inset-0 z-[70] flex items-start justify-center px-3 pt-[9vh] sm:px-6" role="presentation">

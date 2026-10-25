@@ -73,7 +73,7 @@
 
   /* Measure and layout */
   --measure: 68ch;
-  --page: 78rem;
+  --page: 70rem;
   --gutter: clamp(1rem, 0.6rem + 2.2vw, 2.5rem);
   --header-h: 4.5rem;
 
@@ -187,6 +187,7 @@
   }
 
   h1 {
+    font-weight: 550;
     letter-spacing: -0.02em;
     line-height: 1.12;
   }
@@ -301,7 +302,7 @@
   /* Long-form reading. */
   .prose-atlas {
     font-size: var(--t-body);
-    line-height: 1.68;
+    line-height: 1.6;
     color: var(--ink);
     max-width: var(--measure);
   }
